@@ -1,0 +1,176 @@
+<html>
+<head>
+<style type="text/css">
+
+body {
+  font-family:sans-serif;
+  margin:20px;
+}
+
+div.project-chunk {
+  margin:10px;
+  padding:5px;
+  border:4px solid;
+  width:300px;
+}
+	
+.clearfix:after {
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+ 
+.clearfix {
+	display: inline-block;
+}
+
+div.emblem {
+ width:20px;
+ height:20px;
+ border:1px solid;
+ float:right;
+ margin:5px;
+ padding:5px;
+}
+
+div.board-emblem {
+ border-color: #E6CA51;
+ background: #FFEEA5;
+}
+
+div.bugzilla-emblem {
+ background-image:url("robomap/buggie.png");
+background-size: contain;
+background-repeat: no-repeat;
+background-position: center;
+ border-color: #dddddd;
+}
+
+div.story {
+  border-color:green;
+}
+div.epic {
+  border-color:orange;
+}
+
+div.divider {
+  width:400px;
+  display:block;
+  background:#eeeeee;
+  padding:5px;
+  border:2px solid #dddddd;
+  font-style:italic;
+}
+
+img.burndown-chart {
+  float:right;
+}
+
+div.backlog {
+  display:inline-block;
+}
+
+.commit-message {
+  border:2px solid grey;
+  height:40px;
+}
+
+</style>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css"/>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.8.3.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+<script type="text/javascript" src="/http.js"></script>
+
+</head>
+<body>
+<!--  
+
+   project vs epic vs story: increasing levels of granularity
+   milestone/release: chronological targets
+   
+   editing sessions with commits & commit descriptions
+-->
+<h1 id="title">Backlog: Project Mercury </h1><textarea class="commit-message" style="display:none;"></textarea><button class="edit-button">Edit</button>
+<div id="slider"></div>
+<h2>200pts (20 completed, 90 team+story estimates, 50 grooming estimates, 40 VP estimates)</h2>
+<!-- <img class="burndown-chart" src="chart.png"></img> -->
+
+<!-- STATES:  -->
+<div class="backlog">
+
+<!-- 
+  <div class="in-progress-threshold divider clearfix">In Progress</div>
+
+  <div class="story project-chunk">Fire Engines<hr/>As a fireman, I need a fast way to get to fires, so that I can be there in time to do some good.</div>
+  <div class="story project-chunk clearfix">Police Cars <div class="emblem bugzilla-emblem"></div><div class="emblem board-emblem"></div></div>
+
+  <div class="milestone divider clearfix">GOAL: Beta Release</div>
+
+  <div class="epic project-chunk">
+  
+Recreational Vehicles
+<ul>
+   <li>Light Aircraft</li>
+   <li>Sailboats</li>
+   <li>RVs</li>
+   <li>Motorcycles</li>
+</ul>
+</div>
+
+  <div class="milestone divider clearfix">GOAL: Initial Public Release</div>
+ -->
+
+</div>
+  <script type="text/javascript">
+  var http = HttpClient;
+  
+  var backlogId = 23;
+  
+  
+  function render(backlog){
+	  console.log(backlog);
+	  $("#title").text(backlog.name);
+	  
+	  $.each(backlog.items, function(idx, item){
+		  var body = $(".backlog");
+		  if(item.kind==="goal"){
+			  body.append('<div class="milestone divider clearfix">GOAL: ' + item.name + '</div>');
+		  }else if(item.kind==="story"){
+			  body.append('<div class="story project-chunk">' + item.name + '</div>');
+		  }else if(item.kind==="epic"){
+			  body.append('<div class="epic project-chunk">' + item.name + '</div>');
+		  }
+	  });
+  }
+  
+  (function(){
+	  http({
+		  url: "/api/backlogs/" + backlogId,
+          method: "GET",
+          onResponse: function (response) {
+        	  console.log(response.data);
+              var backlog = JSON.parse(response.body);
+              render(backlog);
+          }
+	  });
+	  
+	  
+	  
+  }());
+  
+  
+$("#slider").slider();
+var editButton = $(".edit-button");
+var commitMessage = $(".commit-message");
+editButton.button().click(function(){
+    $( ".project-chunk" ).draggable();
+    $(".milestone").draggable();
+    commitMessage.show();
+    editButton.button({ label: "Save" })
+});
+ </script>
+</body>
+</html>
