@@ -103,6 +103,9 @@ div.backlog {
 .commit-message {
   border:2px solid grey;
   height:40px;
+  width:100%;
+  margin:10px;
+  height:10em;
 }
 
 #header {

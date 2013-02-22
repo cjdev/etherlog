@@ -248,6 +248,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  
 	  view.slider.slider();
 	  view.editButton.button().click(function(){
+		  view.commitMessage.val("");
 		  showEditMode();
 	  });
 	  
