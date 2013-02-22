@@ -46,6 +46,21 @@ background-position: center;
  border-color: #dddddd;
 }
 
+.item button {
+	float:right;
+}
+
+.item {
+	min-height: 35px;
+}
+
+img.edit-icon {
+	height:30px;
+	width:30px;
+	margin:2px;
+	float:right;
+}
+
 div.story {
   border-color:green;
 }

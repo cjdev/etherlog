@@ -25,7 +25,7 @@
 	    	     }
 	    	 ]
 	     },
-	     {"id":"", "kind":"goal", "name":"release it!"}
+	     {"id":"bf3e22de-32ae-4a30-9c99-1e1fe96fefef", "kind":"goal", "name":"release it!"}
 	 ]
  }
  
