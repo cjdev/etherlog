@@ -8,11 +8,13 @@ GOALS:
 
 TASKS:
 
- Send intermediate changes too.
+ Send intermediate changes too.	
+ Give users the means to record story estimates
  Make data persistent
  Implement the slider
- Give users the means to record story estimates
+ Live multi-user editing
+ Give users the means to change the backlog name
  Give users the means to break epics/stories apart
  Authentication
  Support multiple backlogs
- Live multi-user editing
+ 
