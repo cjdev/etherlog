@@ -6,15 +6,9 @@ GOALS:
    2) make it easy to get the data needed to render graphs
    3) allow backlog editors to edit multiple things at once before "committing" to the outside world (i.e. track changes at an 'editing session' level, rather than a story level)
 
-saving data
-   * implement PUT
-   * implement UI
-     - commit message
-     - get state from UI
-scanning through history
-   * implement the slider
+TASKS:
 
-adding stories
-moving stories
-estimating stories
-breaking stories apart
+ Make data persistent
+ Implement the slider
+ Give users the means to record story estimates
+ Give users the means to break epics/stories apart

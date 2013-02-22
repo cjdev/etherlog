@@ -15,7 +15,9 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	      slider : where.find("#slider"),
 	      editButton : where.find(".edit-button"),
 	      saveButton : where.find(".save-button"),
-	      addButton : where.find(".add-button"),
+	      addStoryButton : where.find(".add-story-button"),
+	      addEpicButton : where.find(".add-epic-button"),
+	      addGoalButton : where.find(".add-goal-button"),
 	      commitMessage : where.find(".commit-message")
 	  };
 	  
@@ -39,14 +41,18 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	      view.editButton.hide();
 	      view.commitMessage.show();
 	      view.saveButton.show();
-	      view.addButton.show();
+	      view.addStoryButton.show();
+	      view.addEpicButton.show();
+	      view.addGoalButton.show();
 	  }
 	  
 	  function showViewMode(){
 	      view.editButton.show();
 	      view.commitMessage.hide();
 	      view.saveButton.hide();
-	      view.addButton.hide();
+	      view.addStoryButton.hide();
+	      view.addEpicButton.hide();
+	      view.addGoalButton.hide();
 	      render();
 	  }
 	  
@@ -56,6 +62,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  
 		  backlog.items.splice(idx, 1);
 		  where.find("#" + item.id).remove();
+		  where.find("#dropZone" + item.id).remove();
 	  }
 	  
 	  function moveItemBefore(itemId, beforeId){
@@ -260,13 +267,9 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  
 	  });
 	  
+	  
+	  function addNewItem(item){
 
-	  view.addButton.button().click(function(){
-		  const item = {
-				  id:uuid(),
-				  name:"new story",
-				  kind:"story"
-		  };
 		  console.log(item);
 		  DropZone(item.id, view.backlog);
 		  const widget = ItemWidget(item, view.backlog);
@@ -276,6 +279,30 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  
 		  
 		  widget.scrollTo();
+	  }
+	  
+	  view.addStoryButton.button().click(function(){
+		  addNewItem({
+				  id:uuid(),
+				  name:"new story",
+				  kind:"story"
+		  });
+	  });
+	  
+	  view.addEpicButton.button().click(function(){
+		  addNewItem({
+				  id:uuid(),
+				  name:"new epic",
+				  kind:"epic"
+		  });
+	  });
+	  
+	  view.addGoalButton.button().click(function(){
+		  addNewItem({
+				  id:uuid(),
+				  name:"new goal",
+				  kind:"goal"
+		  });
 	  });
 	  
 	  http({
