@@ -2,6 +2,7 @@
 body {
   font-family:sans-serif;
   margin:20px;
+  height:100%;
 }
 
 div.project-chunk {
@@ -22,6 +23,14 @@ div.project-chunk {
  
 .clearfix {
 	display: inline-block;
+}
+
+.item .label {
+    white-space: pre;
+}
+
+.item {
+	background: white;
 }
 
 div.emblem {
@@ -54,7 +63,13 @@ background-position: center;
 	min-height: 35px;
 }
 
-img.edit-icon {
+.drop-zone {
+	background:grey;
+	height:20px;
+	width:300px;
+}
+
+img.edit-icon, img.delete-icon {
 	height:30px;
 	width:30px;
 	margin:2px;
