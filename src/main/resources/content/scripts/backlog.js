@@ -1,20 +1,34 @@
 define(["jquery", "http"], function($, http){
-
-	  var backlogId = 23;
+	  
+	
+	  var backlogId = 23; // HACK!
+	  
+	  var where = $("body");
+	  
+	  var view = {
+	      title : where.find("#title"),
+	      backlog : where.find(".backlog"),
+	      slider : where.find("#slider"),
+	      editButton : where.find(".edit-button"),
+	      commitMessage : where.find(".commit-message")
+	  };
+	  
+	  
 	  
 	  function render(backlog){
 		  console.log(backlog);
-		  $("#title").text(backlog.name);
+		  view.title.text(backlog.name);
 		  
 		  $.each(backlog.items, function(idx, item){
-			  var body = $(".backlog");
+			  var html;
 			  if(item.kind==="goal"){
-				  body.append('<div class="milestone divider clearfix">GOAL: ' + item.name + '</div>');
+				  html = '<div class="milestone divider clearfix">GOAL: ' + item.name + '</div>';
 			  }else if(item.kind==="story"){
-				  body.append('<div class="story project-chunk">' + item.name + '</div>');
+				  html = '<div class="story project-chunk">' + item.name + '</div>';
 			  }else if(item.kind==="epic"){
-				  body.append('<div class="epic project-chunk">' + item.name + '</div>');
+				  html = '<div class="epic project-chunk">' + item.name + '</div>';
 			  }
+			  view.backlog.append(html);
 		  });
 	  }
 	  
@@ -29,13 +43,11 @@ define(["jquery", "http"], function($, http){
 	  });
 	  
 	  
-	  $("#slider").slider();
-	  var editButton = $(".edit-button");
-	  var commitMessage = $(".commit-message");
-	  editButton.button().click(function(){
-	      $( ".project-chunk" ).draggable();
-	      $(".milestone").draggable();
-	      commitMessage.show();
-	      editButton.button({ label: "Save" })
+	  view.slider.slider();
+	  view.editButton.button().click(function(){
+	      where.find( ".project-chunk" ).draggable();
+	      where.find(".milestone").draggable();
+	      view.commitMessage.show();
+	      view.editButton.button({ label: "Save" })
 	  });
 });
