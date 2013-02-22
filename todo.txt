@@ -15,3 +15,4 @@ TASKS:
  Give users the means to break epics/stories apart
  Authentication
  Support multiple backlogs
+ Live multi-user editing
