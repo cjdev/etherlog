@@ -18,7 +18,7 @@ object Etherlog {
         },
         new ClasspathResourceObject("/mockup", "/content/backlog-mockup.html", getClass()),
         new ClasspathResourceObject("/", "/content/backlog.html", getClass()),
-        new ClasspathResourcesObject("/{resource}", getClass(), "/content")
+        new ClasspathResourcesObject("/{resource*}", getClass(), "/content")
     ); 
   }
 }
