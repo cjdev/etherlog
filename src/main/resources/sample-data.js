@@ -2,6 +2,7 @@
  {
 	 "id":"4702bb26-ca43-405c-b74e-1a877f2005ad",
 	 "name":"skyscraper 1.0",
+	 "memo":"Initial version",
 	 "items":[
 	     {
 	    	 "id":"98cf0c34-9e03-43db-a281-2102dc4f93ab",
