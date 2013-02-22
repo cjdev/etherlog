@@ -13,6 +13,8 @@ TASKS:
  Make data persistent
  Implement the slider
  Live multi-user editing
+ Truncate the story names unless asked to show the whole thing
+ Give users the means to attach files
  Give users the means to change the backlog name
  Give users the means to break epics/stories apart
  Authentication
