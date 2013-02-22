@@ -63,17 +63,31 @@ background-position: center;
 	min-height: 35px;
 }
 
+.item textarea {
+	width: 160px;
+	height: 5em;
+	margin:5px;
+}
+
+
 .drop-zone {
 	background:grey;
 	height:20px;
 	width:300px;
 }
+img.add-icon {
+	float:right;
+}
 
 img.edit-icon, img.delete-icon {
+	float:right;
+}
+
+img.edit-icon, img.delete-icon, img.add-icon {
+	
 	height:30px;
 	width:30px;
 	margin:2px;
-	float:right;
 }
 
 div.story {
@@ -112,3 +126,18 @@ div.backlog {
 	
 	margin-bottom:10px;
 }
+
+
+div.item div.estimates-holder {
+	text-align: right;
+	margin-top: 5px;
+	padding-top: 5px;
+}
+
+div.item div.controls button{
+	float:none;
+}
+div.item div.controls {
+	float:right;
+}
+

@@ -112,20 +112,82 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  v.appendTo(backlogDiv);
 	  }
 	  
+	  
+	  function EstimatesWidget(item, parentDiv){
+
+		  var v = $('<div id="' + item.id + '" class="estimates-list">' + 
+					  '<div class="estimate"><select><option></option><option>swag</option><option>grooming</option><option>team</option></select> <input size="2" type="text"></input>   </div>' + 
+				  '</div>');
+		  var view = {
+				  addButton : v.find(".add-button"),
+				  currencies : v.find("select"),
+				  value : v.find('input')
+		  };
+		  
+		  
+		  var oldValue, oldCurrency;
+		  
+		  function onChange(){
+			  var currency, value;
+			  
+			  currency = view.currencies.val();
+			  value = view.value.val();
+			  
+			  if(value!==oldValue || currency !==oldCurrency){
+				  oldValue = value;
+				  oldCurrency = currency;
+				  console.log("Estimate: " + currency + " " + value);
+				  
+				  
+				  if(currency !== ""){
+					  var matches = $.grep(item.estimates, function(estimate){
+						  return estimate.currency === currency;
+					  });
+					  
+					  var estimate = matches[0];
+					  
+					  if(!estimate){
+						  console.log("no existing " + currency + " estimate");
+						  estimate = {id:uuid(), when:new Date().getTime()};
+						  item.estimates.push(estimate);
+					  }else{
+						  console.log(estimate);
+					  }
+					  
+					  estimate.currency = currency;
+					  estimate.value = value;
+				  }
+				  
+			  }
+		  }
+		  
+		  view.currencies.bind("change", onChange);
+		  v.bind("keypress keydown keyup change", onChange);
+		  
+		  v.appendTo(parentDiv);
+		  
+	  }
+	  
 	  function ItemWidget(item, backlogDiv){
 		  var html, v, view, onDelete;
 		  
 		  v = $('<div id="' + item.id + '" class="item clearfix">' + 
 				  '<img style="display:none;" src="/delete.png"/ class="delete-icon delete-button">' + 
 				  '<img style="display:none;" src="/pencil.png"/ class="edit-icon edit-button">' + 
-				  '<button style="display:none;" class="done-button">Done</button><span class="label"/><textarea style="display:none;"></textarea></div>');
+				  '<div class="controls" ><button style="display:none;" class="done-button">Done</button>' + 
+				  '<div style="display:none;"class="estimates-holder"></div></div>' + 
+				  '<span class="label"/>' + 
+				  '<textarea style="display:none;"></textarea></div>');
+		  
+		  
 		  
 		  view = {
 		      label:v.find(".label"),
 		      textarea:v.find("textarea"),
 		      editButton:v.find(".edit-button"),
 		      deleteButton:v.find(".delete-button"),
-		      doneButton:v.find(".done-button")
+		      doneButton:v.find(".done-button"),
+		      estimatesHolder: v.find(".estimates-holder")
 		  };
 		  
 		  if(item.kind==="goal"){
@@ -140,6 +202,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  view.label.text(item.name);
 		  }
 		  
+		  EstimatesWidget(item, view.estimatesHolder);
 		  view.textarea.val(item.name);
 		  view.textarea.bind("keypress change",function(n){
 			  item.name = view.textarea.val();
@@ -165,18 +228,25 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  function showEditableMode(){
 			  view.editButton.show();
 			  view.label.show();
+			  view.deleteButton.show();
+			  
 			  view.textarea.hide();
 			  view.doneButton.hide();
-			  view.deleteButton.show();
+			  view.estimatesHolder.hide();
+			  
 			  makeDraggable();
 		  }
 
 		  function showEditMode(){
 			  view.label.hide();
-			  view.textarea.show();
 			  view.editButton.hide();
-			  view.doneButton.show();
 			  view.deleteButton.hide();
+			  
+
+			  view.textarea.show();
+			  view.doneButton.show();
+			  view.estimatesHolder.show();
+			  
 			  makeDraggable();
 		  }
 		  
