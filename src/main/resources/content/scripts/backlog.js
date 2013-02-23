@@ -130,6 +130,22 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  view.value.val(estimate.value);
 		  }
 		  
+		  
+		  function getEstimateForCurrency(currency){
+			  var estimate;
+			  if(item.estimates){
+				  var matches = $.grep(item.estimates, function(estimate){
+					  return estimate.currency === currency;
+				  });
+				  
+				  estimate = matches[0];
+			  }else{
+				  estimate = undefined;
+			  }
+			  
+			  return estimate;
+		  }
+		  
 		  var oldValue, oldCurrency;
 		  
 		  function onChange(){
@@ -145,15 +161,16 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 				  
 				  
 				  if(currency !== ""){
-					  var matches = $.grep(item.estimates, function(estimate){
-						  return estimate.currency === currency;
-					  });
 					  
-					  var estimate = matches[0];
+					 var estimate = getEstimateForCurrency(currency);
+					  
 					  
 					  if(!estimate){
 						  console.log("no existing " + currency + " estimate");
 						  estimate = {id:uuid()};
+						  if(!item.estimates){
+							  item.estimates = [];
+						  }
 						  item.estimates.push(estimate);
 					  }else{
 						  console.log(estimate);

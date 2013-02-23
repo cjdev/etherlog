@@ -9,9 +9,11 @@ GOALS:
 TASKS:
 
  Send intermediate changes too.	
- Give users the means to record story estimates
  Make data persistent
  Implement the slider
+ 
+ Give API users the means of getting the data needed for graphs.
+ 
  Live multi-user editing
  Truncate the story names unless asked to show the whole thing
  Give users the means to attach files
