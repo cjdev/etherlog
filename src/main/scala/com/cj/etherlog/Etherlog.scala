@@ -17,6 +17,7 @@ import com.codahale.jerkson.{Json => Jerkson}
 import org.httpobjects.Representation
 import java.io.OutputStream
 import java.io.{File => Path}
+import java.util.UUID
 
 object Etherlog {
   def readAsStream(r:Representation) = {
@@ -67,26 +68,41 @@ object Etherlog {
     
     val dataPath = new Path("data");
     
-    val database = new Database[Backlog](dataPath)
+    val backlogs = new Database[BacklogStatus](new Path(dataPath, "backlogs"))
+    val versions = new Database[Backlog](new Path(dataPath, "versions"))
     
-    if(!database.contains("23")){
-        database.put(
+    if(!backlogs.contains("23")){
+      val template = Jerkson.parse[Backlog](getClass().getResourceAsStream("/sample-data.js"))
+      val initialVersion = new Backlog(
+                              id="23", 
+                              name= template.name,
+                              memo="initial sample version",
+                              items = template.items)
+      
+        backlogs.put(
                 id="23", 
-                data = Jerkson.parse[Backlog](getClass().getResourceAsStream("/sample-data.js")))
+                data = new BacklogStatus(id="23", latestVersion = initialVersion.id))
+        versions.put(initialVersion.id, initialVersion)
     }
     
     HttpObjectsJettyHandler.launchServer(8080, 
         new HttpObject("/api/backlogs/{id}"){
             override def get(req:Request) = {
               val id = req.pathVars().valueFor("id")
-              val data = database.get(id)
-              OK(JerksonJson(data))
+              val backlog = backlogs.get(id)
+              val currentVersion = versions.get(backlog.latestVersion);
+              OK(JerksonJson(currentVersion))
             }
             override def put(req:Request) = {
               val id = req.pathVars().valueFor("id")
-              val data = Jerkson.parse[Backlog](readAsStream(req.representation()));
-              database.put(id, data);
-              println("New Data:\n" + data)
+              val newVersion = Jerkson.parse[Backlog](readAsStream(req.representation()));
+              val backlog = backlogs.get(id);
+              val updatedBacklog = new BacklogStatus(
+                                          backlog.id, 
+                                          latestVersion = UUID.randomUUID().toString())
+              versions.put(updatedBacklog.latestVersion, newVersion);
+              backlogs.put(id, updatedBacklog)
+              println("New Data:\n" + newVersion)
               get(req)
             }
         },
