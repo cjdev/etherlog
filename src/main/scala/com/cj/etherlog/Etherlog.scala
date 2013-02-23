@@ -129,9 +129,13 @@ object Etherlog {
               val versionId = req.pathVars().valueFor("version")
               val results = new ListBuffer[HistoryItem]()
               
-              val version = versions.get(versionId);
-              
-              OK(JerksonJson(version.backlog))
+              if(versions.contains(versionId)){
+                val version = versions.get(versionId);
+                  
+                OK(JerksonJson(version.backlog))
+              }else{
+                NOT_FOUND(Text("No such version"))
+              }
             }
             
         },

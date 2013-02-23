@@ -18,7 +18,8 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	      addStoryButton : where.find(".add-story-button"),
 	      addEpicButton : where.find(".add-epic-button"),
 	      addGoalButton : where.find(".add-goal-button"),
-	      commitMessage : where.find(".commit-message")
+	      commitMessage : where.find(".commit-message"),
+	      memoTextArea : where.find(".memo-text")
 	  };
 	  
 	  var lastServerUpdate = new Date().getTime();
@@ -57,6 +58,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  }
 	  
 	  function render(){
+		  view.memoTextArea.text(backlog.memo);
 		  view.title.text(backlog.name);
 		  view.backlog.empty();
 		  $.each(backlog.items, function(idx, item){
@@ -80,6 +82,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  }
 	  
 	  function showViewMode(){
+		  view.memoTextArea.show();
 	      view.editButton.show();
 	      view.commitMessage.hide();
 	      view.saveButton.hide();
@@ -156,6 +159,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  url:"/api/backlogs/" + backlogId + "/history/" + version,
 			  method:"GET",
 			  onResponse:function(response){
+				  view.memoTextArea.show();
 				  backlog = JSON.parse(response.body);
 				  render();
 			  }
@@ -327,7 +331,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  return result;
 		  }
 		  
-		  function showViewMode(){}
+		  var showViewMode;
 		  
 		  
 		  if(item.kind==="goal"){
@@ -437,11 +441,11 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  }
 	  
 	  function findItemById(id){
-		  console.log("Looking for" + id);
+//		  console.log("Looking for" + id);
 		  var matches = $.grep(backlog.items, function(item){
-			  console.log(item);
+//			  console.log(item);
 			  const result = item.id===id;
-			  console.log(result);
+//			  console.log(result);
 			  return result;
 		  });
 		  
@@ -456,13 +460,13 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  var id = $(domElement).attr("id");
 			  var chunk = findItemById(id);
 			  
-			  console.log("Result: " + JSON.stringify(chunk));
-			  console.log("chunk: " + chunk.id + " " + chunk.name + " (" + chunk.kind + ")");
+//			  console.log("Result: " + JSON.stringify(chunk));
+//			  console.log("chunk: " + chunk.id + " " + chunk.name + " (" + chunk.kind + ")");
 			  
 			  newList.push(chunk);
 		  });
-		  
 		  backlog.items = newList;
+		  backlog.memo = view.commitMessage.val();
 	  }
 
 	  var slider = HistorySlider(view.slider);
@@ -472,21 +476,21 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  view.commitMessage.val("");
 			  showEditMode();
 			  slider.showCurrent();
+			  view.memoTextArea.hide();
 		  });
 	  });
 	  
 	  view.saveButton.button().click(function(){
 		  
-		  backlog.memo = view.commitMessage.val();
 		  readView();
-		  
+    	  
 		  http({
 			  url: "/api/backlogs/" + backlogId,
 	          method: "PUT",
 	          data:JSON.stringify(backlog),
 	          onResponse: function (response) {
 	        	  showViewMode();
-	        	  refresh();
+	        	  slider.refresh();
 	          }
 		  });
 		  
