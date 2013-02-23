@@ -192,7 +192,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  }
 	  
 	  function ItemWidget(item, backlogDiv){
-		  var html, v, view, onDelete;
+		  var html, v, view, onDelete, showViewMode;
 		  
 		  v = $('<div id="' + item.id + '" class="item clearfix">' + 
 				  '<img style="display:none;" src="/delete.png"/ class="delete-icon delete-button">' + 
@@ -238,19 +238,27 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  return result;
 		  }
 		  
+		  function showViewMode(){}
+		  
+		  
 		  if(item.kind==="goal"){
 			  v.addClass("milestone divider clearfix");
-			  view.label.text("GOAL: " + item.name);
+			  showViewMode = function(){
+				  view.label.text("GOAL: " + item.name);
+			  }
 		  }else {
 			  if(item.kind==="story"){
 				  v.addClass("story project-chunk");
 			  }else if(item.kind==="epic"){
 				  v.addClass("epic project-chunk");
 			  }
-			  view.label.text(item.name + " " + mostRecentEstimateText());
-
+			  showViewMode = function(){
+				  view.label.text(item.name + " " + mostRecentEstimateText());
+			  }
 			  EstimatesWidget(item, view.estimatesHolder);
 		  }
+		  
+		  showViewMode();
 		  
 		  view.textarea.val(item.name);
 		  view.textarea.bind("keypress change",function(n){
@@ -275,6 +283,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  }
 		  
 		  function showEditableMode(){
+			  showViewMode();
 			  view.editButton.show();
 			  view.label.show();
 			  view.deleteButton.show();
