@@ -94,20 +94,30 @@ object Etherlog {
         versions.put(initialVersion.id, initialVersion)
     }
     
+    
+    def scanBacklogHistory(backlogId:String, fn:(BacklogVersion)=>Unit) {
+      val backlog = backlogs.get(backlogId);
+              
+      var nextVersionId = backlog.latestVersion
+      while(nextVersionId!=null){
+        val version = versions.get(nextVersionId)
+        fn(version)
+        nextVersionId = version.previousVersion
+      }
+    }
+    
+    case class HistoryItem (val version:String, val when:Long, val memo:String)
+    
     HttpObjectsJettyHandler.launchServer(8080, 
         
         new HttpObject("/api/backlogs/{id}/history"){
             override def get(req:Request) = {
               val id = req.pathVars().valueFor("id")
-              val backlog = backlogs.get(id);
-              val results = new ListBuffer[String]()
+              val results = new ListBuffer[HistoryItem]()
               
-              var nextVersionId = backlog.latestVersion
-              while(nextVersionId!=null){
-                val version = versions.get(nextVersionId)
-                results += version.id
-                nextVersionId = version.previousVersion
-              }
+              scanBacklogHistory(id, {version=>
+                results += HistoryItem(version=version.id, when=version.when, memo=version.backlog.memo)
+              }) 
               
               OK(JerksonJson(results))
             }
