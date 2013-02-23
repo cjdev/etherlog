@@ -141,3 +141,16 @@ div.item div.controls {
 	float:right;
 }
 
+#title {
+	display:inline-block;
+	font-weight: bold;
+	font-size: 2em;
+}
+.edit-button {
+	margin-left:10px;
+	margin-bottom:10px;
+}
+
+.memo-text {
+	min-height: 2em;
+}

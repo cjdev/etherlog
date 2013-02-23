@@ -82,7 +82,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  }
 	  
 	  function showViewMode(){
-		  view.memoTextArea.show();
+		  view.memoTextArea.css("visibility", "visible");
 	      view.editButton.show();
 	      view.commitMessage.hide();
 	      view.saveButton.hide();
@@ -159,7 +159,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  url:"/api/backlogs/" + backlogId + "/history/" + version,
 			  method:"GET",
 			  onResponse:function(response){
-				  view.memoTextArea.show();
+				  view.memoTextArea.css("visibility", "visible");
 				  backlog = JSON.parse(response.body);
 				  render();
 			  }
@@ -476,7 +476,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  view.commitMessage.val("");
 			  showEditMode();
 			  slider.showCurrent();
-			  view.memoTextArea.hide();
+			  view.memoTextArea.css("visibility", "hidden");
 		  });
 	  });
 	  
