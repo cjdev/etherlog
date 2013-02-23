@@ -336,6 +336,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  
 
 			  view.textarea.show();
+			  view.textarea.focus();
 			  view.doneButton.show();
 			  view.estimatesHolder.show();
 			  
@@ -440,14 +441,15 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  widgets.push(widget);
 		  backlog.items.push(item);
 		  
-		  
 		  widget.scrollTo();
+		  
+		  sendWorkInProgress();
 	  }
 	  
 	  view.addStoryButton.button().click(function(){
 		  addNewItem({
 				  id:uuid(),
-				  name:"new story",
+				  name:"",
 				  kind:"story"
 		  });
 	  });
@@ -455,7 +457,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  view.addEpicButton.button().click(function(){
 		  addNewItem({
 				  id:uuid(),
-				  name:"new epic",
+				  name:"",
 				  kind:"epic"
 		  });
 	  });
@@ -463,7 +465,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  view.addGoalButton.button().click(function(){
 		  addNewItem({
 				  id:uuid(),
-				  name:"new goal",
+				  name:"",
 				  kind:"goal"
 		  });
 	  });
