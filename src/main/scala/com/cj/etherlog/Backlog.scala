@@ -11,9 +11,9 @@ case class Estimate(
     val when:Long
     )
     
-//@JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="kind")
 case class Item(
     val id:String,
+    val isComplete:Option[Boolean],
     val name:String,
     val kind:String,
     val estimates:Option[List[Estimate]]

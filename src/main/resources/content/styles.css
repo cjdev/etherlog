@@ -2,7 +2,6 @@
 body {
   font-family:sans-serif;
   margin:20px;
-  height:100%;
 }
 
 div.project-chunk {
@@ -79,11 +78,11 @@ img.add-icon {
 	float:right;
 }
 
-img.edit-icon, img.delete-icon {
+img.edit-icon, img.delete-icon, img.finished-icon {
 	float:right;
 }
 
-img.edit-icon, img.delete-icon, img.add-icon {
+img.edit-icon, img.delete-icon, img.add-icon, img.finished-icon{
 	
 	height:30px;
 	width:30px;
@@ -153,4 +152,9 @@ div.item div.controls {
 
 .memo-text {
 	min-height: 2em;
+}
+
+
+.finished {
+	background: green;
 }

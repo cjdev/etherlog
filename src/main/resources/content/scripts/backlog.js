@@ -287,10 +287,12 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  
 	  function ItemWidget(item, backlogDiv){
 		  var html, v, view, onDelete, showViewMode;
+		  const finishedCssClass = "finished";
 		  
 		  v = $('<div id="' + item.id + '" class="item clearfix">' + 
 				  '<img style="display:none;" src="/delete.png"/ class="delete-icon delete-button">' + 
 				  '<img style="display:none;" src="/pencil.png"/ class="edit-icon edit-button">' + 
+				  '<img style="display:none;" src="/medal.png"/ class="finished-icon finished-button">' + 
 				  '<div class="controls" ><button style="display:none;" class="done-button">Done</button>' + 
 				  '<div style="display:none;"class="estimates-holder"></div></div>' + 
 				  '<span class="label"/>' + 
@@ -300,6 +302,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  view = {
 		      label:v.find(".label"),
 		      textarea:v.find("textarea"),
+		      finishedButton:v.find(".finished-button"),
 		      editButton:v.find(".edit-button"),
 		      deleteButton:v.find(".delete-button"),
 		      doneButton:v.find(".done-button"),
@@ -334,6 +337,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  var showViewMode;
 		  
 		  
+		  
 		  if(item.kind==="goal"){
 			  v.addClass("milestone divider clearfix");
 			  showViewMode = function(){
@@ -342,6 +346,9 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  }else {
 			  if(item.kind==="story"){
 				  v.addClass("story project-chunk");
+				  if(item.isComplete){
+					  v.addClass(finishedCssClass);
+				  }
 			  }else if(item.kind==="epic"){
 				  v.addClass("epic project-chunk");
 			  }
@@ -350,6 +357,8 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  }
 			  EstimatesWidget(item, view.estimatesHolder);
 		  }
+
+		  
 		  
 		  showViewMode();
 		  
@@ -380,7 +389,12 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  showViewMode();
 			  view.editButton.show();
 			  view.label.show();
-			  view.deleteButton.show();
+			  if(!item.isComplete) {
+				  view.deleteButton.show();
+			  }
+			  if(item.kind==="story"){
+				  view.finishedButton.show();
+			  }
 			  
 			  view.textarea.hide();
 			  view.doneButton.hide();
@@ -393,6 +407,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  view.label.hide();
 			  view.editButton.hide();
 			  view.deleteButton.hide();
+			  view.finishedButton.hide();
 			  
 
 			  view.textarea.show();
@@ -405,6 +420,16 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  
 		  view.doneButton.button().click(showEditableMode);
 		  
+		  view.finishedButton.click(function(){
+			  if(item.isComplete){
+				  item.isComplete = false;
+				  v.removeClass(finishedCssClass);
+			  }else{
+				  item.isComplete = true;
+				  v.addClass(finishedCssClass);
+			  }
+			  sendWorkInProgress();
+		  });
 		  view.editButton.click(showEditMode);
 		  view.deleteButton.click(function(){
 			  deleteItem(item);
