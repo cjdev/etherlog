@@ -114,7 +114,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  
 	  
 	  function EstimatesWidget(item, parentDiv){
-
+		  
 		  var v = $('<div id="' + item.id + '" class="estimates-list">' + 
 					  '<div class="estimate"><select><option></option><option>swag</option><option>grooming</option><option>team</option></select> <input size="2" type="text"></input>   </div>' + 
 				  '</div>');
@@ -124,6 +124,11 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 				  value : v.find('input')
 		  };
 		  
+		  if(item.estimates && item.estimates.length > 0){
+			  const estimate = item.estimates[item.estimates.length-1];
+			  view.currencies.val(estimate.currency);
+			  view.value.val(estimate.value);
+		  }
 		  
 		  var oldValue, oldCurrency;
 		  
@@ -148,7 +153,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 					  
 					  if(!estimate){
 						  console.log("no existing " + currency + " estimate");
-						  estimate = {id:uuid(), when:new Date().getTime()};
+						  estimate = {id:uuid()};
 						  item.estimates.push(estimate);
 					  }else{
 						  console.log(estimate);
@@ -156,6 +161,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 					  
 					  estimate.currency = currency;
 					  estimate.value = value;
+					  estimate.when = new Date().getTime();
 				  }
 				  
 			  }
@@ -180,7 +186,6 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 				  '<textarea style="display:none;"></textarea></div>');
 		  
 		  
-		  
 		  view = {
 		      label:v.find(".label"),
 		      textarea:v.find("textarea"),
@@ -189,6 +194,32 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		      doneButton:v.find(".done-button"),
 		      estimatesHolder: v.find(".estimates-holder")
 		  };
+		  
+		  
+		  function compareEstimatesByWhen(a, b){
+			  if(a.when === b.when){
+				  return 0;
+			  }else if (a.when > b.when){
+				  return 1;
+			  }else{
+				  return -1;
+			  }
+		  }
+		  
+		  function mostRecentEstimateText(){
+			  var result;
+			  console.log("Stuff: " + JSON.stringify(item.estimates));
+			  
+			  if(item.estimates && item.estimates.length>0){
+				  item.estimates.sort(compareEstimatesByWhen);
+				  const mostRecentEstimate = item.estimates[item.estimates.length-1];
+				  result = "(" + mostRecentEstimate.value + " " + mostRecentEstimate.currency + ")";
+			  }else{
+				  result = "";
+			  }
+			  
+			  return result;
+		  }
 		  
 		  if(item.kind==="goal"){
 			  v.addClass("milestone divider clearfix");
@@ -199,7 +230,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  }else if(item.kind==="epic"){
 				  v.addClass("epic project-chunk");
 			  }
-			  view.label.text(item.name);
+			  view.label.text(item.name + " " + mostRecentEstimateText());
 		  }
 		  
 		  EstimatesWidget(item, view.estimatesHolder);
