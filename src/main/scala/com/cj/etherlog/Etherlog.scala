@@ -123,6 +123,18 @@ object Etherlog {
             }
             
         },
+        new HttpObject("/api/backlogs/{id}/history/{version}"){
+            override def get(req:Request) = {
+              val id = req.pathVars().valueFor("id")
+              val versionId = req.pathVars().valueFor("version")
+              val results = new ListBuffer[HistoryItem]()
+              
+              val version = versions.get(versionId);
+              
+              OK(JerksonJson(version.backlog))
+            }
+            
+        },
         new HttpObject("/api/backlogs/{id}"){
             override def get(req:Request) = {
               val id = req.pathVars().valueFor("id")
@@ -134,9 +146,6 @@ object Etherlog {
               val id = req.pathVars().valueFor("id")
               val newBacklog = Jerkson.parse[Backlog](readAsStream(req.representation()));
               val backlog = backlogs.get(id);
-              val updatedBacklog = new BacklogStatus(
-                                          backlog.id, 
-                                          latestVersion = UUID.randomUUID().toString())
               
               val newVersion = new BacklogVersion(
                                   id = UUID.randomUUID().toString(),
@@ -145,6 +154,9 @@ object Etherlog {
                                   previousVersion = backlog.latestVersion,
                                   backlog = newBacklog
                               )
+              val updatedBacklog = new BacklogStatus(
+                                          backlog.id, 
+                                          latestVersion = newVersion.id)
               
               versions.put(updatedBacklog.latestVersion, newVersion);
               backlogs.put(id, updatedBacklog)

@@ -30,6 +30,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  if(t > lastServerUpdate){
 			  try{
 				  readView();
+				  backlog.memo = "work-in-progress";
 				  http({
 					  url: "/api/backlogs/" + backlogId ,
 					  method: "PUT",
@@ -54,7 +55,6 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  function sendWorkInProgress(){
 		  lastChange = new Date().getTime();
 	  }
-	  
 	  
 	  function render(){
 		  view.title.text(backlog.name);
@@ -109,6 +109,59 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			$("#dropZone" + itemId).detach().insertBefore(where.find("#" + itemId));
 		}
 		sendWorkInProgress();
+	  }
+	  
+	  function HistorySlider(sliderDiv){
+		  var history;
+		  
+		  function showCurrent(){
+			  sliderDiv.slider("value", history.length-1);
+		  }
+		  
+		  function refresh(){
+			  http({
+		    	  url:'http://localhost:8080/api/backlogs/' + backlogId + '/history',
+		    	  method:"GET",
+		    	  onResponse:function(response){
+		    		  history = JSON.parse(response.body).reverse();
+		    		  console.log("There are " + history.length + " items in the history");
+		    		  
+		    		  sliderDiv.slider({
+					      value:history.length-1,
+					      min: 0,
+					      max: history.length-1,
+					      step: 1,
+					      slide: function( event, ui ) {
+					    	  var selection = ui.value;
+					    	  var i = history[selection];
+					    	  console.log(ui.value + " " + i.version + "(" + i.memo + ")");
+					    	  showVersion(i.version);
+					      }
+					    });
+		    		  
+		    	  }
+		      });
+		  }
+		  
+		  refresh();
+	      
+	      return {
+	    	  showCurrent:showCurrent,
+	    	  refresh:refresh
+	      };
+	  }
+	  
+	  function showVersion(version){
+		  http({
+			  url:"/api/backlogs/" + backlogId + "/history/" + version,
+			  method:"GET",
+			  onResponse:function(response){
+				  backlog = JSON.parse(response.body);
+				  render();
+			  }
+		  });
+		  
+
 	  }
 	  
 	  function DropZone(id, backlogDiv){
@@ -262,7 +315,6 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  
 		  function mostRecentEstimateText(){
 			  var result;
-			  console.log("Stuff: " + JSON.stringify(item.estimates));
 			  
 			  if(item.estimates && item.estimates.length>0){
 				  item.estimates.sort(compareEstimatesByWhen);
@@ -412,11 +464,15 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  
 		  backlog.items = newList;
 	  }
+
+	  var slider = HistorySlider(view.slider);
 	  
-	  view.slider.slider();
 	  view.editButton.button().click(function(){
-		  view.commitMessage.val("");
-		  showEditMode();
+		  showCurrentVersion(function(){
+			  view.commitMessage.val("");
+			  showEditMode();
+			  slider.showCurrent();
+		  });
 	  });
 	  
 	  view.saveButton.button().click(function(){
@@ -430,6 +486,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	          data:JSON.stringify(backlog),
 	          onResponse: function (response) {
 	        	  showViewMode();
+	        	  refresh();
 	          }
 		  });
 		  
@@ -474,12 +531,20 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  });
 	  });
 	  
-	  http({
-		  url: "/api/backlogs/" + backlogId,
-          method: "GET",
-          onResponse: function (response) {
-        	  backlog=JSON.parse(response.body);
-              render();
-          }
-	  });
+	  function showCurrentVersion(fn){
+		  http({
+			  url: "/api/backlogs/" + backlogId,
+	          method: "GET",
+	          onResponse: function (response) {
+	        	  backlog=JSON.parse(response.body);
+	              render();
+	              if(fn){
+	            	  fn();
+	              }
+	          }
+		  });
+	  }
+	  
+	  showCurrentVersion();
+	  
 });
