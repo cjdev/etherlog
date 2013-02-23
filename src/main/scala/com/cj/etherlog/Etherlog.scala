@@ -18,6 +18,7 @@ import org.httpobjects.Representation
 import java.io.OutputStream
 import java.io.{File => Path}
 import java.util.UUID
+import scala.collection.mutable.ListBuffer
 
 object Etherlog {
   def readAsStream(r:Representation) = {
@@ -69,15 +70,23 @@ object Etherlog {
     val dataPath = new Path("data");
     
     val backlogs = new Database[BacklogStatus](new Path(dataPath, "backlogs"))
-    val versions = new Database[Backlog](new Path(dataPath, "versions"))
+    val versions = new Database[BacklogVersion](new Path(dataPath, "versions"))
     
     if(!backlogs.contains("23")){
       val template = Jerkson.parse[Backlog](getClass().getResourceAsStream("/sample-data.js"))
-      val initialVersion = new Backlog(
+      val initialBacklog = new Backlog(
                               id="23", 
                               name= template.name,
                               memo="initial sample version",
                               items = template.items)
+      
+      val initialVersion = new BacklogVersion(
+                                  id = UUID.randomUUID().toString(),
+                                  when = System.currentTimeMillis(),
+                                  isPublished = true,
+                                  previousVersion = null,
+                                  backlog = initialBacklog
+                              )
       
         backlogs.put(
                 id="23", 
@@ -86,20 +95,47 @@ object Etherlog {
     }
     
     HttpObjectsJettyHandler.launchServer(8080, 
+        
+        new HttpObject("/api/backlogs/{id}/history"){
+            override def get(req:Request) = {
+              val id = req.pathVars().valueFor("id")
+              val backlog = backlogs.get(id);
+              val results = new ListBuffer[String]()
+              
+              var nextVersionId = backlog.latestVersion
+              while(nextVersionId!=null){
+                val version = versions.get(nextVersionId)
+                results += version.id
+                nextVersionId = version.previousVersion
+              }
+              
+              OK(JerksonJson(results))
+            }
+            
+        },
         new HttpObject("/api/backlogs/{id}"){
             override def get(req:Request) = {
               val id = req.pathVars().valueFor("id")
               val backlog = backlogs.get(id)
               val currentVersion = versions.get(backlog.latestVersion);
-              OK(JerksonJson(currentVersion))
+              OK(JerksonJson(currentVersion.backlog))
             }
             override def put(req:Request) = {
               val id = req.pathVars().valueFor("id")
-              val newVersion = Jerkson.parse[Backlog](readAsStream(req.representation()));
+              val newBacklog = Jerkson.parse[Backlog](readAsStream(req.representation()));
               val backlog = backlogs.get(id);
               val updatedBacklog = new BacklogStatus(
                                           backlog.id, 
                                           latestVersion = UUID.randomUUID().toString())
+              
+              val newVersion = new BacklogVersion(
+                                  id = UUID.randomUUID().toString(),
+                                  when = System.currentTimeMillis(),
+                                  isPublished = false,
+                                  previousVersion = backlog.latestVersion,
+                                  backlog = newBacklog
+                              )
+              
               versions.put(updatedBacklog.latestVersion, newVersion);
               backlogs.put(id, updatedBacklog)
               println("New Data:\n" + newVersion)

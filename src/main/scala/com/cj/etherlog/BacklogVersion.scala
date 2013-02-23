@@ -1,7 +1,9 @@
 package com.cj.etherlog
 
-class BacklogVersion(
+case class BacklogVersion(
+    val id:String,
     val when:Long = System.currentTimeMillis(),
     val isPublished:Boolean, 
+    val previousVersion:String,
     val backlog:Backlog
 )

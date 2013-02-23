@@ -28,17 +28,21 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  const updateInterval = 3000;
 		  const t = lastChange;
 		  if(t > lastServerUpdate){
-			  readView();
-			  http({
-				  url: "/api/backlogs/" + backlogId ,
-		          method: "PUT",
-		          data:JSON.stringify(backlog),
-		          onResponse: function (response) {
-		        	  console.log("Save queue: Changes submitted with " + response.status);
-		        	  lastServerUpdate = t;
-		        	  setTimeout(sendUpdate, 1000);
-		          }
-			  });
+			  try{
+				  readView();
+				  http({
+					  url: "/api/backlogs/" + backlogId ,
+					  method: "PUT",
+					  data:JSON.stringify(backlog),
+					  onResponse: function (response) {
+						  console.log("Save queue: Changes submitted with " + response.status);
+						  lastServerUpdate = t;
+						  setTimeout(sendUpdate, 1000);
+					  }
+				  });
+			  }catch(e){
+				  console.log("ERROR: " + e)
+			  }
 		  }else{
 			  //console.log("Save queue: Nothing to do");
 			  setTimeout(sendUpdate, 1000);
