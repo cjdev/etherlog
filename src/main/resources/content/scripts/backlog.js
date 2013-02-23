@@ -248,9 +248,10 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 				  v.addClass("epic project-chunk");
 			  }
 			  view.label.text(item.name + " " + mostRecentEstimateText());
+
+			  EstimatesWidget(item, view.estimatesHolder);
 		  }
 		  
-		  EstimatesWidget(item, view.estimatesHolder);
 		  view.textarea.val(item.name);
 		  view.textarea.bind("keypress change",function(n){
 			  item.name = view.textarea.val();
