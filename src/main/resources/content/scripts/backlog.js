@@ -21,6 +21,35 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	      commitMessage : where.find(".commit-message")
 	  };
 	  
+	  var lastServerUpdate = new Date().getTime();
+	  var lastChange = lastServerUpdate;
+	  
+	  function sendUpdate(){
+		  const updateInterval = 3000;
+		  const t = lastChange;
+		  if(t > lastServerUpdate){
+			  readView();
+			  http({
+				  url: "/api/backlogs/" + backlogId ,
+		          method: "PUT",
+		          data:JSON.stringify(backlog),
+		          onResponse: function (response) {
+		        	  console.log("Save queue: Changes submitted with " + response.status);
+		        	  lastServerUpdate = t;
+		        	  setTimeout(sendUpdate, 1000);
+		          }
+			  });
+		  }else{
+			  //console.log("Save queue: Nothing to do");
+			  setTimeout(sendUpdate, 1000);
+		  }
+	  }
+	  
+	  sendUpdate();
+	  
+	  function sendWorkInProgress(){
+		  lastChange = new Date().getTime();
+	  }
 	  
 	  
 	  function render(){
@@ -63,17 +92,19 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  backlog.items.splice(idx, 1);
 		  where.find("#" + item.id).remove();
 		  where.find("#dropZone" + item.id).remove();
+		  sendWorkInProgress();
 	  }
 	  
 	  function moveItemBefore(itemId, beforeId){
-		  if(itemId!==beforeId){
-	        	var subject = where.find("#" + itemId); 
-	        	
-	        	subject.detach().insertBefore("#dropZone" + beforeId);
-	        	subject.css("left", 0);
-	        	subject.css("top", 0);
-	        	$("#dropZone" + itemId).detach().insertBefore(where.find("#" + itemId));
-	        }
+		if(itemId!==beforeId){
+		    var subject = where.find("#" + itemId); 
+			
+			subject.detach().insertBefore("#dropZone" + beforeId);
+			subject.css("left", 0);
+			subject.css("top", 0);
+			$("#dropZone" + itemId).detach().insertBefore(where.find("#" + itemId));
+		}
+		sendWorkInProgress();
 	  }
 	  
 	  function DropZone(id, backlogDiv){
@@ -179,6 +210,8 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 					  estimate.currency = currency;
 					  estimate.value = value;
 					  estimate.when = new Date().getTime();
+
+					  sendWorkInProgress();
 				  }
 				  
 			  }
@@ -265,6 +298,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  item.name = view.textarea.val();
 			  view.label.text(item.name);
 			  console.log("Changed to " + item.name);
+			  sendWorkInProgress();
 		  });
 		  
 		  function makeDraggable(){
