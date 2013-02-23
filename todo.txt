@@ -8,7 +8,6 @@ GOALS:
 
 TASKS:
 
- Send intermediate changes too.	
  Make data persistent
  Implement the slider
  
