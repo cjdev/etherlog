@@ -107,6 +107,7 @@ object Etherlog {
     }
     
     case class HistoryItem (val version:String, val when:Long, val memo:String)
+    case class StatsLogEntry (val version:String, val when:Long, val memo:String, val todo:Int, val done:Int)
     
     HttpObjectsJettyHandler.launchServer(8080, 
         
@@ -122,6 +123,43 @@ object Etherlog {
               OK(JerksonJson(results))
             }
             
+        },
+        new HttpObject("/api/backlogs/{id}/statsLog"){
+            override def get(req:Request) = {
+              val id = req.pathVars().valueFor("id")
+              val backlog = backlogs.get(id) 
+              val results = new ListBuffer[StatsLogEntry]()
+              
+              def incrementedEstimate(tally:Int, item:Item) = {
+                  item.bestEstimate match {
+                  case Some(value) => {
+                      value + tally
+                  }
+                  case None => tally
+                  }
+              }
+              
+              scanBacklogHistory(id, {version=>
+                if(version.backlog.memo!="work-in-progress"){
+                    val items = version.backlog.items
+                            val amountComplete:Int = items.filter(_.isComplete.getOrElse(false)).foldLeft(0)(incrementedEstimate);
+                    val amountTodo:Int = items.filter(!_.isComplete.getOrElse(false)).foldLeft(0)(incrementedEstimate);
+                    
+                    if(results.isEmpty || results.last.todo != amountTodo || results.last.done != amountComplete){
+                        val entry = StatsLogEntry(
+                                version=version.id, 
+                                when=version.when, 
+                                memo=version.backlog.memo,
+                                todo=amountTodo,
+                                done=amountComplete)
+                                results += entry
+                    }
+                }
+                                
+              }) 
+              
+              OK(JerksonJson(results))
+            }
         },
         new HttpObject("/api/backlogs/{id}/history/{version}"){
             override def get(req:Request) = {

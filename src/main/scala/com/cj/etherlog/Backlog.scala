@@ -17,7 +17,19 @@ case class Item(
     val name:String,
     val kind:String,
     val estimates:Option[List[Estimate]]
-)
+){
+  def bestEstimate() = estimates match {
+      case Some(e) => {
+          val latestEstimate = e.maxBy(_.when)
+          if(latestEstimate!=null){
+            Some(latestEstimate.value);
+          }else{
+            None
+          }
+      }
+      case None => None
+    }
+}
 
 case class Backlog (
     val id:String,
