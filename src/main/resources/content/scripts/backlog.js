@@ -1,7 +1,9 @@
-define(["jquery", "http", "uuid"], function($, http, uuid){
+define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uuid, d3, BurndownWidget){
 	  
 	
 	  var backlog, where, lastDragged;
+	  
+	  var when; // SUPERHACK!
 	  
 	  var backlogId = 23; // HACK!
 	  
@@ -65,6 +67,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  DropZone(item.id, view.backlog);
 			  widgets.push(ItemWidget(item, view.backlog));
 		  });
+		  chart.render(when);
 	  }
 	  
 	  function showEditMode(){
@@ -138,6 +141,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 					    	  var selection = ui.value;
 					    	  var i = history[selection];
 					    	  console.log(ui.value + " " + i.version + "(" + i.memo + ")");
+					    	  when = i.when;
 					    	  showVersion(i.version);
 					      }
 					    });
@@ -284,6 +288,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  v.appendTo(parentDiv);
 		  
 	  }
+	  
 	  
 	  function ItemWidget(item, backlogDiv){
 		  var html, v, view, onDelete, showViewMode;
@@ -573,6 +578,11 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	          }
 		  });
 	  }
+	  var chart = BurndownWidget();
+//	  var chart = {
+//			  update:function(){},
+//			  render:function(){}
+//	  };
 	  
 	  showCurrentVersion();
 	  

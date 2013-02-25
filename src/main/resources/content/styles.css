@@ -159,3 +159,9 @@ div.item div.controls {
 .finished {
 	background: green;
 }
+
+
+/* THE CHART STUFF */
+.chart line {
+   width:100%;
+ }

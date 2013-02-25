@@ -1,0 +1,51 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="/styles.css"/>
+		<link rel="stylesheet" href="/jqueryui-theme/minified/jquery-ui.min.css"/>
+		<script type="text/javascript" data-main="backlog" src="/scripts/d3.v3.min.js"></script>
+	</head>
+	<body>
+	<div class="aa"></div>
+<script type="text/javascript">
+
+
+function redraw(data){
+
+	var chart = d3.select("body").append("div")
+		 .style("position", "absolute")
+	     .attr("class", "chart")
+	     .attr("width", 500)
+	     .attr("height", 500);
+	     
+	var d = chart.selectAll("body")
+	  .data(data);
+	
+	d.enter()
+	  .append("div")
+	  .style("position", "absolute")
+	  .style("width", function(d){return d*10})
+	  .style("height", function(d){return d * 10})
+	  .style("left", function(d, i){return i * 50;})
+	  .style("background", "red")
+	  .style("display", "inline block")
+	  .style("border", "1px solid green");
+	
+	d.exit().remove();
+}
+var n = 3;
+
+function stuff(){
+	var data = [1, 2, 3, 4];
+	data.pop();
+	console.log("Down to " + data.length);
+	redraw(data);
+	setTimeout(stuff, 1000);
+}
+
+stuff();
+
+</script>
+	
+	</body>
+</html>
+	

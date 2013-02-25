@@ -9,7 +9,6 @@ GOALS:
 TASKS:
  
 ==== BETA ======
- Give API users the means of getting the data needed for graphs.
  
 ==== 1.0 ======
  Live multi-user editing
