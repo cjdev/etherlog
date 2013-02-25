@@ -578,11 +578,10 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 	          }
 		  });
 	  }
-	  var chart = BurndownWidget();
-//	  var chart = {
-//			  update:function(){},
-//			  render:function(){}
-//	  };
+//	  var chart = BurndownWidget();
+	  var chart = {
+			  render:function(){}
+	  };
 	  
 	  showCurrentVersion();
 	  
