@@ -9,13 +9,16 @@ GOALS:
 TASKS:
  
 ==== BETA ======
- 
+
+Support multiple backlogs
+Simple burn-down chart
+Truncate the story names unless asked to show the whole thing
+Story dependencies
+
 ==== 1.0 ======
  Live multi-user editing
- Truncate the story names unless asked to show the whole thing
  Give users the means to attach files
  Give users the means to change the backlog name
  Give users the means to break epics/stories apart
  Authentication
- Support multiple backlogs
  

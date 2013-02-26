@@ -1,12 +1,21 @@
 define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uuid, d3, BurndownWidget){
 	  
-	
 	  var backlog, where, lastDragged;
 	  
 	  var when; // SUPERHACK!
 	  
-	  var backlogId = 23; // HACK!
+	  var backlogId = parseBacklogIdFromQueryString();
 	  
+	  function parseBacklogIdFromQueryString(){
+		  var parts = window.location.toString().split("/");
+		  console.log(parts);
+		  if(parts.length>0){
+			  return parts[parts.length-1];
+		  }else{
+			  return undefined;
+		  }
+	  }
+	  	  
 	  var widgets = [];
 	  
 	  where = $("body");
@@ -126,7 +135,7 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 		  
 		  function refresh(){
 			  http({
-		    	  url:'http://localhost:8080/api/backlogs/' + backlogId + '/history',
+		    	  url:'/api/backlogs/' + backlogId + '/history',
 		    	  method:"GET",
 		    	  onResponse:function(response){
 		    		  history = JSON.parse(response.body).reverse();
@@ -583,6 +592,12 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 			  render:function(){}
 	  };
 	  
-	  showCurrentVersion();
+	  if(backlogId){
+		  showCurrentVersion();
+	  }else{
+		  
+		 
+	  }
+	  
 	  
 });

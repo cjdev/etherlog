@@ -19,6 +19,7 @@ import java.io.OutputStream
 import java.io.{File => Path}
 import java.util.UUID
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.StringBuilder
 
 object Etherlog {
   def readAsStream(r:Representation) = {
@@ -58,6 +59,17 @@ object Etherlog {
     
     def get(id:String)(implicit manifest:Manifest[T]):T = this.synchronized {
         Jerkson.parse[T](pathFor(id))
+    }
+    
+    def scan(fn:(String, T)=>Unit)(implicit manifest:Manifest[T]) {
+      val files = basePath.listFiles()
+      if(files!=null){
+        files.foreach{file=>
+          val id = file.getName()
+          val value = get(id)
+          fn(id, value)
+        }
+      }
     }
     
     def contains(id:String) = pathFor(id).exists()
@@ -108,9 +120,56 @@ object Etherlog {
     
     case class HistoryItem (val version:String, val when:Long, val memo:String)
     case class StatsLogEntry (val version:String, val when:Long, val memo:String, val todo:Int, val done:Int)
+    case class BacklogListEntry (val id:String, val name:String)
     
-    HttpObjectsJettyHandler.launchServer(8080, 
-        
+    HttpObjectsJettyHandler.launchServer(43180, 
+        new HttpObject("/api/backlogs"){
+            override def get(req:Request) = {
+               val results = new ListBuffer[BacklogListEntry]()
+               
+               backlogs.scan{(id, backlog)=>
+                 val version = versions.get(backlog.latestVersion)
+                 results += BacklogListEntry(id=id, name=version.backlog.name)
+               }
+               
+              
+               OK(JerksonJson(results))
+            }
+            
+            override def post(req:Request) = {
+              val backlogRecieved = Jerkson.parse[Backlog](readAsStream(req.representation()));
+              
+              val backlogId = this.synchronized{
+                var candidate = 1
+                while(backlogs.contains(candidate.toString())){
+                  candidate += 1;
+                }
+                candidate.toString()
+              }
+              
+              val initialBacklog = Backlog(
+                  id=backlogId, 
+                  name=backlogRecieved.name, 
+                  memo=backlogRecieved.memo, 
+                  items = backlogRecieved.items)
+              val initialVersion = BacklogVersion(
+                      id=UUID.randomUUID().toString(),
+                      backlog = initialBacklog,
+                      isPublished= false, 
+                      previousVersion = null
+              )
+              
+              versions.put(initialVersion.id, initialVersion)
+              
+              val status = BacklogStatus(
+                  id=backlogId,
+                  latestVersion = initialVersion.id
+                  )
+              
+              backlogs.put(backlogId, status)
+              CREATED(Location("/api/backlogs/" + status.id))
+            }
+        },
         new HttpObject("/api/backlogs/{id}/history"){
             override def get(req:Request) = {
               val id = req.pathVars().valueFor("id")
@@ -207,7 +266,8 @@ object Etherlog {
             }
         },
         new ClasspathResourceObject("/mockup", "/content/backlog-mockup.html", getClass()),
-        new ClasspathResourceObject("/", "/content/backlog.html", getClass()),
+        new ClasspathResourceObject("/", "/content/index.html", getClass()),
+        new ClasspathResourceObject("/backlog/{backlogId}", "/content/backlog.html", getClass()),
         new ClasspathResourcesObject("/{resource*}", getClass(), "/content")
     ); 
   }
