@@ -8,7 +8,6 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 	  
 	  function parseBacklogIdFromQueryString(){
 		  var parts = window.location.toString().split("/");
-		  console.log(parts);
 		  if(parts.length>0){
 			  return parts[parts.length-1];
 		  }else{
@@ -139,7 +138,7 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 		    	  method:"GET",
 		    	  onResponse:function(response){
 		    		  history = JSON.parse(response.body).reverse();
-		    		  console.log("There are " + history.length + " items in the history");
+//		    		  console.log("There are " + history.length + " items in the history");
 		    		  
 		    		  sliderDiv.slider({
 					      value:history.length-1,
@@ -587,17 +586,12 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 	          }
 		  });
 	  }
-//	  var chart = BurndownWidget();
-	  var chart = {
-			  render:function(){}
-	  };
+	  var chart = BurndownWidget(backlogId);
+//	  var chart = {
+//			  render:function(){}
+//	  };
 	  
-	  if(backlogId){
-		  showCurrentVersion();
-	  }else{
-		  
-		 
-	  }
+	  showCurrentVersion();
 	  
 	  
 });

@@ -8,17 +8,18 @@
 	<div class="aa"></div>
 <script type="text/javascript">
 
+var chart = d3.select("body").append("div")
+	 .style("position", "absolute")
+     .attr("width", 500)
+     .attr("height", 500);
 
 function redraw(data){
 
-	var chart = d3.select("body").append("div")
-		 .style("position", "absolute")
-	     .attr("class", "chart")
-	     .attr("width", 500)
-	     .attr("height", 500);
 	     
-	var d = chart.selectAll("body")
-	  .data(data);
+	var d = chart.selectAll("div")
+	  .data(data, function(d){console.log("Identifying " + d); return d;});
+	
+	console.log(data);
 	
 	d.enter()
 	  .append("div")
@@ -32,11 +33,14 @@ function redraw(data){
 	
 	d.exit().remove();
 }
-var n = 3;
+var n = 6;
 
 function stuff(){
-	var data = [1, 2, 3, 4];
-	data.pop();
+	n--;
+	var data = [];
+	for(x=0;x<n;x++){
+		data.push(x);
+	}
 	console.log("Down to " + data.length);
 	redraw(data);
 	setTimeout(stuff, 1000);

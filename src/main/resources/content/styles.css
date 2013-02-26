@@ -25,7 +25,7 @@ div.project-chunk {
 }
 
 .item .label {
-    white-space: pre;
+    white-space: pre-wrap;
 }
 
 .item {
@@ -162,6 +162,10 @@ div.item div.controls {
 
 
 /* THE CHART STUFF */
-.chart line {
+div.chart {
+   margin:20px;
+}
+svg {
+   border:2px solid grey;
    width:100%;
- }
+}

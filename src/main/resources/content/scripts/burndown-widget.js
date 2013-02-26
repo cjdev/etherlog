@@ -1,14 +1,23 @@
 define(["jquery", "d3", "http"], function($, d3, http){
 
-	return function(){
+	return function(backlogId){
 
-		var chartDiv = d3.select(".chart").append("svg");
+		var svg = d3.select(".chart").append("svg");
 		
 		
 		function draw(data){
 
 			var start = new Date().getTime(), end = new Date().getTime();
+			var max = 0;
 			$.each(data, function(idx, item){
+				if(item.todo > max){
+					max = item.todo;
+				}
+				
+				if(item.done > max){
+					max = item.done;
+				}
+				
 				if(item.when < start){
 					start = item.when;
 				}
@@ -17,23 +26,28 @@ define(["jquery", "d3", "http"], function($, d3, http){
 				}
 			});
 			
-			console.log("Charting the " + ((end-start)/1000) + " seconds from " + start + " to " + end);
+			var period = end - start;
+//			console.log("Charting the " + (period/1000) + " seconds from " + new Date(start) + " to " + new Date(end));
 			
 			var width = 800;
 			var height = 200;
-			var xFactor = 1000 ;
+			var xFactor = 800/period ;
+			var yFactor = height/max;
 			
 			function timeScale(t){
-				return t/xFactor;
+				return t * xFactor;
 			}
 			
 			function xValue(item){
-				var val = (item.when-start)/xFactor;
+				var val = (item.when-start) * xFactor;
 				return val;
 			}
+			
+			function yScale(val){
+				return val * yFactor;
+			}
 
-
-			var chart = chartDiv
+			var chart = svg
 			     .attr("class", "chart")
 			     .attr("width", width)
 			     .attr("height", height);
@@ -43,20 +57,23 @@ define(["jquery", "d3", "http"], function($, d3, http){
 			
 			function redraw(){
 				
+//				console.log("REDRAWING " + data.length + " items: "+ JSON.stringify(data) );
 				
-
-				 var dataset =chart.selectAll("rect")
-				      .data(data, function(d) {
-				    	  var id = d.when;
-//				    	  console.log("ID is " + id);
-				          return id; 
-				      });
-//				 
+				
+				function idFunction(d, i) {
+//			    		  console.log(i + " is " + JSON.stringify(d) + "!");
+				    	  if(d){
+				    		  var id = d.when;
+				    		  return id; 
+				    	  }
+				}
+				 var dataset =chart.selectAll("line")
+				      .data(data, idFunction);
 				 
 				 dataset.enter().append("line")
 					      .attr("x1", xValue)
 					      .attr("y1", function(d, i) {
-					    	  return height-d.todo;
+					    	  return height-yScale(d.todo);
 					       })
 					      .attr("x2", function(item, idx){
 					    	  if(idx>0){
@@ -69,15 +86,19 @@ define(["jquery", "d3", "http"], function($, d3, http){
 					      .attr("y2", function(item, idx) {
 					    	  if(idx>0){
 					    		  var prev = data[idx-1];
-					    		  return height-prev.todo;
+					    		  return height-yScale(prev.todo);
 					    	  }else{
 					    		  return height;
 					    	  }
 					       })
-					      .style("stroke", "#000")
+					      .style("stroke", "blue")
+					      .style("stroke-width", "3px")
+					      .style("stroke-linecap", "round")
 					      .attr("memo", function(d) { return d.memo; })
 					      ;
 
+
+				 
 				 chart.append("line")
 				      .attr("x1", 0)
 				      .attr("x2", width)
@@ -86,9 +107,18 @@ define(["jquery", "d3", "http"], function($, d3, http){
 				      .style("stroke", "#000");
 				
 				
-				 dataset.exit().attr("note", function(d){
-					 console.log(d.when + " is going to be removed");
-				 }).remove();
+				 dataset.exit().remove();
+				 
+
+				var circles = chart.selectAll("circle").data(data, idFunction);
+			    circles.enter().append("circle")
+					      .attr("cx", xValue)
+					      .attr("cy", function(d, i) {
+					    	  return height-yScale(d.todo);
+					       })
+					      .attr("r", 3)
+					      .style("fill", "blue");
+			    circles.exit().remove();
 			}
 			
 			redraw();
@@ -97,27 +127,19 @@ define(["jquery", "d3", "http"], function($, d3, http){
 		function render(through){
 	
 			http({
-				url:"/api/backlogs/23/statsLog",
+				url:"/api/backlogs/" + backlogId + "/statsLog",
 				method:"GET",
 				onResponse:function(response){
 					var data = JSON.parse(response.body).reverse();
 					
-//					function remove(){
-//						console.log("Removing data");
-//						data.pop();
-//						redraw();
-//						setTimeout(remove, 2000);
-//					}
-//					setTimeout(remove, 2000);
-					
-					console.log("Threshold is " + through);
+//					console.log("Threshold is " + through);
 					
 					if(through){
 						var oldLength= data.length;
 						data = $.grep(data, function(item){
 							return item.when <= through;
 						});
-						console.log("Data went from " + data.length + " to " +oldLength );
+//						console.log("Data went from " + data.length + " to " +oldLength );
 					}
 					draw(data);
 					
