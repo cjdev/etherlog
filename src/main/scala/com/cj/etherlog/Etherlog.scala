@@ -1,4 +1,3 @@
-
 package com.cj.etherlog
 
 import org.httpobjects.jetty.HttpObjectsJettyHandler
@@ -81,6 +80,7 @@ object Etherlog {
     
     val dataPath = new Path("data");
     
+    val errors = new Database[String](new Path(dataPath, "errors"))
     val backlogs = new Database[BacklogStatus](new Path(dataPath, "backlogs"))
     val versions = new Database[BacklogVersion](new Path(dataPath, "versions"))
     
@@ -122,7 +122,9 @@ object Etherlog {
     case class StatsLogEntry (val version:String, val when:Long, val memo:String, val todo:Int, val done:Int)
     case class BacklogListEntry (val id:String, val name:String)
     
-    HttpObjectsJettyHandler.launchServer(43180, 
+    val port = 43180
+    
+    HttpObjectsJettyHandler.launchServer(port, 
         new HttpObject("/api/backlogs"){
             override def get(req:Request) = {
                val results = new ListBuffer[BacklogListEntry]()
@@ -265,10 +267,23 @@ object Etherlog {
               get(req)
             }
         },
+        new HttpObject("/api/errors"){
+          
+            override def post(req:Request) = {
+              val errorId = UUID.randomUUID().toString();
+              val error = asString(readAsStream(req.representation()))
+              
+              errors.put(errorId, error)
+              
+              CREATED(Location("/api/errors/" + errorId))
+            }
+        },
         new ClasspathResourceObject("/mockup", "/content/backlog-mockup.html", getClass()),
         new ClasspathResourceObject("/", "/content/index.html", getClass()),
         new ClasspathResourceObject("/backlog/{backlogId}", "/content/backlog.html", getClass()),
         new ClasspathResourcesObject("/{resource*}", getClass(), "/content")
-    ); 
+    );
+    
+    println("etherlog is alive and listening on port " + port);
   }
 }

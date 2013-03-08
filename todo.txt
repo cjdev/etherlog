@@ -11,7 +11,6 @@ TASKS:
 ==== BETA ======
 
 Give users the means to change the backlog name
-Simple burn-down chart
 Truncate the story names unless asked to show the whole thing
 Story dependencies
 

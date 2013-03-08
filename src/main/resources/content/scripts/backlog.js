@@ -42,26 +42,51 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 			  try{
 				  readView();
 				  backlog.memo = "work-in-progress";
+				  
+				  var newBacklogText = JSON.stringify(backlog);
+				  
 				  http({
 					  url: "/api/backlogs/" + backlogId ,
 					  method: "PUT",
-					  data:JSON.stringify(backlog),
+					  data:newBacklogText,
 					  onResponse: function (response) {
-						  console.log("Save queue: Changes submitted with " + response.status);
-						  lastServerUpdate = t;
-						  setTimeout(sendUpdate, 1000);
+						  var status = response.status;
+						  console.log("Save queue: Changes submitted with " + status);
+						  if(status===200){
+							  lastServerUpdate = t;
+							  setTimeout(sendUpdate, 1000);
+						  }else{
+							  handleUnexpectedError("Response was " + status + ".  I sent:\n" + newBacklogText);
+							  setTimeout(sendUpdate, 1000);
+						  }
 					  }
 				  });
 			  }catch(e){
-				  console.log("ERROR: " + e)
+				  handleUnexpectedError(e);
+				  
+				  setTimeout(sendUpdate, 1000);
 			  }
 		  }else{
-			  //console.log("Save queue: Nothing to do");
 			  setTimeout(sendUpdate, 1000);
 		  }
 	  }
 	  
 	  sendUpdate();
+	  
+	  function handleUnexpectedError(e){
+
+		  var error = e?e.toString():"null";
+		  
+		  http({
+			  url: "/api/errors/" ,
+			  method: "POST",
+			  data:JSON.stringify("Error updating backlog " + backlogId + ":\n" + error),
+			  onResponse: function (response) {
+			  }
+		  });
+		  alert("Unexpected error (maybe the server is down or inaccessible?).  The error was:\n " + e);
+		  console.log("ERROR: " + e)
+	  }
 	  
 	  function sendWorkInProgress(){
 		  lastChange = new Date().getTime();
@@ -259,33 +284,39 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 			  value = view.value.val();
 			  
 			  if(value!==oldValue || currency !==oldCurrency){
-				  oldValue = value;
-				  oldCurrency = currency;
-				  console.log("Estimate: " + currency + " " + value);
 				  
-				  
-				  if(currency !== ""){
-					  
-					 var estimate = getEstimateForCurrency(currency);
-					  
-					  
-					  if(!estimate){
-						  console.log("no existing " + currency + " estimate");
-						  estimate = {id:uuid()};
-						  if(!item.estimates){
-							  item.estimates = [];
-						  }
-						  item.estimates.push(estimate);
-					  }else{
-						  console.log(estimate);
-					  }
-					  
-					  estimate.currency = currency;
-					  estimate.value = value;
-					  estimate.when = new Date().getTime();
 
-					  sendWorkInProgress();
-				  }
+				 if(value<=0 && oldValue){
+					 alert("You must specify a value");
+					 view.value.val(oldValue);
+				 }else{
+					 oldValue = value;
+					 oldCurrency = currency;
+					 console.log("Estimate: " + currency + " " + value);
+					 
+					 
+					 if(currency !== ""){
+						 var estimate = getEstimateForCurrency(currency);
+						 
+						 
+						 if(!estimate){
+							 console.log("no existing " + currency + " estimate");
+							 estimate = {id:uuid()};
+							 if(!item.estimates){
+								 item.estimates = [];
+							 }
+							 item.estimates.push(estimate);
+						 }else{
+							 console.log(estimate);
+						 }
+						 
+						 estimate.currency = currency;
+						 estimate.value = value;
+						 estimate.when = new Date().getTime();
+						 
+						 sendWorkInProgress();
+					 }
+				 }
 				  
 			  }
 		  }
