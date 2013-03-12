@@ -19,6 +19,7 @@ import java.io.{File => Path}
 import java.util.UUID
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.StringBuilder
+import java.io.FileInputStream
 
 object Etherlog {
   def readAsStream(r:Representation) = {
@@ -57,7 +58,13 @@ object Etherlog {
     }
     
     def get(id:String)(implicit manifest:Manifest[T]):T = this.synchronized {
-        Jerkson.parse[T](pathFor(id))
+        val stream = new FileInputStream(pathFor(id))
+        try {
+            Jerkson.parse[T](stream)
+        }finally{
+          stream.close();
+        }
+        
     }
     
     def scan(fn:(String, T)=>Unit)(implicit manifest:Manifest[T]) {
