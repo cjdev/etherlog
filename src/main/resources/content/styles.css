@@ -9,6 +9,7 @@ div.project-chunk {
   padding:5px;
   border:4px solid;
   width:300px;
+  white-space:pre;
 }
 	
 .clearfix:after {

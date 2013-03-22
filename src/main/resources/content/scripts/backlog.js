@@ -84,6 +84,7 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 			  onResponse: function (response) {
 			  }
 		  });
+		  
 		  alert("Unexpected error (maybe the server is down or inaccessible?).  The error was:\n " + e);
 		  console.log("ERROR: " + e)
 	  }
@@ -339,12 +340,13 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 				  '<img style="display:none;" src="/medal.png"/ class="finished-icon finished-button">' + 
 				  '<div class="controls" ><button style="display:none;" class="done-button">Done</button>' + 
 				  '<div style="display:none;"class="estimates-holder"></div></div>' + 
-				  '<span class="label"/>' + 
+				  '<span class="label"/>' + '<div class="remainder" style="display:none;"/>' +
 				  '<textarea style="display:none;"></textarea></div>');
 		  
 		  
 		  view = {
 		      label:v.find(".label"),
+		      remainder:v.find(".remainder"),
 		      textarea:v.find("textarea"),
 		      finishedButton:v.find(".finished-button"),
 		      editButton:v.find(".edit-button"),
@@ -382,10 +384,37 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 		  
 		  
 		  
+		  function setText(text, decoration){
+			  var lines = text.split('\n');
+			  console.log(lines.length + " lines in " + text);
+			  if(lines.length>0){
+				  var firstLine = lines[0];
+				  
+				  if(decoration){
+					  firstLine = firstLine + " " + decoration; 
+				  }
+				  
+				  view.label.text(firstLine);
+				  
+				  if(lines.length>1){
+					  var remainder = text.substring(firstLine.length);
+					  view.remainder.text(remainder);
+				  }
+			  }
+		  }
+		  
+		  view.label.click(function(){
+			  if(view.remainder.css("display")==="none"){
+				  view.remainder.slideDown();
+			  }else{
+				  view.remainder.slideUp();
+			  }
+		  });
+		  
 		  if(item.kind==="goal"){
 			  v.addClass("milestone divider clearfix");
 			  showViewMode = function(){
-				  view.label.text("GOAL: " + item.name);
+				  setText("GOAL: " + item.name);
 			  }
 		  }else {
 			  if(item.kind==="story"){
@@ -397,7 +426,7 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 				  v.addClass("epic project-chunk");
 			  }
 			  showViewMode = function(){
-				  view.label.text(item.name + " " + mostRecentEstimateText());
+				  setText(item.name, mostRecentEstimateText());
 			  }
 			  EstimatesWidget(item, view.estimatesHolder);
 		  }
@@ -433,6 +462,7 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 			  showViewMode();
 			  view.editButton.show();
 			  view.label.show();
+			  view.remainder.hide();
 			  if(!item.isComplete) {
 				  view.deleteButton.show();
 			  }
@@ -449,6 +479,7 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 
 		  function showEditMode(){
 			  view.label.hide();
+			  view.remainder.hide();
 			  view.editButton.hide();
 			  view.deleteButton.hide();
 			  view.finishedButton.hide();
