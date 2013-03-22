@@ -390,11 +390,12 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 			  if(lines.length>0){
 				  var firstLine = lines[0];
 				  
+				  var label = firstLine;
 				  if(decoration){
-					  firstLine = firstLine + " " + decoration; 
+					  label = label + " " + decoration; 
 				  }
 				  
-				  view.label.text(firstLine);
+				  view.label.text(label);
 				  
 				  if(lines.length>1){
 					  var remainder = text.substring(firstLine.length);
