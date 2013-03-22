@@ -89,6 +89,47 @@ object Etherlog {
     private def pathFor(id:String) = new Path(basePath, id);
   }
   
+  
+    def makeSvg(stats:List[StatsLogEntry]) = {
+        val leftMargin = 2;
+        val topMargin = 1;
+        val bottomMargin = 1;
+        val width = 3;
+        val spacing = 1;
+        
+        val max = stats.size match {
+          case 0=>0;
+          case _=> stats.map(entry=>entry.done + entry.todo).max
+        }
+        
+        def scale(x:Int) = x * 100;
+        def scaleY(x:Int) = x * 100;
+        
+      val guts = stats.zipWithIndex.flatMap({case (entry, idx)=>
+        val x = scale(idx * (width + spacing) + leftMargin)
+        val entryHeight = entry.done + entry.todo
+        val yStart = topMargin + (max-entryHeight)
+        println("max is " + max + ", entryHeight is " + entryHeight)
+        
+          List(
+              """<rect x="""" + x + """" width="""" + scale(width) + "\" y=\"" + scale(yStart) + "\" height=\"" + scale(entry.done) + """" class="done"/>""",
+              """<rect x="""" + x + """" width="""" + scale(width) + "\" y=\"" + scale(yStart + entry.done) + "\" height=\"" + scale(entry.todo) + """" class="todo"/>"""
+           )
+      }).mkString(start="  ", sep="\n  ", end="")
+      
+      val height = scale(Math.max(max, 8) + topMargin + bottomMargin)
+      val chartWidth = Math.max(scaleY((stats.size*3)+ 4), 1000)
+      
+      """<?xml version="1.0" standalone="no"?>
+<?xml-stylesheet href="mystyle.css" type="text/css"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+     width="10cm" height="5cm" viewBox="0 0 """ + chartWidth + " " + height + """">
+""" + guts + """
+</svg>"""
+      }
+  
   def main(args: Array[String]) {
     
     val dataPath = new Path("data");
@@ -218,16 +259,17 @@ object Etherlog {
               CREATED(Location("/api/backlogs/" + status.id))
             }
         },
+        new HttpObject("/api/backlogs/{id}/mystyle.css"){
+            override def get(req:Request) = {
+              OK(FromClasspath("text/css", "/content/mystyle.css", getClass))
+            }
+        },
         new HttpObject("/api/backlogs/{id}/chart"){
             override def get(req:Request) = {
               val id = req.pathVars().valueFor("id")
               val stats = buildStatsLog(id);
               
-              val text = """ 
-                <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
-                  <circle cx="100" cy="50" r="40" stroke="black" stroke-width="2" fill="red" />
-                </svg>
-                """
+              val text = makeSvg(stats.toList.reverse)
               
               OK(Bytes("image/svg+xml", text.getBytes()))
             }
