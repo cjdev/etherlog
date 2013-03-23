@@ -95,5 +95,22 @@ class ChartTest {
       val expected = IOUtils.toString(getClass().getResourceAsStream("/reallyWide.svg"))
       assertEquals(expected, svg)
      }
+     
+     
+     @Test
+     def nonUniformIntervals(){
+      // given
+      val input = List[StatsLogEntry](
+              StatsLogEntry(version="1", when=1, memo="", todo=2, done=1),
+              StatsLogEntry(version="2", when=3, memo="", todo=1, done=2)
+      )
+      
+      // when
+      val svg = makeSvg(input.toList)
+      
+      // then
+      val expected = IOUtils.toString(getClass().getResourceAsStream("/nonUniformIntervals.svg"))
+      assertEquals(expected, svg)
+     }
     
 }

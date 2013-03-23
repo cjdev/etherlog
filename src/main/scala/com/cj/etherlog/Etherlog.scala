@@ -24,9 +24,9 @@ import java.io.FileInputStream
 object Etherlog {
   
   
-    case class HistoryItem (val version:String, val when:Long, val memo:String)
-    case class StatsLogEntry (val version:String, val when:Long, val memo:String, val todo:Int, val done:Int)
-    case class BacklogListEntry (val id:String, val name:String)
+  case class HistoryItem (val version:String, val when:Long, val memo:String)
+  case class StatsLogEntry (val version:String, val when:Long, val memo:String, val todo:Int, val done:Int)
+  case class BacklogListEntry (val id:String, val name:String)
   
   def readAsStream(r:Representation) = {
     val bytes = new ByteArrayOutputStream()
@@ -105,15 +105,28 @@ object Etherlog {
         def scale(x:Int) = x * 100;
         def scaleY(x:Int) = x * 100;
         
+        val start = stats.firstOption.map(_.when).getOrElse(0L)
+        
       val guts = stats.zipWithIndex.flatMap({case (entry, idx)=>
-        val x = scale(idx * (width + spacing) + leftMargin)
+        
+        val prevIndex = idx-1
+        val duration = if(prevIndex>=0){
+          val prev = stats(prevIndex)
+          entry.when - prev.when       
+        }else{
+          0
+        }
+        
+        println("duration is " + duration)
+        val myWidth = (duration.intValue() * width)
+        
+        val x = scale(((entry.when - start).intValue * (width + spacing)) + leftMargin)
         val entryHeight = entry.done + entry.todo
         val yStart = topMargin + (max-entryHeight)
         println("max is " + max + ", entryHeight is " + entryHeight)
-        
-          List(
-              """<rect x="""" + x + """" width="""" + scale(width) + "\" y=\"" + scale(yStart) + "\" height=\"" + scale(entry.done) + """" class="done"/>""",
-              """<rect x="""" + x + """" width="""" + scale(width) + "\" y=\"" + scale(yStart + entry.done) + "\" height=\"" + scale(entry.todo) + """" class="todo"/>"""
+        List(
+              """<rect x="""" + x + """" width="""" + scale(myWidth) + "\" y=\"" + scale(yStart) + "\" height=\"" + scale(entry.done) + """" class="done"/>""",
+              """<rect x="""" + x + """" width="""" + scale(myWidth) + "\" y=\"" + scale(yStart + entry.done) + "\" height=\"" + scale(entry.todo) + """" class="todo"/>"""
            )
       }).mkString(start="  ", sep="\n  ", end="")
       
