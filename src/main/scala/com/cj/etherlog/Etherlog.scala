@@ -25,7 +25,9 @@ object Etherlog {
   
   
   case class HistoryItem (val version:String, val when:Long, val memo:String)
-  case class StatsLogEntry (val version:String, val when:Long, val memo:String, val todo:Int, val done:Int)
+  case class StatsLogEntry (val version:String, val when:Long, val memo:String, val todo:Int, val done:Int){
+    def total = done + todo
+  }
   case class BacklogListEntry (val id:String, val name:String)
   
   def readAsStream(r:Representation) = {
@@ -92,9 +94,9 @@ object Etherlog {
   
     def makeSvg(stats:List[StatsLogEntry]) = {
         val leftMargin = 2;
+        val rightMargin = 2;
         val topMargin = 1;
         val bottomMargin = 1;
-        val width = 3;
         val spacing = 1;
         
         val max = stats.size match {
@@ -102,44 +104,91 @@ object Etherlog {
           case _=> stats.map(entry=>entry.done + entry.todo).max
         }
         
-        def scale(x:Int) = x * 100;
-        def scaleY(x:Int) = x * 100;
+        def scale(x:Int) = x ;
+        def scaleY(x:Int) = x;
         
         val start = stats.firstOption.map(_.when).getOrElse(0L)
+        val end = stats.lastOption.map(_.when).getOrElse(0L)
         
-      val guts = stats.zipWithIndex.flatMap({case (entry, idx)=>
+        val drawAreaWidth = 1000
+        val totalWidth = drawAreaWidth + leftMargin + rightMargin
         
-        val prevIndex = idx-1
-        val duration = if(prevIndex>=0){
-          val prev = stats(prevIndex)
-          entry.when - prev.when       
-        }else{
-          0
+        val width = if(stats.isEmpty)0 else ((end - start)/stats.size).toInt;
+        
+        def x(millis:Long) = {
+          val t = (end - start).toDouble
+          val d = (millis - start).toDouble
+          val r = d/t
+          println(r)
+          val w = (r * drawAreaWidth).toInt + leftMargin
+          println(w)
+          w
         }
         
-        println("duration is " + duration)
-        val myWidth = (duration.intValue() * width)
+        def y(v:Int) = v + topMargin + bottomMargin
         
-        val x = scale(((entry.when - start).intValue * (width + spacing)) + leftMargin)
-        val entryHeight = entry.done + entry.todo
-        val yStart = topMargin + (max-entryHeight)
-        println("max is " + max + ", entryHeight is " + entryHeight)
-        List(
-              """<rect x="""" + x + """" width="""" + scale(myWidth) + "\" y=\"" + scale(yStart) + "\" height=\"" + scale(entry.done) + """" class="done"/>""",
-              """<rect x="""" + x + """" width="""" + scale(myWidth) + "\" y=\"" + scale(yStart + entry.done) + "\" height=\"" + scale(entry.todo) + """" class="todo"/>"""
-           )
-      }).mkString(start="  ", sep="\n  ", end="")
+        val guts = if(stats.isEmpty){
+          List()
+        }else {
+           stats.tail.zipWithIndex.flatMap({case (entry, idx)=>
+          
+          val prev = stats(idx)
+          
+//            val duration = {
+//                val prevIndex = idx-1
+//          
+//                if(prevIndex>=0){
+//                    val prev = stats(prevIndex)
+//                            entry.when - prev.when       
+//                }else{
+//                    0
+//                }
+//            }
+          
+            
+            
+            val xLeft = x(prev.when)
+            val xRight = x(entry.when)
+            
+            val pointsTodo = List(
+                (xLeft, topMargin + (max-prev.total)),
+                (xRight, topMargin + (max-entry.total)),
+                (xRight, topMargin + (max-entry.todo)),
+                (xLeft, topMargin + (max-prev.todo)))
+                
+                
+            val pointsDone = List(
+                (xLeft, topMargin + (max-prev.todo)),
+                (xLeft, topMargin + max),
+                (xRight, topMargin + max),
+                (xRight, topMargin + (max-entry.todo)))
+            
+                
+            def print(points:List[(Int, Int)]) = points
+                                .map(x=>x._1 + "," + x._2) // to text
+                                .mkString(" "); // combined
+            
+            List(
+                 """<polygon points="""" + print(pointsTodo) + """" class="done"/>""",
+                 """<polygon points="""" + print(pointsDone) + """" class="todo"/>"""
+               )
+        })
+      }
+        
+      val text = guts.mkString(start="  ", sep="\n  ", end="")
       
-      val height = scale(Math.max(max, 8) + topMargin + bottomMargin)
-      val chartWidth = Math.max(scaleY((stats.size*3)+ 4), 1000)
+      val height = y(max)
+      val chartWidth = totalWidth
+      
+      val aspectRatio = chartWidth.toDouble/height.toDouble
       
       """<?xml version="1.0" standalone="no"?>
 <?xml-stylesheet href="mystyle.css" type="text/css"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
-     width="10cm" height="5cm" viewBox="0 0 """ + chartWidth + " " + height + """">
-""" + guts + """
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" preserveAspectRatio="none" 
+     width="10cm" height="10cm" viewBox="0 0 """ + chartWidth + " " + height + """">
+""" + text + """
 </svg>"""
       }
   
