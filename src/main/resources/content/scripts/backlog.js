@@ -19,6 +19,31 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  
 	  where = $("body");
 	  
+	  var activityMonitor = (function(){
+		  var view = $(".throbber");
+		  var items = [];
+		  
+		  function show(){
+			  view.show();
+			  var item = {};
+			  
+			  items.push(item);
+			  
+			  return {
+				  done:function(){
+					  items.pop(item);
+					  if(items.length===0){
+						  view.hide();
+					  }
+				  }
+			  };
+		  }
+		  
+		  return {
+			show:show  
+		  };
+	  }());
+	  
 	  var view = {
 	      title : where.find("#title"),
 	      backlog : where.find(".backlog"),
@@ -194,6 +219,8 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  }
 	  
 	  function showVersion(version){
+		  var monitor = activityMonitor.show();
+		  
 		  http({
 			  url:"/api/backlogs/" + backlogId + "/history/" + version,
 			  method:"GET",
@@ -201,6 +228,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 				  view.memoTextArea.css("visibility", "visible");
 				  backlog = JSON.parse(response.body);
 				  render();
+				  monitor.done();
 			  }
 		  });
 		  
@@ -638,6 +666,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  });
 	  
 	  function showCurrentVersion(fn){
+		  var monitor = activityMonitor.show();
 		  http({
 			  url: "/api/backlogs/" + backlogId,
 	          method: "GET",
@@ -647,6 +676,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	              if(fn){
 	            	  fn();
 	              }
+				  monitor.done();
 	          }
 		  });
 	  }
@@ -654,6 +684,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  var chart = (function(){
 		  
 		  function render(when){
+			  var monitor = activityMonitor.show();
 			  var url = "/api/backlogs/" + backlogId + "/chart";
 			  
 			  if(when){
@@ -661,6 +692,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  }
 //			  console.log(url);
 			  $("img.chart").attr("src", url);
+			  monitor.done();
 		  }
 		  
 		  function refresh(){
