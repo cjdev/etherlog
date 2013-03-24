@@ -119,9 +119,7 @@ object Etherlog {
           val t = (end - start).toDouble
           val d = (millis - start).toDouble
           val r = d/t
-          println(r)
           val w = (r * drawAreaWidth).toInt + leftMargin
-          println(w)
           w
         }
         
@@ -278,7 +276,7 @@ object Etherlog {
               results.filter{item=> 
                     var includeBecauseItsLast = (includeCurrentState && item.version == latest.version)
                     var includeBecauseItsNotWIP = item.memo!="work-in-progress" 
-                    println(item.when + " " + includeBecauseItsLast + " "  + includeBecauseItsNotWIP + " (" + item.memo + ")")
+//                    println(item.when + " " + includeBecauseItsLast + " "  + includeBecauseItsNotWIP + " (" + item.memo + ")")
                     includeBecauseItsLast || includeBecauseItsNotWIP
               }
               
@@ -420,7 +418,7 @@ object Etherlog {
               
               versions.put(updatedBacklog.latestVersion, newVersion);
               backlogs.put(id, updatedBacklog)
-              println("New Data:\n" + newVersion)
+//              println("New Data:\n" + newVersion)
               get(req)
             }
         },

@@ -51,7 +51,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 					  data:newBacklogText,
 					  onResponse: function (response) {
 						  var status = response.status;
-						  console.log("Save queue: Changes submitted with " + status);
+//						  console.log("Save queue: Changes submitted with " + status);
 						  if(status===200){
 							  lastServerUpdate = t;
 							  chart.refresh();
@@ -87,7 +87,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  });
 		  
 		  alert("Unexpected error (maybe the server is down or inaccessible?).  The error was:\n " + e);
-		  console.log("ERROR: " + e)
+//		  console.log("ERROR: " + e)
 	  }
 	  
 	  function sendWorkInProgress(){
@@ -132,7 +132,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  
 	  function deleteItem(item){
 		  var idx = findItemNumById(item.id);
-		  console.log("Deleting #" + idx + " " + JSON.stringify(item));
+//		  console.log("Deleting #" + idx + " " + JSON.stringify(item));
 		  
 		  backlog.items.splice(idx, 1);
 		  where.find("#" + item.id).remove();
@@ -294,7 +294,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 				 }else{
 					 oldValue = value;
 					 oldCurrency = currency;
-					 console.log("Estimate: " + currency + " " + value);
+//					 console.log("Estimate: " + currency + " " + value);
 					 
 					 
 					 if(currency !== ""){
@@ -302,14 +302,14 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 						 
 						 
 						 if(!estimate){
-							 console.log("no existing " + currency + " estimate");
+//							 console.log("no existing " + currency + " estimate");
 							 estimate = {id:uuid()};
 							 if(!item.estimates){
 								 item.estimates = [];
 							 }
 							 item.estimates.push(estimate);
 						 }else{
-							 console.log(estimate);
+//							 console.log(estimate);
 						 }
 						 
 						 estimate.currency = currency;
@@ -387,7 +387,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  
 		  function setText(text, decoration){
 			  var lines = text.split('\n');
-			  console.log(lines.length + " lines in " + text);
+//			  console.log(lines.length + " lines in " + text);
 			  if(lines.length>0){
 				  var firstLine = lines[0];
 				  
@@ -441,7 +441,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  view.textarea.bind("keypress change",function(n){
 			  item.name = view.textarea.val();
 			  view.label.text(item.name);
-			  console.log("Changed to " + item.name);
+//			  console.log("Changed to " + item.name);
 			  sendWorkInProgress();
 		  });
 		  
@@ -449,11 +449,11 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 
 			  v.draggable({
 				  start: function( event, ui ) {
-					  console.log("Started dragging " + item.name);
+//					  console.log("Started dragging " + item.name);
 					  lastDragged = item;
 				  	},
 				   stop:function(event, ui){
-					   console.log("Stopped dragging" + ui.helper.attr('id'));
+//					   console.log("Stopped dragging" + ui.helper.attr('id'));
 					   ui.helper.css("left", 0);
 					   ui.helper.css("top", 0);
 				   }
@@ -601,7 +601,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  
 	  function addNewItem(item){
 
-		  console.log(item);
+//		  console.log(item);
 		  DropZone(item.id, view.backlog);
 		  const widget = ItemWidget(item, view.backlog);
 		  widget.showEditMode();
@@ -659,7 +659,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  if(when){
 				  url = url+"?end=" + when + "&showLatestEvenIfWip=true";
 			  }
-			  console.log(url);
+//			  console.log(url);
 			  $("img.chart").attr("src", url);
 		  }
 		  
