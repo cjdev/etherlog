@@ -105,5 +105,10 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		  	<artifactId>commons-io</artifactId>
 		  	<version>2.4</version>
 		  </dependency>
+		  <dependency>
+		  	<groupId>joda-time</groupId>
+		  	<artifactId>joda-time</artifactId>
+		  	<version>1.6</version>
+		  </dependency>
 	</dependencies>
 </project>

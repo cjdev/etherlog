@@ -20,6 +20,8 @@ import java.util.UUID
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.StringBuilder
 import java.io.FileInputStream
+import org.joda.time.DateMidnight
+import org.joda.time.Instant
 
 object Etherlog {
   
@@ -92,77 +94,64 @@ object Etherlog {
   }
   
   
-    def makeSvg(stats:List[StatsLogEntry]) = {
+    def makeSvg(stats:List[StatsLogEntry], chartWidth:Int = 50, chartHeight:Int = 10) = {
         val leftMargin = 2;
         val rightMargin = 2;
         val topMargin = 1;
         val bottomMargin = 1;
         val spacing = 1;
         
-        val max = stats.size match {
+        val nHeight = stats.size match {
           case 0=>0;
           case _=> stats.map(entry=>entry.done + entry.todo).max
         }
         
-        def scale(x:Int) = x ;
-        def scaleY(x:Int) = x;
+        val aspectRatio = chartWidth.toDouble/chartHeight.toDouble
         
         val start = stats.firstOption.map(_.when).getOrElse(0L)
         val end = stats.lastOption.map(_.when).getOrElse(0L)
         
-        val drawAreaWidth = 1000
-        val totalWidth = drawAreaWidth + leftMargin + rightMargin
+        val timeSpan = end - start
+        
+        val drawAreaWidth = chartWidth - leftMargin - rightMargin;
+        
+        val totalWidth = chartWidth
         
         val width = if(stats.isEmpty)0 else ((end - start)/stats.size).toInt;
         
         def x(millis:Long) = {
-          val t = (end - start).toDouble
           val d = (millis - start).toDouble
-          val r = d/t
+          val r = d/timeSpan
           val w = (r * drawAreaWidth).toInt + leftMargin
           w
         }
         
-        def y(v:Int) = v + topMargin + bottomMargin
+        def y(v:Number) = ((chartHeight.doubleValue/(nHeight+ topMargin + bottomMargin).doubleValue) * v.doubleValue) 
         
-        val guts = if(stats.isEmpty){
+        val parts = if(stats.isEmpty){
           List()
         }else {
-           stats.tail.zipWithIndex.flatMap({case (entry, idx)=>
+          val bands = stats.tail.zipWithIndex.flatMap({case (entry, idx)=>
           
-          val prev = stats(idx)
-          
-//            val duration = {
-//                val prevIndex = idx-1
-//          
-//                if(prevIndex>=0){
-//                    val prev = stats(prevIndex)
-//                            entry.when - prev.when       
-//                }else{
-//                    0
-//                }
-//            }
-          
-            
-            
+            val prev = stats(idx)
             val xLeft = x(prev.when)
             val xRight = x(entry.when)
             
             val pointsTodo = List(
-                (xLeft, topMargin + (max-prev.total)),
-                (xRight, topMargin + (max-entry.total)),
-                (xRight, topMargin + (max-entry.todo)),
-                (xLeft, topMargin + (max-prev.todo)))
+                (xLeft, y(topMargin + (nHeight-prev.total))),
+                (xRight, y(topMargin + (nHeight-entry.total))),
+                (xRight, y(topMargin + (nHeight-entry.todo))),
+                (xLeft, y(topMargin + (nHeight-prev.todo))))
                 
                 
             val pointsDone = List(
-                (xLeft, topMargin + (max-prev.todo)),
-                (xLeft, topMargin + max),
-                (xRight, topMargin + max),
-                (xRight, topMargin + (max-entry.todo)))
+                (xLeft, y(topMargin + (nHeight-prev.todo))),
+                (xLeft, y(topMargin + nHeight)),
+                (xRight, y(topMargin + nHeight)),
+                (xRight, y(topMargin + (nHeight-entry.todo))))
             
                 
-            def print(points:List[(Int, Int)]) = points
+            def print(points:List[(Any, Any)]) = points
                                 .map(x=>x._1 + "," + x._2) // to text
                                 .mkString(" "); // combined
             
@@ -171,20 +160,74 @@ object Etherlog {
                  """<polygon points="""" + print(pointsDone) + """" class="todo"/>"""
                )
         })
+        
+        val numLines = 5;
+        
+        
+//        val pointBoundaries:Stream[(Int, Int)] = {
+//                def loop(n:(Int, Int)):Stream[(Int, Int)] = {
+//                        println(n);  
+//                        val points = n._1 + 1
+//                        n#::loop((points, nHeight - points)); 
+//                }
+//                loop(0, nHeight)
+//        }
+        
+        val ptsPerLine = (nHeight.toDouble/numLines.toDouble).ceil.intValue
+        
+        val hLines = (for(n<-1 to numLines) yield {
+            val points = (n*ptsPerLine)
+            val nY = y(nHeight.toDouble - points + topMargin);
+            if(nY>0){
+                println("at " + ptsPerLine + " pts/line, line " + n + " is point " + (points) + " at " + nY)
+                List(
+                        """<line y1="""" + nY + """" x1="0" y2="""" + nY + """" x2="""" + x(end) + """" />""",
+                        """<text x="0" y="""" + nY + """" >""" + (points )+ """</text>"""
+                        )
+            }else{
+              List()
+            }
+        }).flatten.toList
+        
+        val dayBoundaries:Stream[DateMidnight] = {
+                def loop(n:DateMidnight):Stream[DateMidnight] = {
+                        println(n);  
+                        n#::loop(n.plusWeeks(1)); }
+                loop(new Instant(start).toDateTime().toDateMidnight())
+        }
+
+        val days = dayBoundaries.takeWhile(_.getMillis() <= end).filter(_.getMillis()>start);
+        
+        val vLines = days.map{date=>
+            val nX = x(date.getMillis())
+            List(
+                """<line x1="""" + nX + """" y1="0" x2="""" + nX + """" y2="""" + y(nHeight) + """" class="verticalLine"/>""",
+                """ <text x="""" + nX + """" y="""" + y(nHeight) + """" >""" + date.getWeekOfWeekyear() + """</text>"""
+            )
+        }.flatten.toList
+        
+        println(vLines)
+        
+//        val misc = {
+//          val nX = x(System.currentTimeMillis())
+//          List(
+//                  """<line x1="""" + nX + """" y1="0" x2="""" + nX + """" y2="""" + y(nHeight) + """" class="nowLine"/>"""
+//          )
+//        }
+        
+        bands ::: hLines ::: vLines //::: misc        
       }
         
-      val text = guts.mkString(start="  ", sep="\n  ", end="")
-      
-      val height = y(max)
-      val chartWidth = totalWidth
-      
-      val aspectRatio = chartWidth.toDouble/height.toDouble
+        
+        val text = parts.mkString(start="  ", sep="\n  ", end="")
+
+      val height = y(nHeight)
       
       """<?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" preserveAspectRatio="none" 
-     width="10cm" height="10cm" viewBox="0 0 """ + chartWidth + " " + height + """">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+    viewBox="0 0 """ + chartWidth + " " + chartHeight + """">
      <style type="text/css" >
       <![CDATA[
         .todo {
@@ -194,6 +237,29 @@ object Etherlog {
         .done {
             fill:green;
         }
+        text {
+            font-size:1pt;
+            font-family:sans-serif;
+        }
+        xlabel {
+            transform:rotate(30 20,40);
+        }
+        line {
+            stroke:grey;
+            stroke-width:.01
+        }
+    
+        nowLine {
+            stroke:red;
+            stroke-width:.05
+        }
+        
+        .dot {
+            stroke:black;
+            stroke-width:.01;
+            fill:black;
+        }
+        
       ]]>
     </style>
 """ + text + """

@@ -117,7 +117,6 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  });
 		  
 		  alert("Unexpected error (maybe the server is down or inaccessible?).  The error was:\n " + e);
-//		  console.log("ERROR: " + e)
 	  }
 	  
 	  function sendWorkInProgress(){
