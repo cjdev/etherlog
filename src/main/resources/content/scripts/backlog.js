@@ -1,4 +1,4 @@
-define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uuid, d3, BurndownWidget){
+define(["jquery", "http", "uuid"], function($, http, uuid){
 	  
 	  var backlog, where, lastDragged;
 	  
@@ -54,6 +54,7 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 						  console.log("Save queue: Changes submitted with " + status);
 						  if(status===200){
 							  lastServerUpdate = t;
+							  chart.refresh();
 							  setTimeout(sendUpdate, 1000);
 						  }else{
 							  handleUnexpectedError("Response was " + status + ".  I sent:\n" + newBacklogText);
@@ -174,7 +175,7 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 					      slide: function( event, ui ) {
 					    	  var selection = ui.value;
 					    	  var i = history[selection];
-					    	  console.log(ui.value + " " + i.version + "(" + i.memo + ")");
+					    	  console.log(ui.value + " " + i.version + "(" + i.memo + ") on " + i.when);
 					    	  when = i.when;
 					    	  showVersion(i.version);
 					      }
@@ -649,10 +650,27 @@ define(["jquery", "http", "uuid", "d3", "burndown-widget"], function($, http, uu
 	          }
 		  });
 	  }
-	  var chart = BurndownWidget(backlogId);
-//	  var chart = {
-//			  render:function(){}
-//	  };
+//	  var chart = BurndownWidget(backlogId);
+	  var chart = (function(){
+		  
+		  function render(when){
+			  var url = "/api/backlogs/" + backlogId + "/chart";
+			  
+			  if(when){
+				  url = url+"?end=" + when + "&showLatestEvenIfWip=true";
+			  }
+			  console.log(url);
+			  $("img.chart").attr("src", url);
+		  }
+		  
+		  function refresh(){
+			  render(new Date().getTime())
+		  }
+		  
+		  return {
+			  render:render,
+			  refresh:refresh
+	  }}());
 	  
 	  showCurrentVersion();
 	  

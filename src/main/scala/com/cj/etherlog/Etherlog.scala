@@ -183,11 +183,21 @@ object Etherlog {
       val aspectRatio = chartWidth.toDouble/height.toDouble
       
       """<?xml version="1.0" standalone="no"?>
-<?xml-stylesheet href="mystyle.css" type="text/css"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" preserveAspectRatio="none" 
      width="10cm" height="10cm" viewBox="0 0 """ + chartWidth + " " + height + """">
+     <style type="text/css" >
+      <![CDATA[
+        .todo {
+            fill:blue;
+        }
+        
+        .done {
+            fill:green;
+        }
+      ]]>
+    </style>
 """ + text + """
 </svg>"""
       }
@@ -234,9 +244,9 @@ object Etherlog {
       }
     }
     
-    def buildStatsLog(id:String)= {
+    def buildStatsLog(id:String, until:Long, includeCurrentState:Boolean = false)= {
       val backlog = backlogs.get(id) 
-              val results = new ListBuffer[StatsLogEntry]()
+              val allResults = new ListBuffer[StatsLogEntry]()
               
               def incrementedEstimate(tally:Int, item:Item) = {
                   item.bestEstimate match {
@@ -248,28 +258,37 @@ object Etherlog {
               }
               
               scanBacklogHistory(id, {version=>
-                if(version.backlog.memo!="work-in-progress"){
                     val items = version.backlog.items
-                            val amountComplete:Int = items.filter(_.isComplete.getOrElse(false)).foldLeft(0)(incrementedEstimate);
+                    val amountComplete:Int = items.filter(_.isComplete.getOrElse(false)).foldLeft(0)(incrementedEstimate);
                     val amountTodo:Int = items.filter(!_.isComplete.getOrElse(false)).foldLeft(0)(incrementedEstimate);
                     
-                    if(results.isEmpty || results.last.todo != amountTodo || results.last.done != amountComplete){
-                        val entry = StatsLogEntry(
-                                version=version.id, 
-                                when=version.when, 
-                                memo=version.backlog.memo,
-                                todo=amountTodo,
-                                done=amountComplete)
-                                results += entry
-                    }
-                }
+                    allResults += StatsLogEntry(
+                            version=version.id, 
+                            when=version.when, 
+                            memo=version.backlog.memo,
+                            todo=amountTodo,
+                            done=amountComplete)
                                 
               }) 
               
-              results
+              var results = allResults.filter(_.when<=until)
+              
+              var latest = results.first
+              
+              results.filter{item=> 
+                    var includeBecauseItsLast = (includeCurrentState && item.version == latest.version)
+                    var includeBecauseItsNotWIP = item.memo!="work-in-progress" 
+                    println(item.when + " " + includeBecauseItsLast + " "  + includeBecauseItsNotWIP + " (" + item.memo + ")")
+                    includeBecauseItsLast || includeBecauseItsNotWIP
+              }
+              
     }
     
-    
+     class ChartStylesheet(parentPath:String) extends HttpObject(parentPath + "/mystyle.css"){
+            override def get(req:Request) = {
+              OK(FromClasspath("text/css", "/content/mystyle.css", getClass))
+            }
+        }
     
     val port = 43180
     
@@ -321,15 +340,18 @@ object Etherlog {
               CREATED(Location("/api/backlogs/" + status.id))
             }
         },
-        new HttpObject("/api/backlogs/{id}/mystyle.css"){
-            override def get(req:Request) = {
-              OK(FromClasspath("text/css", "/content/mystyle.css", getClass))
-            }
-        },
+        new ChartStylesheet("/api/backlogs/{id}"),
+        new ChartStylesheet("/backlog/"),
         new HttpObject("/api/backlogs/{id}/chart"){
             override def get(req:Request) = {
               val id = req.pathVars().valueFor("id")
-              val stats = buildStatsLog(id);
+              val endParam = req.getParameter("end")
+              val showLatestEvenIfWipParam = req.getParameter("showLatestEvenIfWip")
+              
+              val end = if(endParam==null) System.currentTimeMillis() else endParam.toLong
+              val showLatestEvenIfWip = if(showLatestEvenIfWipParam==null) false else showLatestEvenIfWipParam.toBoolean
+              
+              val stats = buildStatsLog(id=id, until=end, includeCurrentState = showLatestEvenIfWip);
               
               val text = makeSvg(stats.toList.reverse)
               
@@ -354,7 +376,7 @@ object Etherlog {
             override def get(req:Request) = {
               val id = req.pathVars().valueFor("id")
               
-              OK(JerksonJson(buildStatsLog(id)))
+              OK(JerksonJson(buildStatsLog(id, System.currentTimeMillis())))
             }
         },
         new HttpObject("/api/backlogs/{id}/history/{version}"){

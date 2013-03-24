@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 
 class ChartTest {
+  
     @Test
     def emptyChart(){
       // given
@@ -18,15 +19,8 @@ class ChartTest {
       val svg = makeSvg(input)
       
       // then
-      assertEquals("""
-<?xml version="1.0" standalone="no"?>
-<?xml-stylesheet href="mystyle.css" type="text/css"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
-  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" preserveAspectRatio="none" 
-     width="10cm" height="10cm" viewBox="0 0 1004 2">
-  
-</svg>""".trim(), svg)
+      val expected = IOUtils.toString(getClass().getResourceAsStream("/empty.svg"))
+      assertEquals(expected, svg)
     }
     
     @Test
@@ -42,7 +36,6 @@ class ChartTest {
       val svg = makeSvg(input)
       
       // then
-      FileUtils.write(new File("/home/stu/Desktop/temp.svg"), svg);
       val expected = IOUtils.toString(getClass().getResourceAsStream("/my.svg"))
       assertEquals(expected, svg)
     }
@@ -72,7 +65,6 @@ class ChartTest {
               StatsLogEntry(version="2", when=2, memo="", todo=2, done=1),
               StatsLogEntry(version="3", when=3, memo="", todo=0, done=3)
       )
-      //file:///home/stu/projects/cj/etherlog/src/test/resources/threeItems.svg
       
       // when
       val svg = makeSvg(input)
