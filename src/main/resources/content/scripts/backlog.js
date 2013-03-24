@@ -38,8 +38,11 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 				  }
 			  };
 		  }
-		  
+		  function showUnknown(){
+			  view.show();
+		  }
 		  return {
+			showUnknown:showUnknown,
 			show:show  
 		  };
 	  }());
@@ -65,6 +68,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  const t = lastChange;
 		  if(t > lastServerUpdate){
 			  try{
+				  var monitor = activityMonitor.show();
 				  readView();
 				  backlog.memo = "work-in-progress";
 				  
@@ -85,6 +89,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 							  handleUnexpectedError("Response was " + status + ".  I sent:\n" + newBacklogText);
 							  setTimeout(sendUpdate, 1000);
 						  }
+						  monitor.done();
 					  }
 				  });
 			  }catch(e){
@@ -116,6 +121,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  }
 	  
 	  function sendWorkInProgress(){
+		  activityMonitor.showUnknown();
 		  lastChange = new Date().getTime();
 	  }
 	  
