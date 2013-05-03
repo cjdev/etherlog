@@ -87,6 +87,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 						  if(status===200){
 							  lastServerUpdate = t;
 							  chart.refresh();
+					          updateSummary();
 							  setTimeout(sendUpdate, 1000);
 						  }else{
 							  handleUnexpectedError("Response was " + status + ".  I sent:\n" + newBacklogText);
@@ -143,7 +144,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
                       
                           $.each(estimates, function(idx, estimate){
                               if(!bestEstimate && estimate.currency === kind){
-                                  bestEstimate = {type:estimate.currency, value:estimate.value};
+                                  bestEstimate = {type:estimate.currency, value:parseInt(estimate.value, 10)};
                               } 
                           });
                   });
@@ -154,7 +155,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
           $.each(backlog.items, function(idx, item){
               var bestEstimate = findBestEstimate(item);
               if(bestEstimate){
-                  totals[bestEstimate.type] += bestEstimate.value;
+                  totals[bestEstimate.type] = totals[bestEstimate.type] + bestEstimate.value;
               }
           });
           return totals;
@@ -180,12 +181,13 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  DropZone(item.id, view.backlog);
 			  widgets.push(ItemWidget(item, view.backlog));
 		  });
-
-		  var totals = calculateTotals(backlog); 
-          view.summaryTextArea.text("(" + $.map(totals, function(value, key){return key + " " + value + "  ";}) + ")");
-          
-		  
+		  updateSummary();
 		  chart.render(when);
+	  }
+	  
+	  function updateSummary(){
+          var totals = calculateTotals(backlog); 
+          view.summaryTextArea.text("(" + $.map(totals, function(value, key){return key + " " + value + "  ";}) + ")");
 	  }
 	  
 	  function showEditMode(){
