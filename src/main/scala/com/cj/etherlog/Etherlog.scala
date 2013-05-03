@@ -121,8 +121,9 @@ object Etherlog {
         
         def x(millis:Long) = {
           val d = (millis - start).toDouble
+          println(d + " long");
           val r = d/timeSpan
-          val w = (r * drawAreaWidth).toInt + leftMargin
+          val w = (r * drawAreaWidth) + leftMargin
           w
         }
         
@@ -136,6 +137,10 @@ object Etherlog {
             val prev = stats(idx)
             val xLeft = x(prev.when)
             val xRight = x(entry.when)
+            
+            println(prev.when + " vs " + entry.when + " (" + (entry.when - prev.when) + " long)")
+            println("yo");
+            println((xRight - xLeft) + " wide")
             
             val pointsTodo = List(
                 (xLeft, y(topMargin + (nHeight-prev.total))),
