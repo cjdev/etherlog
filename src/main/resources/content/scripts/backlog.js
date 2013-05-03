@@ -1,5 +1,7 @@
 define(["jquery", "http", "uuid"], function($, http, uuid){
-	  
+
+      const kindsInOrderOfPrecedence = ["team", "grooming", "swag"];
+    
 	  var backlog, where, lastDragged;
 	  
 	  var when; // SUPERHACK!
@@ -124,14 +126,51 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  lastChange = new Date().getTime();
 	  }
 	  
+	  
+	  function calculateTotals(backlog){
+	      var totals = {};
+          
+          $.each(kindsInOrderOfPrecedence, function(idx, kind){
+              totals[kind] = 0;
+          });
+          
+          function findBestEstimate(backlogItem){
+              var bestEstimate;
+              var estimates = backlogItem.estimates;
+              if(estimates){
+                  $.each(kindsInOrderOfPrecedence, function(idx, kind){
+                      
+                          $.each(estimates, function(idx, estimate){
+                              if(!bestEstimate){
+                                  bestEstimate = {type:estimate.currency, value:estimate.value};
+                              } 
+                          });
+                  });
+              }
+              return bestEstimate;
+          }
+          
+          $.each(backlog.items, function(idx, item){
+              var bestEstimate = findBestEstimate(item);
+              if(bestEstimate){
+                  totals[bestEstimate.type] += bestEstimate.value;
+              }
+          });
+          $("#summary").text("(" + $.map(totals, function(value, key){return key + " " + value + "  ";}) + ")");
+          return totals;
+	  }
+	  
 	  function render(){
+	      
 		  view.memoTextArea.text(backlog.memo);
 		  view.title.text(backlog.name);
 		  view.backlog.empty();
+		  
 		  $.each(backlog.items, function(idx, item){
 			  DropZone(item.id, view.backlog);
 			  widgets.push(ItemWidget(item, view.backlog));
 		  });
+		  calculateTotals(backlog);
 		  chart.render(when);
 	  }
 	  
@@ -162,8 +201,6 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  
 	  function deleteItem(item){
 		  var idx = findItemNumById(item.id);
-//		  console.log("Deleting #" + idx + " " + JSON.stringify(item));
-		  
 		  backlog.items.splice(idx, 1);
 		  where.find("#" + item.id).remove();
 		  where.find("#dropZone" + item.id).remove();
@@ -420,7 +457,6 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  
 		  function setText(text, decoration){
 			  var lines = text.split('\n');
-//			  console.log(lines.length + " lines in " + text);
 			  if(lines.length>0){
 				  var firstLine = lines[0];
 				  
@@ -474,7 +510,6 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  view.textarea.bind("keypress change",function(n){
 			  item.name = view.textarea.val();
 			  view.label.text(item.name);
-//			  console.log("Changed to " + item.name);
 			  sendWorkInProgress();
 		  });
 		  
@@ -482,11 +517,9 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 
 			  v.draggable({
 				  start: function( event, ui ) {
-//					  console.log("Started dragging " + item.name);
 					  lastDragged = item;
 				  	},
 				   stop:function(event, ui){
-//					   console.log("Stopped dragging" + ui.helper.attr('id'));
 					   ui.helper.css("left", 0);
 					   ui.helper.css("top", 0);
 				   }
@@ -576,11 +609,8 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  }
 	  
 	  function findItemById(id){
-//		  console.log("Looking for" + id);
 		  var matches = $.grep(backlog.items, function(item){
-//			  console.log(item);
 			  const result = item.id===id;
-//			  console.log(result);
 			  return result;
 		  });
 		  
@@ -594,9 +624,6 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  where.find(".project-chunk, .milestone").each(function(idx, domElement){
 			  var id = $(domElement).attr("id");
 			  var chunk = findItemById(id);
-			  
-//			  console.log("Result: " + JSON.stringify(chunk));
-//			  console.log("chunk: " + chunk.id + " " + chunk.name + " (" + chunk.kind + ")");
 			  
 			  newList.push(chunk);
 		  });
@@ -634,7 +661,6 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  
 	  function addNewItem(item){
 
-//		  console.log(item);
 		  DropZone(item.id, view.backlog);
 		  const widget = ItemWidget(item, view.backlog);
 		  widget.showEditMode();
@@ -685,7 +711,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	          }
 		  });
 	  }
-//	  var chart = BurndownWidget(backlogId);
+
 	  var chart = (function(){
 		  
 		  function render(when){
@@ -695,7 +721,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  if(when){
 				  url = url+"?end=" + when + "&showLatestEvenIfWip=true";
 			  }
-//			  console.log(url);
+			  
 			  $("img.chart").attr("src", url);
 			  monitor.done();
 		  }

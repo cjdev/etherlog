@@ -342,7 +342,6 @@ object Etherlog {
               results.filter{item=> 
                     var includeBecauseItsLast = (includeCurrentState && item.version == latest.version)
                     var includeBecauseItsNotWIP = item.memo!="work-in-progress" 
-//                    println(item.when + " " + includeBecauseItsLast + " "  + includeBecauseItsNotWIP + " (" + item.memo + ")")
                     includeBecauseItsLast || includeBecauseItsNotWIP
               }
               

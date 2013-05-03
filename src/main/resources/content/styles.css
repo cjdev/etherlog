@@ -3,6 +3,12 @@ img.chart {
 	width:100%;
 }
 
+#summary {
+	margin:5px;
+	font-size:14pt;
+	font-style:italic;;
+}
+
 body {
   font-family:sans-serif;
   margin:20px;
