@@ -142,7 +142,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
                   $.each(kindsInOrderOfPrecedence, function(idx, kind){
                       
                           $.each(estimates, function(idx, estimate){
-                              if(!bestEstimate){
+                              if(!bestEstimate && estimate.currency === kind){
                                   bestEstimate = {type:estimate.currency, value:estimate.value};
                               } 
                           });
