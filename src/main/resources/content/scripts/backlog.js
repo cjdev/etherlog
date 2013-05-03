@@ -175,6 +175,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	      
 		  view.memoTextArea.text(formatLongDateTime(when?when:new Date().getTime()) + ": " + backlog.memo);
 		  view.title.text(backlog.name);
+          $("title").text(backlog.name); // << HACK!
 		  view.backlog.empty();
 		  
 		  $.each(backlog.items, function(idx, item){
