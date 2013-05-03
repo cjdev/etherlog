@@ -53,6 +53,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	      title : where.find("#title"),
 	      backlog : where.find(".backlog"),
 	      slider : where.find("#slider"),
+	      summaryTextArea : where.find("#summary"),
 	      editButton : where.find(".edit-button"),
 	      saveButton : where.find(".save-button"),
 	      addStoryButton : where.find(".add-story-button"),
@@ -156,13 +157,22 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
                   totals[bestEstimate.type] += bestEstimate.value;
               }
           });
-          $("#summary").text("(" + $.map(totals, function(value, key){return key + " " + value + "  ";}) + ")");
           return totals;
+	  }
+	  
+	  function formatLongDateTime(millis){
+	      var d = new Date(millis);
+	      
+	      function pad(v){
+	          return v<10?"0" + v:v;
+	      }
+	      
+	      return d.getFullYear() + "-" + pad(d.getMonth()) + "-" +  pad(d.getDate());
 	  }
 	  
 	  function render(){
 	      
-		  view.memoTextArea.text(backlog.memo);
+		  view.memoTextArea.text(formatLongDateTime(when?when:new Date().getTime()) + ": " + backlog.memo);
 		  view.title.text(backlog.name);
 		  view.backlog.empty();
 		  
@@ -170,7 +180,11 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  DropZone(item.id, view.backlog);
 			  widgets.push(ItemWidget(item, view.backlog));
 		  });
-		  calculateTotals(backlog);
+
+		  var totals = calculateTotals(backlog); 
+          view.summaryTextArea.text("(" + $.map(totals, function(value, key){return key + " " + value + "  ";}) + ")");
+          
+		  
 		  chart.render(when);
 	  }
 	  

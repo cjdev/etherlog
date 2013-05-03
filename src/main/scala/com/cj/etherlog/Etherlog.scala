@@ -352,7 +352,52 @@ object Etherlog {
               OK(FromClasspath("text/css", "/content/mystyle.css", getClass))
             }
         }
+     
+     def updateBacklog(newBacklogState:Backlog) = {
+       
+          val backlogId = this.synchronized{
+            var candidate = 1
+            while(backlogs.contains(candidate.toString())){
+              candidate += 1;
+            }
+            candidate.toString()
+          }
+          
+          val initialBacklog = Backlog(
+              id=backlogId, 
+              name=newBacklogState.name, 
+              memo=newBacklogState.memo, 
+              items = newBacklogState.items)
+          val initialVersion = BacklogVersion(
+                  id=UUID.randomUUID().toString(),
+                  backlog = initialBacklog,
+                  isPublished= false, 
+                  previousVersion = null
+          )
+          
+          versions.put(initialVersion.id, initialVersion)
+          
+          val status = BacklogStatus(
+              id=backlogId,
+              latestVersion = initialVersion.id
+              )
+          
+          backlogs.put(backlogId, status)
+          status.id
+     }
     
+     def buildStatsLogFromQueryString(id:String, req:Request) = {
+      val endParam = req.getParameter("end")
+      val showLatestEvenIfWipParam = req.getParameter("showLatestEvenIfWip")
+      
+      val end = if(endParam==null) System.currentTimeMillis() else endParam.toLong
+      val showLatestEvenIfWip = if(showLatestEvenIfWipParam==null) false else showLatestEvenIfWipParam.toBoolean
+      
+      
+      buildStatsLog(id=id, until=end, includeCurrentState = showLatestEvenIfWip).filter(state=>state.memo != "work-in-progress");
+      
+     }
+     
     val port = 43180
     
     HttpObjectsJettyHandler.launchServer(port, 
@@ -364,7 +409,6 @@ object Etherlog {
                  val version = versions.get(backlog.latestVersion)
                  results += BacklogListEntry(id=id, name=version.backlog.name)
                }
-               
               
                OK(JerksonJson(results))
             }
@@ -372,35 +416,9 @@ object Etherlog {
             override def post(req:Request) = {
               val backlogRecieved = Jerkson.parse[Backlog](readAsStream(req.representation()));
               
-              val backlogId = this.synchronized{
-                var candidate = 1
-                while(backlogs.contains(candidate.toString())){
-                  candidate += 1;
-                }
-                candidate.toString()
-              }
+              val newVersionId = updateBacklog(backlogRecieved);
               
-              val initialBacklog = Backlog(
-                  id=backlogId, 
-                  name=backlogRecieved.name, 
-                  memo=backlogRecieved.memo, 
-                  items = backlogRecieved.items)
-              val initialVersion = BacklogVersion(
-                      id=UUID.randomUUID().toString(),
-                      backlog = initialBacklog,
-                      isPublished= false, 
-                      previousVersion = null
-              )
-              
-              versions.put(initialVersion.id, initialVersion)
-              
-              val status = BacklogStatus(
-                  id=backlogId,
-                  latestVersion = initialVersion.id
-                  )
-              
-              backlogs.put(backlogId, status)
-              CREATED(Location("/api/backlogs/" + status.id))
+              CREATED(Location("/api/backlogs/" + newVersionId))
             }
         },
         new ChartStylesheet("/api/backlogs/{id}"),
@@ -408,13 +426,7 @@ object Etherlog {
         new HttpObject("/api/backlogs/{id}/chart"){
             override def get(req:Request) = {
               val id = req.pathVars().valueFor("id")
-              val endParam = req.getParameter("end")
-              val showLatestEvenIfWipParam = req.getParameter("showLatestEvenIfWip")
-              
-              val end = if(endParam==null) System.currentTimeMillis() else endParam.toLong
-              val showLatestEvenIfWip = if(showLatestEvenIfWipParam==null) false else showLatestEvenIfWipParam.toBoolean
-              
-              val stats = buildStatsLog(id=id, until=end, includeCurrentState = showLatestEvenIfWip);
+              val stats = buildStatsLogFromQueryString(id, req);
               
               val text = makeSvg(stats.toList.reverse)
               
@@ -431,15 +443,17 @@ object Etherlog {
                 results += HistoryItem(version=version.id, when=version.when, memo=version.backlog.memo)
               }) 
               
-              OK(JerksonJson(results))
+              var savePoints = results.filter(item=>item.memo != "work-in-progress")
+              OK(JerksonJson(savePoints))
             }
             
         },
         new HttpObject("/api/backlogs/{id}/statsLog"){
             override def get(req:Request) = {
               val id = req.pathVars().valueFor("id")
+              val stats = buildStatsLogFromQueryString(id, req);
               
-              OK(JerksonJson(buildStatsLog(id, System.currentTimeMillis())))
+              OK(JerksonJson(stats))
             }
         },
         new HttpObject("/api/backlogs/{id}/history/{version}"){
