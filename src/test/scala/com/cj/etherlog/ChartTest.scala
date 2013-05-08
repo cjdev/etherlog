@@ -2,11 +2,13 @@ package com.cj.etherlog
 
 import org.junit.Test
 import org.junit.Assert._
-import com.cj.etherlog.Etherlog.StatsLogEntry
-import com.cj.etherlog.Etherlog.makeSvg
+import com.cj.etherlog.chart.makeSvg
 import org.apache.commons.io.IOUtils
 import org.apache.commons.io.FileUtils
 import java.io.File
+
+import com.cj.etherlog.api._
+    
 
 class ChartTest {
   

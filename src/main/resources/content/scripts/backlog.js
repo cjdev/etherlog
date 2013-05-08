@@ -83,7 +83,6 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 					  data:newBacklogText,
 					  onResponse: function (response) {
 						  var status = response.status;
-//						  console.log("Save queue: Changes submitted with " + status);
 						  if(status===200){
 							  lastServerUpdate = t;
 							  chart.refresh();
