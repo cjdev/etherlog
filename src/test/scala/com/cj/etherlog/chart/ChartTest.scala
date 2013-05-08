@@ -67,7 +67,7 @@ class ChartTest {
       )
       
       // when
-      val svg = makeSvg(input, now=3)
+      val svg = makeSvg(input, now=4)
       
       // then
       val expected = resourceAsString("threeItems.svg")
