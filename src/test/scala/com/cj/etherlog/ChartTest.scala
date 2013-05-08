@@ -1,8 +1,7 @@
-package com.cj.etherlog
+package com.cj.etherlog.chart
 
 import org.junit.Test
 import org.junit.Assert._
-import com.cj.etherlog.chart.makeSvg
 import org.apache.commons.io.IOUtils
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -11,7 +10,7 @@ import com.cj.etherlog.api._
     
 
 class ChartTest {
-  
+   
     @Test
     def emptyChart(){
       // given
