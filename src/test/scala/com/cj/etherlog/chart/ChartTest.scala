@@ -5,12 +5,14 @@ import org.junit.Assert._
 import org.apache.commons.io.IOUtils
 import org.apache.commons.io.FileUtils
 import java.io.File
-
 import com.cj.etherlog.api._
+import org.junit.Test
     
 
 class ChartTest {
-   
+    
+    def resourceAsString(name:String) = IOUtils.toString(getClass().getResourceAsStream(name))
+  
     @Test
     def emptyChart(){
       // given
@@ -20,7 +22,7 @@ class ChartTest {
       val svg = makeSvg(input)
       
       // then
-      val expected = IOUtils.toString(getClass().getResourceAsStream("/empty.svg"))
+      val expected = resourceAsString("empty.svg")
       assertEquals(expected, svg)
     }
     
@@ -37,7 +39,7 @@ class ChartTest {
       val svg = makeSvg(input)
       
       // then
-      val expected = IOUtils.toString(getClass().getResourceAsStream("/my.svg"))
+      val expected = resourceAsString("my.svg")
       assertEquals(expected, svg)
     }
     
@@ -53,8 +55,7 @@ class ChartTest {
       val svg = makeSvg(input)
       
       // then
-      FileUtils.write(new File("/home/stu/Desktop/temp.svg"), svg);
-      val expected = IOUtils.toString(getClass().getResourceAsStream("/my.svg"))
+      val expected = resourceAsString("my.svg")
       assertEquals(expected, svg)
     }
      
@@ -71,7 +72,7 @@ class ChartTest {
       val svg = makeSvg(input)
       
       // then
-      val expected = IOUtils.toString(getClass().getResourceAsStream("/threeItems.svg"))
+      val expected = resourceAsString("threeItems.svg")
       assertEquals(expected, svg)
       
     }
