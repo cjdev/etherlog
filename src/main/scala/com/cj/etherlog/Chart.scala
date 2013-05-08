@@ -5,7 +5,7 @@ package object chart {
     import com.cj.etherlog.api._
     import org.joda.time._
     
-    def makeSvg(stats:List[StatsLogEntry], chartWidth:Int = 50, chartHeight:Int = 10) = {
+    def makeSvg(stats:List[StatsLogEntry], chartWidth:Int = 50, chartHeight:Int = 10, now:Long) = {
         val leftMargin = 2;
         val rightMargin = 2;
         val topMargin = 1;
@@ -20,21 +20,27 @@ package object chart {
         val aspectRatio = chartWidth.toDouble/chartHeight.toDouble
         
         val start = stats.firstOption.map(_.when).getOrElse(0L)
-        val end = stats.lastOption.map(_.when).getOrElse(0L)
+        val lastStatTime = stats.lastOption.map(_.when).getOrElse(0L)
         
-        val timeSpan = end - start
+        val chartEndTime = Math.max(now, lastStatTime)
+        println("end is " + chartEndTime)
         
+        val timeSpan = chartEndTime - start
+        println("timespan is " + timeSpan)
         val drawAreaWidth = chartWidth - leftMargin - rightMargin;
-        
+        println("draw area is " + drawAreaWidth + " wide")
         val totalWidth = chartWidth
         
-        val width = if(stats.isEmpty)0 else ((end - start)/stats.size).toInt;
+//        val width = if(stats.isEmpty)0 else ((end - start)/stats.size).toInt;
         
         def x(millis:Long) = {
           val d = (millis - start).toDouble
           println(d + " long");
           val r = d/timeSpan
+          println("r is " + r)
           val w = (r * drawAreaWidth) + leftMargin
+          
+          println("x(" + millis + ") = " + w)
           w
         }
         
@@ -87,7 +93,7 @@ package object chart {
             if(nY>0){
                 println("at " + ptsPerLine + " pts/line, line " + n + " is point " + (points) + " at " + nY)
                 List(
-                        """<line y1="""" + nY + """" x1="0" y2="""" + nY + """" x2="""" + x(end) + """" />""",
+                        """<line y1="""" + nY + """" x1="0" y2="""" + nY + """" x2="""" + x(chartEndTime) + """" />""",
                         """<text x="0" y="""" + nY + """" >""" + (points )+ """</text>"""
                         )
             }else{
@@ -102,7 +108,7 @@ package object chart {
                 loop(new Instant(start).toDateTime().toDateMidnight())
         }
 
-        val days = dayBoundaries.takeWhile(_.getMillis() <= end).filter(_.getMillis()>start);
+        val days = dayBoundaries.takeWhile(_.getMillis() <= chartEndTime).filter(_.getMillis()>start);
         
         val vLines = days.map{date=>
             val nX = x(date.getMillis())

@@ -251,8 +251,13 @@ object Etherlog {
             override def get(req:Request) = {
               val id = req.pathVars().valueFor("id")
               val stats = buildStatsLogFromQueryString(id, req);
+              val nowParam = req.getParameter("now");
+              val now = if(nowParam==null) System.currentTimeMillis() else nowParam.toLong
               
-              val text = makeSvg(stats.toList.reverse)
+              val text = makeSvg(
+                              stats=stats.toList.reverse, 
+                              now = now
+                         )
               
               OK(Bytes("image/svg+xml", text.getBytes()))
             }
@@ -262,7 +267,6 @@ object Etherlog {
             override def get(req:Request) = {
               val id = req.pathVars().valueFor("id")
               val results = new ListBuffer[HistoryItem]()
-              
               scanBacklogHistory(id, {version=>
                 results += HistoryItem(version=version.id, when=version.when, memo=version.backlog.memo)
               }) 

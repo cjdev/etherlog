@@ -8,7 +8,6 @@ import java.io.File
 import com.cj.etherlog.api._
 import org.junit.Test
     
-
 class ChartTest {
     
     def resourceAsString(name:String) = IOUtils.toString(getClass().getResourceAsStream(name))
@@ -19,7 +18,7 @@ class ChartTest {
       val input = List[StatsLogEntry]()
       
       // when
-      val svg = makeSvg(input)
+      val svg = makeSvg(stats=input, now=3)
       
       // then
       val expected = resourceAsString("empty.svg")
@@ -28,7 +27,6 @@ class ChartTest {
     
     @Test
     def realisticTimes(){
-      println(System.currentTimeMillis())
       // given
       val input = List[StatsLogEntry](
               StatsLogEntry(version="1", when=1364053894008L, memo="", todo=3, done=0),
@@ -36,7 +34,7 @@ class ChartTest {
       )
       
       // when
-      val svg = makeSvg(input)
+      val svg = makeSvg(input, now=1364089938268L)
       
       // then
       val expected = resourceAsString("my.svg")
@@ -52,7 +50,7 @@ class ChartTest {
       )
       
       // when
-      val svg = makeSvg(input)
+      val svg = makeSvg(input, now=3)
       
       // then
       val expected = resourceAsString("my.svg")
@@ -69,7 +67,7 @@ class ChartTest {
       )
       
       // when
-      val svg = makeSvg(input)
+      val svg = makeSvg(input, now=3)
       
       // then
       val expected = resourceAsString("threeItems.svg")

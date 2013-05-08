@@ -17,6 +17,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  }
 	  }
 	  	  
+	  
 	  var widgets = [];
 	  
 	  where = $("body");
