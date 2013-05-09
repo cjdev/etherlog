@@ -35,6 +35,10 @@
             fill:black;
         }
         
+        .projection {
+            stroke:red;
+            stroke-width:.05
+        }
       ]]>
     </style>
   

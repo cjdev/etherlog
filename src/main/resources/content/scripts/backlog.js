@@ -168,7 +168,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	          return v<10?"0" + v:v;
 	      }
 	      
-	      return d.getFullYear() + "-" + pad(d.getMonth()) + "-" +  pad(d.getDate());
+	      return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" +  pad(d.getDate());
 	  }
 	  
 	  function render(){

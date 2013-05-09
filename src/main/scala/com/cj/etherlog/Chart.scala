@@ -5,7 +5,7 @@ package object chart {
     import com.cj.etherlog.api._
     import org.joda.time._
     
-    def makeSvg(stats:List[StatsLogEntry], chartWidth:Int = 50, chartHeight:Int = 10, now:Long) = {
+    def makeSvg(stats:List[StatsLogEntry], chartWidth:Int = 50, chartHeight:Int = 10, goals:List[Int] = List(), whenProjectedComplete:Long, lastTime:Long) = {
         val leftMargin = 2;
         val rightMargin = 2;
         val topMargin = 1;
@@ -22,25 +22,19 @@ package object chart {
         val start = stats.firstOption.map(_.when).getOrElse(0L)
         val lastStatTime = stats.lastOption.map(_.when).getOrElse(0L)
         
-        val chartEndTime = Math.max(now, lastStatTime)
-        println("end is " + chartEndTime)
+        val chartEndTime = Math.max(lastTime, lastStatTime)
         
         val timeSpan = chartEndTime - start
-        println("timespan is " + timeSpan)
         val drawAreaWidth = chartWidth - leftMargin - rightMargin;
-        println("draw area is " + drawAreaWidth + " wide")
         val totalWidth = chartWidth
         
 //        val width = if(stats.isEmpty)0 else ((end - start)/stats.size).toInt;
         
         def x(millis:Long) = {
           val d = (millis - start).toDouble
-          println(d + " long");
           val r = d/timeSpan
-          println("r is " + r)
           val w = (r * drawAreaWidth) + leftMargin
           
-          println("x(" + millis + ") = " + w)
           w
         }
         
@@ -54,10 +48,6 @@ package object chart {
             val prev = stats(idx)
             val xLeft = x(prev.when)
             val xRight = x(entry.when)
-            
-            println(prev.when + " vs " + entry.when + " (" + (entry.when - prev.when) + " long)")
-            println("yo");
-            println((xRight - xLeft) + " wide")
             
             val pointsTodo = List(
                 (xLeft, y(topMargin + (nHeight-prev.total))),
@@ -91,7 +81,6 @@ package object chart {
             val points = (n*ptsPerLine)
             val nY = y(nHeight.toDouble - points + topMargin);
             if(nY>0){
-                println("at " + ptsPerLine + " pts/line, line " + n + " is point " + (points) + " at " + nY)
                 List(
                         """<line y1="""" + nY + """" x1="0" y2="""" + nY + """" x2="""" + x(chartEndTime) + """" />""",
                         """<text x="0" y="""" + nY + """" >""" + (points )+ """</text>"""
@@ -103,7 +92,6 @@ package object chart {
         
         val dayBoundaries:Stream[DateMidnight] = {
                 def loop(n:DateMidnight):Stream[DateMidnight] = {
-                        println(n);  
                         n#::loop(n.plusWeeks(1)); }
                 loop(new Instant(start).toDateTime().toDateMidnight())
         }
@@ -118,9 +106,17 @@ package object chart {
             )
         }.flatten.toList
         
-        println(vLines)
+        val goalLines = goals.map {goal=>
+          val yVal = y(topMargin + (nHeight - goal))
+          """<line class="projection" y1="""" + yVal + """" x1="""" + x(start) + """" y2="""" + yVal + """" x2="""" + x(chartEndTime) + """" />"""              
+        }
         
-        bands ::: hLines ::: vLines       
+        val latest = stats.last
+        val otherLines = List(
+//            """<line class="projection" y1="""" + y(topMargin + latest.done) + """" x1="""" + x(latest.when) + """" y2="""" + y(topMargin + latest.total) + """" x2="""" + x(whenProjectedComplete) + """" />"""
+        )
+        
+        bands ::: hLines ::: vLines ::: otherLines ::: goalLines     
       }
         
         
@@ -165,6 +161,10 @@ package object chart {
             fill:black;
         }
         
+        .projection {
+            stroke:red;
+            stroke-width:.05
+        }
       ]]>
     </style>
 """ + text + """

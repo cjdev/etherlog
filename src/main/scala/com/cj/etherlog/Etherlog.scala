@@ -24,6 +24,7 @@ import org.joda.time.DateMidnight
 import org.joda.time.Instant
 import com.cj.etherlog.api._
 import com.cj.etherlog.chart._
+import org.joda.time.Months
 
 object Etherlog {
   
@@ -254,9 +255,17 @@ object Etherlog {
               val nowParam = req.getParameter("now");
               val now = if(nowParam==null) System.currentTimeMillis() else nowParam.toLong
               
+              val lastTime = now + (Months.months(3).toMutablePeriod().toDurationFrom(new Instant(now)).getMillis())
+              println(new Instant(lastTime))
+              
+              val backlog = backlogs.get(id)
+              val version = versions.get(backlog.latestVersion)
+              
               val text = makeSvg(
                               stats=stats.toList.reverse, 
-                              now = now
+                              lastTime = lastTime, 
+                              whenProjectedComplete = lastTime,
+                              goals=version.backlog.goalLines
                          )
               
               OK(Bytes("image/svg+xml", text.getBytes()))

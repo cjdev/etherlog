@@ -18,7 +18,7 @@ class ChartTest {
       val input = List[StatsLogEntry]()
       
       // when
-      val svg = makeSvg(stats=input, now=3)
+      val svg = makeSvg(stats=input, lastTime=3, whenProjectedComplete=1)
       
       // then
       val expected = resourceAsString("empty.svg")
@@ -34,7 +34,7 @@ class ChartTest {
       )
       
       // when
-      val svg = makeSvg(input, now=1364089938268L)
+      val svg = makeSvg(input, lastTime=1364089938268L, goals=List(2, 1), whenProjectedComplete=1364089938268L)
       
       // then
       val expected = resourceAsString("my.svg")
@@ -42,7 +42,7 @@ class ChartTest {
     }
     
     @Test
-    def twoItems(){
+    def twoItemsAndGoals(){
       // given
       val input = List[StatsLogEntry](
               StatsLogEntry(version="1", when=1, memo="", todo=3, done=0),
@@ -50,7 +50,12 @@ class ChartTest {
       )
       
       // when
-      val svg = makeSvg(input, now=3)
+      val svg = makeSvg(
+                  stats=input, 
+                  lastTime=3, 
+                  goals=List(2, 1),
+                  whenProjectedComplete=3
+                )
       
       // then
       val expected = resourceAsString("my.svg")
@@ -67,7 +72,7 @@ class ChartTest {
       )
       
       // when
-      val svg = makeSvg(input, now=4)
+      val svg = makeSvg(input, lastTime=4, whenProjectedComplete=4)
       
       // then
       val expected = resourceAsString("threeItems.svg")
