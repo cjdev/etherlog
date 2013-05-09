@@ -219,7 +219,7 @@ object Etherlog {
       val showLatestEvenIfWip = if(showLatestEvenIfWipParam==null) false else showLatestEvenIfWipParam.toBoolean
       
       
-      buildStatsLog(id=id, until=end, includeCurrentState = showLatestEvenIfWip).filter(state=>state.memo != "work-in-progress");
+      buildStatsLog(id=id, until=end, includeCurrentState = showLatestEvenIfWip);
       
      }
      
