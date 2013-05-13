@@ -61,7 +61,9 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	      addEpicButton : where.find(".add-epic-button"),
 	      addGoalButton : where.find(".add-goal-button"),
 	      commitMessage : where.find(".commit-message"),
-	      memoTextArea : where.find(".memo-text")
+	      memoTextArea : where.find(".memo-text"),
+	      velocityTextField : where.find(".velocity-text"),
+	      velocityDiv : where.find(".velocity-div")
 	  };
 	  
 	  var lastServerUpdate = new Date().getTime();
@@ -172,7 +174,8 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  }
 	  
 	  function render(){
-	      
+
+          view.velocityTextField.val(backlog.projectedVelocity);
 		  view.memoTextArea.text(formatLongDateTime(when?when:new Date().getTime()) + ": " + backlog.memo);
 		  view.title.text(backlog.name);
           $("title").text(backlog.name); // << HACK!
@@ -203,6 +206,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	      view.addStoryButton.show();
 	      view.addEpicButton.show();
 	      view.addGoalButton.show();
+          view.velocityDiv.show();
 	  }
 	  
 	  function showViewMode(){
@@ -213,6 +217,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	      view.addStoryButton.hide();
 	      view.addEpicButton.hide();
 	      view.addGoalButton.hide();
+	      view.velocityDiv.hide();
 	      render();
 	  }
 	  
@@ -712,6 +717,44 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 				  kind:"goal"
 		  });
 	  });
+	  
+	  function readIntegerOrUndefinedIfBlank(string){
+	      const text = string.trim();
+          
+          var WholeNumbers = /^\d+$/
+          if(text === ""){
+              return undefined;
+          } else if(WholeNumbers.test(text)){
+              console.log(text + " is a number");
+              return parseInt(text, 10);
+          }else{
+              throw "NOT A NUMBER: " + text;
+          }
+          
+	  }
+	  
+	  function handleVelocityInput(){
+
+          try{
+              var newVelocity = readIntegerOrUndefinedIfBlank(view.velocityTextField.val());
+//              console.log("new velocity:" + newVelocity);
+              
+              if(newVelocity!==backlog.projectedVelocity){
+//                  console.log("Updating velocity velocity: " + newVelocity);
+                  backlog.projectedVelocity = newVelocity;
+                  sendWorkInProgress();
+              }
+              
+          }catch(err){
+//              console.log("Setting back to " + backlog.projectedVelocity);
+              view.velocityTextField.val(backlog.projectedVelocity);
+              //alert(err);
+          }
+          
+	  }
+	  
+	  view.velocityTextField.keyup(handleVelocityInput);
+      view.velocityTextField.change(handleVelocityInput);
 	  
 	  function showCurrentVersion(fn){
 		  var monitor = activityMonitor.show();

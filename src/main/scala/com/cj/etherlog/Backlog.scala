@@ -35,6 +35,7 @@ case class Backlog (
     val id:String,
     val name:String,
     val memo:String,
+    val projectedVelocity:Option[Int] = None,
     val items:List[Item]){
  
   def totalSize() = items.size match {
