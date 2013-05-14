@@ -166,8 +166,8 @@ package object chart {
         }
         
         .projection {
-            stroke:red;
-            stroke-width:.05
+            stroke:black;
+            stroke-width:.05;
         }
       ]]>
     </style>

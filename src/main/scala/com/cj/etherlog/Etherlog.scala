@@ -260,7 +260,7 @@ object Etherlog {
               val now = if(nowParam==null) System.currentTimeMillis() else nowParam.toLong
               
               val lastTime = now + (Months.months(3).toMutablePeriod().toDurationFrom(new Instant(now)).getMillis())
-              println(new Instant(lastTime))
+//              println(new Instant(lastTime))
               
               val version = stats.head._2
               

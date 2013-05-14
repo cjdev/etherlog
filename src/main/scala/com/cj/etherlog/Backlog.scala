@@ -64,7 +64,7 @@ case class Backlog (
               true
             }else{
                 val complete = item.isComplete.getOrElse(false)
-                println(item.name + " is complete " + complete)
+//                println(item.name + " is complete " + complete)
                 complete || items.indexOf(item) > goalPos
             }
           }else{
@@ -80,7 +80,7 @@ case class Backlog (
       
       val estimatesByGoal = for(goal<-goals; item<-items; val goalPos = items.indexOf(goal); val itemPos = items.indexOf(item)) yield {
           val goalComplete = goalHasBeenMet(goal.id)
-          println(shortName(goal.name) + " is complete " +  goalComplete)
+//          println(shortName(goal.name) + " is complete " +  goalComplete)
           if(item.kind != "goal" && (itemPos<goalPos || (!goalComplete && item.isComplete.getOrElse(false)))){
               val amount = item.bestEstimate match {
                   case Some(amount) => amount
@@ -99,12 +99,12 @@ case class Backlog (
               accum.updated(goal.name, amount)
       };
 
-      println("Goal lines: " );
-
-      totalsByGoalName.foreach{i=>
-          val (goalName, amt) = i
-          println("   " + shortName(goalName) + ", qty " + amt + "(" + (totalSize-amt) + ")")
-      }
+//      println("Goal lines: " );
+//
+//      totalsByGoalName.foreach{i=>
+//          val (goalName, amt) = i
+//          println("   " + shortName(goalName) + ", qty " + amt + "(" + (totalSize-amt) + ")")
+//      }
 
       totalsByGoalName.values.map(totalSize-_).toList
   }
