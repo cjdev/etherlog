@@ -43,6 +43,16 @@ case class Backlog (
       case _=> items.foldLeft(0){(accum, item)=> item.bestEstimate.getOrElse(0) + accum}
     }
   
+  
+  def todo() = items.filter(_.kind!="goal").foldLeft(0){(total, item)=>
+    val todo = if(item.isComplete.getOrElse(false)){
+      0
+    }else{
+      item.bestEstimate.getOrElse(0)
+    }
+            total + todo
+  }
+  
   def goals = items.filter(_.kind=="goal")
   
   def goalHasBeenMet(goalId:String) = {

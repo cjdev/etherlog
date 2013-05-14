@@ -25,6 +25,7 @@ import org.joda.time.Instant
 import com.cj.etherlog.api._
 import com.cj.etherlog.chart._
 import org.joda.time.Months
+import org.joda.time.Weeks
 
 object Etherlog {
   
@@ -135,7 +136,7 @@ object Etherlog {
     
     def buildStatsLog(id:String, until:Long, includeCurrentState:Boolean = false)= {
       val backlog = backlogs.get(id) 
-              val allResults = new ListBuffer[StatsLogEntry]()
+              val allResults = new ListBuffer[(StatsLogEntry, BacklogVersion)]()
               
               def incrementedEstimate(tally:Int, item:Item) = {
                   item.bestEstimate match {
@@ -151,20 +152,23 @@ object Etherlog {
                     val amountComplete:Int = items.filter(_.isComplete.getOrElse(false)).foldLeft(0)(incrementedEstimate);
                     val amountTodo:Int = items.filter(!_.isComplete.getOrElse(false)).foldLeft(0)(incrementedEstimate);
                     
-                    allResults += StatsLogEntry(
+                    val n = (StatsLogEntry(
                             version=version.id, 
                             when=version.when, 
                             memo=version.backlog.memo,
                             todo=amountTodo,
-                            done=amountComplete)
+                            done=amountComplete), version)
+                    
+                    allResults += n
                                 
               }) 
               
-              var results = allResults.filter(_.when<=until)
+              var results = allResults.filter(_._1.when<=until)
               
-              var latest = results.first
+              var (latest, _) = results.first
               
-              results.filter{item=> 
+              results.filter{next=>
+                    var (item, _) = next
                     var includeBecauseItsLast = (includeCurrentState && item.version == latest.version)
                     var includeBecauseItsNotWIP = item.memo!="work-in-progress" 
                     includeBecauseItsLast || includeBecauseItsNotWIP
@@ -258,13 +262,14 @@ object Etherlog {
               val lastTime = now + (Months.months(3).toMutablePeriod().toDurationFrom(new Instant(now)).getMillis())
               println(new Instant(lastTime))
               
-              val backlog = backlogs.get(id)
-              val version = versions.get(backlog.latestVersion)
+              val version = stats.head._2
+              
+              
               
               val text = makeSvg(
-                              stats=stats.toList.reverse, 
+                              stats=stats.map(_._1).toList.reverse, 
                               lastTime = lastTime, 
-                              whenProjectedComplete = lastTime,
+                              whenProjectedComplete = version.projectedEnd.getOrElse(0),
                               goals=version.backlog.goalLines
                          )
               

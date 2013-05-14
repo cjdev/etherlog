@@ -112,11 +112,15 @@ package object chart {
         }
         
         val latest = stats.last
-        val otherLines = List(
-//            """<line class="projection" y1="""" + y(topMargin + latest.done) + """" x1="""" + x(latest.when) + """" y2="""" + y(topMargin + latest.total) + """" x2="""" + x(whenProjectedComplete) + """" />"""
-        )
+        val otherLines = if(whenProjectedComplete>0){
+          List(
+                """<line class="projection" y1="""" + y(topMargin + latest.done) + """" x1="""" + x(latest.when) + """" y2="""" + y(topMargin + latest.total) + """" x2="""" + x(whenProjectedComplete) + """" />"""
+          )
+        }else{
+          List()
+        }
         
-        bands ::: hLines ::: vLines ::: otherLines ::: goalLines     
+        bands ::: hLines ::: vLines ::: goalLines ::: otherLines     
       }
         
         
