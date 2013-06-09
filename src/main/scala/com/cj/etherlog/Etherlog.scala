@@ -216,8 +216,8 @@ object Etherlog {
      }
     
      def buildStatsLogFromQueryString(id:String, req:Request) = {
-      val endParam = req.getParameter("end")
-      val showLatestEvenIfWipParam = req.getParameter("showLatestEvenIfWip")
+      val endParam = req.query().valueFor("end")
+      val showLatestEvenIfWipParam = req.query().valueFor("showLatestEvenIfWip")
       
       val end = if(endParam==null) System.currentTimeMillis() else endParam.toLong
       val showLatestEvenIfWip = if(showLatestEvenIfWipParam==null) false else showLatestEvenIfWipParam.toBoolean
@@ -254,17 +254,15 @@ object Etherlog {
         new ChartStylesheet("/backlog/"),
         new HttpObject("/api/backlogs/{id}/chart"){
             override def get(req:Request) = {
-              val id = req.pathVars().valueFor("id")
+              val id = req.path().valueFor("id")
               val stats = buildStatsLogFromQueryString(id, req);
-              val nowParam = req.getParameter("now");
+              val nowParam = req.query().valueFor("now");
               val now = if(nowParam==null) System.currentTimeMillis() else nowParam.toLong
               
               val lastTime = now + (Months.months(3).toMutablePeriod().toDurationFrom(new Instant(now)).getMillis())
 //              println(new Instant(lastTime))
               
               val version = stats.head._2
-              
-              
               
               val text = makeSvg(
                               stats=stats.map(_._1).toList.reverse, 
@@ -279,7 +277,7 @@ object Etherlog {
         },
         new HttpObject("/api/backlogs/{id}/history"){
             override def get(req:Request) = {
-              val id = req.pathVars().valueFor("id")
+              val id = req.path().valueFor("id")
               val results = new ListBuffer[HistoryItem]()
               scanBacklogHistory(id, {version=>
                 results += HistoryItem(version=version.id, when=version.when, memo=version.backlog.memo)
@@ -292,7 +290,7 @@ object Etherlog {
         },
         new HttpObject("/api/backlogs/{id}/statsLog"){
             override def get(req:Request) = {
-              val id = req.pathVars().valueFor("id")
+              val id = req.path().valueFor("id")
               val stats = buildStatsLogFromQueryString(id, req);
               
               OK(JerksonJson(stats))
@@ -300,8 +298,8 @@ object Etherlog {
         },
         new HttpObject("/api/backlogs/{id}/history/{version}"){
             override def get(req:Request) = {
-              val id = req.pathVars().valueFor("id")
-              val versionId = req.pathVars().valueFor("version")
+              val id = req.path().valueFor("id")
+              val versionId = req.path().valueFor("version")
               val results = new ListBuffer[HistoryItem]()
               
               if(versions.contains(versionId)){
@@ -316,13 +314,13 @@ object Etherlog {
         },
         new HttpObject("/api/backlogs/{id}"){
             override def get(req:Request) = {
-              val id = req.pathVars().valueFor("id")
+              val id = req.path().valueFor("id")
               val backlog = backlogs.get(id)
               val currentVersion = versions.get(backlog.latestVersion);
               OK(JerksonJson(currentVersion.backlog))
             }
             override def put(req:Request) = {
-              val id = req.pathVars().valueFor("id")
+              val id = req.path().valueFor("id")
               val newBacklog = Jerkson.parse[Backlog](readAsStream(req.representation()));
               val backlog = backlogs.get(id);
               
