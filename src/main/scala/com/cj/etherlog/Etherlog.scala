@@ -122,13 +122,18 @@ object Etherlog {
         versions.put(initialVersion.id, initialVersion)
     }
     
+    val versionsCache = scala.collection.mutable.Map[String, BacklogVersion]()
     
     def scanBacklogHistory(backlogId:String, fn:(BacklogVersion)=>Unit) {
       val backlog = backlogs.get(backlogId);
               
       var nextVersionId = backlog.latestVersion
       while(nextVersionId!=null){
-        val version = versions.get(nextVersionId)
+        val version = versionsCache.get(nextVersionId) match {
+          case Some(version)=>version
+          case None=> versions.get(nextVersionId)
+        }
+        versionsCache.put(nextVersionId, version)
         fn(version)
         nextVersionId = version.previousVersion
       }
