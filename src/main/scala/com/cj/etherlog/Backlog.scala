@@ -3,6 +3,7 @@ package com.cj.etherlog
 import org.codehaus.jackson.annotate.JsonTypeInfo
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id
 import org.codehaus.jackson.annotate.JsonTypeInfo.As
+import com.cj.etherlog.chart.GoalData
 
 case class Estimate(
     val id:String,
@@ -16,7 +17,8 @@ case class Item(
     val isComplete:Option[Boolean] = Some(false),
     val name:String,
     val kind:String,
-    val estimates:Option[Seq[Estimate]]
+    val estimates:Option[Seq[Estimate]],
+    val when:Option[Long] = None
 ){
   def bestEstimate() = estimates match {
       case Some(e) => {
@@ -64,7 +66,6 @@ case class Backlog (
               true
             }else{
                 val complete = item.isComplete.getOrElse(false)
-//                println(item.name + " is complete " + complete)
                 complete || items.indexOf(item) > goalPos
             }
           }else{
@@ -73,14 +74,13 @@ case class Backlog (
       }
   }
   
-  def goalLines() = {
+  def goalData() = {
       val goals = items.filter(_.kind=="goal");
       
-      def shortName(n:String) = n.lines.next
+      val goalsByName = goals.foldLeft(Map[String, Item]()){(accum, item) => accum.updated(item.name, item)}
       
       val estimatesByGoal = for(goal<-goals; item<-items; val goalPos = items.indexOf(goal); val itemPos = items.indexOf(item)) yield {
           val goalComplete = goalHasBeenMet(goal.id)
-//          println(shortName(goal.name) + " is complete " +  goalComplete)
           if(item.kind != "goal" && (itemPos<goalPos || (!goalComplete && item.isComplete.getOrElse(false)))){
               val amount = item.bestEstimate match {
                   case Some(amount) => amount
@@ -94,19 +94,17 @@ case class Backlog (
 
 
       val totalsByGoalName = estimatesByGoal.foldLeft(Map[String, Int]()){(accum, item)=> 
-      val (goal, itemAmount) = item;
-      val amount = accum.getOrElse(goal.name, 0) + itemAmount
-              accum.updated(goal.name, amount)
+          val (goal, itemAmount) = item;
+          val amount = accum.getOrElse(goal.name, 0) + itemAmount
+          
+          accum.updated(goal.name,amount)
       };
 
-//      println("Goal lines: " );
-//
-//      totalsByGoalName.foreach{i=>
-//          val (goalName, amt) = i
-//          println("   " + shortName(goalName) + ", qty " + amt + "(" + (totalSize-amt) + ")")
-//      }
-
-      totalsByGoalName.values.map(totalSize-_).toSeq
+      totalsByGoalName.map{entry=>
+        val (name, amount) = entry
+        val goal = goalsByName(name)
+        GoalData(points=totalSize-amount, when=goal.when)
+      }.toSeq
   }
   
 }

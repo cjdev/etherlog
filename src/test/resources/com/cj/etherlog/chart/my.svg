@@ -51,5 +51,6 @@
   <text x="0" y="2.0" >3</text>
   <line class="projection" y1="4.0" x1="2.0" y2="4.0" x2="48.0" />
   <line class="projection" y1="6.0" x1="2.0" y2="6.0" x2="48.0" />
+  <circle cx="25.0" cy="6.0" r=".25"/>
   <line class="projection" y1="6.0" x1="25.0" y2="8.0" x2="48.0" />
 </svg>

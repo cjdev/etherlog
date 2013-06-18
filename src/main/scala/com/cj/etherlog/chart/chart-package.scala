@@ -4,7 +4,7 @@ import com.cj.etherlog.api._
 import org.joda.time._
     
 package object chart {
-    
+
     def makeSvg(stats:Seq[StatsLogEntry], chartWidth:Int = 50, chartHeight:Int = 10, goals:Seq[GoalData] = Seq(), whenProjectedComplete:Long, lastTime:Long) = {
         val leftMargin = 2;
         val rightMargin = 2;
@@ -27,8 +27,6 @@ package object chart {
         val timeSpan = chartEndTime - start
         val drawAreaWidth = chartWidth - leftMargin - rightMargin;
         val totalWidth = chartWidth
-        
-//        val width = if(stats.isEmpty)0 else ((end - start)/stats.size).toInt;
         
         def x(millis:Long) = {
           val d = (millis - start).toDouble
@@ -106,10 +104,17 @@ package object chart {
             )
         }.flatten.toSeq
         
-        val goalLines = goals.map {goal=>
+        val goalLines = goals.flatMap {goal=>
           val yVal = y(topMargin + (nHeight - goal.points))
-          """<line class="projection" y1="""" + yVal + """" x1="""" + x(start) + """" y2="""" + yVal + """" x2="""" + x(chartEndTime) + """" />"""              
+          
+          val dot = goal.when match {
+            case Some(when)=> Some("""<circle cx="""" + x(when) + """" cy="""" + yVal + """" r=".25"/>""")
+            case None => None
+          }
+          
+          Seq("""<line class="projection" y1="""" + yVal + """" x1="""" + x(start) + """" y2="""" + yVal + """" x2="""" + x(chartEndTime) + """" />""") ++ dot
         }
+        
         
         val latest = stats.last
         val otherLines = if(whenProjectedComplete>0){
@@ -124,7 +129,7 @@ package object chart {
       }
         
         
-        val text = parts.mkString(start="  ", sep="\n  ", end="")
+      val text = parts.mkString(start="  ", sep="\n  ", end="")
 
       val height = y(nHeight)
       

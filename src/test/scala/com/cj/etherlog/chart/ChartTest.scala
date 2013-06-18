@@ -34,7 +34,15 @@ class ChartTest {
       )
       
       // when
-      val svg = makeSvg(input, lastTime=1364089938268L, goals=Seq(GoalData(2), GoalData(1)), whenProjectedComplete=1364089938268L)
+      val svg = makeSvg(
+                      stats=input, 
+                      lastTime=1364089938268L, 
+                      goals=Seq(GoalData(
+                                  points = 2), 
+                                GoalData(
+                                  points=1, 
+                                  when = Some(1364071916138L))), 
+                      whenProjectedComplete=1364089938268L)
       
       // then
       val expected = resourceAsString("my.svg")
@@ -53,12 +61,19 @@ class ChartTest {
       val svg = makeSvg(
                   stats=input, 
                   lastTime=3, 
-                  goals=Seq(GoalData(2), GoalData(1)),
+                  goals=Seq(GoalData(
+                              points = 2), 
+                           GoalData(
+                              points=1, 
+                              when = Some(2))),
                   whenProjectedComplete=3
                 )
       
       // then
       val expected = resourceAsString("my.svg")
+      
+      FileUtils.write(new File("/home/stu/Desktop/result.svg"), svg)
+      
       assertEquals(expected, svg)
     }
      
@@ -79,4 +94,5 @@ class ChartTest {
       assertEquals(expected, svg)
       
     }
+     
 }

@@ -254,7 +254,6 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		    	  method:"GET",
 		    	  onResponse:function(response){
 		    		  history = JSON.parse(response.body).reverse();
-//		    		  console.log("There are " + history.length + " items in the history");
 		    		  
 		    		  sliderDiv.slider({
 					      value:history.length-1,
@@ -431,7 +430,8 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 				  '<img style="display:none;" src="/delete.png"/ class="delete-icon delete-button">' + 
 				  '<img style="display:none;" src="/pencil.png"/ class="edit-icon edit-button">' + 
 				  '<img style="display:none;" src="/medal.png"/ class="finished-icon finished-button">' + 
-				  '<div class="controls" ><button style="display:none;" class="done-button">Done</button>' + 
+				  '<div class="controls" >' + 
+				  '<div class="date-select-controls" style="display:none;">Target Date:<input type="text" class="date-picker" /></div><button style="display:none;" class="done-button">Done</button>' + 
 				  '<div style="display:none;"class="estimates-holder"></div></div>' + 
 				  '<span class="label"/>' + '<div class="remainder" style="display:none;"/>' +
 				  '<textarea style="display:none;"></textarea></div>');
@@ -445,9 +445,16 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		      editButton:v.find(".edit-button"),
 		      deleteButton:v.find(".delete-button"),
 		      doneButton:v.find(".done-button"),
+		      datePicker:v.find(".date-picker"),
+		      dateSelectControlsDiv:v.find(".date-select-controls"),
 		      estimatesHolder: v.find(".estimates-holder")
 		  };
 		  
+		  view.datePicker.datepicker().change(function(){
+              item.when = view.datePicker.datepicker("getDate").getTime();
+              console.log("when changed to " + new Date(item.when) + " \n" + JSON.stringify(item));
+              sendWorkInProgress();
+		  });
 		  
 		  function compareEstimatesByWhen(a, b){
 			  if(a.when === b.when){
@@ -507,7 +514,11 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  if(item.kind==="goal"){
 			  v.addClass("milestone divider clearfix");
 			  showViewMode = function(){
-				  setText("GOAL: " + item.name);
+			      var whenText = item.when ? (" (" + formatLongDateTime(item.when) + ")") : " (no date set)";
+				  setText("GOAL: " + item.name,  whenText);
+			  }
+			  if(item.when){
+			      view.datePicker.datepicker("setDate", new Date(item.when));
 			  }
 		  }else {
 			  if(item.kind==="story"){
@@ -559,7 +570,9 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  if(item.kind==="story"){
 				  view.finishedButton.show();
 			  }
-			  
+
+              view.dateSelectControlsDiv.hide();
+              
 			  view.textarea.hide();
 			  view.doneButton.hide();
 			  view.estimatesHolder.hide();
@@ -575,6 +588,10 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  view.finishedButton.hide();
 			  
 
+              if(item.kind==="goal"){
+                  view.dateSelectControlsDiv.show();
+              }
+			  
 			  view.textarea.show();
 			  view.textarea.focus();
 			  view.doneButton.show();
