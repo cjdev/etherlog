@@ -15,7 +15,7 @@ class ChartTest {
     @Test
     def emptyChart(){
       // given
-      val input = List[StatsLogEntry]()
+      val input = Seq[StatsLogEntry]()
       
       // when
       val svg = makeSvg(stats=input, lastTime=3, whenProjectedComplete=1)
@@ -28,13 +28,13 @@ class ChartTest {
     @Test
     def realisticTimes(){
       // given
-      val input = List[StatsLogEntry](
+      val input = Seq[StatsLogEntry](
               StatsLogEntry(version="1", when=1364053894008L, memo="", todo=3, done=0),
               StatsLogEntry(version="2", when=1364071916138L, memo="", todo=1, done=2)
       )
       
       // when
-      val svg = makeSvg(input, lastTime=1364089938268L, goals=List(2, 1), whenProjectedComplete=1364089938268L)
+      val svg = makeSvg(input, lastTime=1364089938268L, goals=Seq(GoalData(2), GoalData(1)), whenProjectedComplete=1364089938268L)
       
       // then
       val expected = resourceAsString("my.svg")
@@ -44,7 +44,7 @@ class ChartTest {
     @Test
     def twoItemsAndGoals(){
       // given
-      val input = List[StatsLogEntry](
+      val input = Seq[StatsLogEntry](
               StatsLogEntry(version="1", when=1, memo="", todo=3, done=0),
               StatsLogEntry(version="2", when=2, memo="", todo=1, done=2)
       )
@@ -53,7 +53,7 @@ class ChartTest {
       val svg = makeSvg(
                   stats=input, 
                   lastTime=3, 
-                  goals=List(2, 1),
+                  goals=Seq(GoalData(2), GoalData(1)),
                   whenProjectedComplete=3
                 )
       
@@ -65,7 +65,7 @@ class ChartTest {
     @Test
     def threeItems(){
       // given
-      val input = List[StatsLogEntry](
+      val input = Seq[StatsLogEntry](
               StatsLogEntry(version="1", when=1, memo="", todo=3, done=0),
               StatsLogEntry(version="2", when=2, memo="", todo=2, done=1),
               StatsLogEntry(version="3", when=3, memo="", todo=0, done=3)

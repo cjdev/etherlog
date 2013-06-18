@@ -1,11 +1,11 @@
 package com.cj.etherlog
 
+import com.cj.etherlog.api._
+import org.joda.time._
+    
 package object chart {
     
-    import com.cj.etherlog.api._
-    import org.joda.time._
-    
-    def makeSvg(stats:List[StatsLogEntry], chartWidth:Int = 50, chartHeight:Int = 10, goals:List[Int] = List(), whenProjectedComplete:Long, lastTime:Long) = {
+    def makeSvg(stats:Seq[StatsLogEntry], chartWidth:Int = 50, chartHeight:Int = 10, goals:Seq[GoalData] = Seq(), whenProjectedComplete:Long, lastTime:Long) = {
         val leftMargin = 2;
         val rightMargin = 2;
         val topMargin = 1;
@@ -41,7 +41,7 @@ package object chart {
         def y(v:Number) = ((chartHeight.doubleValue/(nHeight+ topMargin + bottomMargin).doubleValue) * v.doubleValue) 
         
         val parts = if(stats.isEmpty){
-          List()
+          Seq()
         }else {
           val bands = stats.tail.zipWithIndex.flatMap({case (entry, idx)=>
           
@@ -49,25 +49,25 @@ package object chart {
             val xLeft = x(prev.when)
             val xRight = x(entry.when)
             
-            val pointsTodo = List(
+            val pointsTodo = Seq(
                 (xLeft, y(topMargin + (nHeight-prev.total))),
                 (xRight, y(topMargin + (nHeight-entry.total))),
                 (xRight, y(topMargin + (nHeight-entry.todo))),
                 (xLeft, y(topMargin + (nHeight-prev.todo))))
                 
                 
-            val pointsDone = List(
+            val pointsDone = Seq(
                 (xLeft, y(topMargin + (nHeight-prev.todo))),
                 (xLeft, y(topMargin + nHeight)),
                 (xRight, y(topMargin + nHeight)),
                 (xRight, y(topMargin + (nHeight-entry.todo))))
             
                 
-            def print(points:List[(Any, Any)]) = points
+            def print(points:Seq[(Any, Any)]) = points
                                 .map(x=>x._1 + "," + x._2) // to text
                                 .mkString(" "); // combined
             
-            List(
+            Seq(
                  """<polygon points="""" + print(pointsTodo) + """" class="done"/>""",
                  """<polygon points="""" + print(pointsDone) + """" class="todo"/>"""
                )
@@ -81,14 +81,14 @@ package object chart {
             val points = (n*ptsPerLine)
             val nY = y(nHeight.toDouble - points + topMargin);
             if(nY>0){
-                List(
+                Seq(
                         """<line y1="""" + nY + """" x1="0" y2="""" + nY + """" x2="""" + x(chartEndTime) + """" />""",
                         """<text x="0" y="""" + nY + """" >""" + (points )+ """</text>"""
                         )
             }else{
-              List()
+              Seq()
             }
-        }).flatten.toList
+        }).flatten.toSeq
         
         val dayBoundaries:Stream[DateMidnight] = {
                 def loop(n:DateMidnight):Stream[DateMidnight] = {
@@ -100,27 +100,27 @@ package object chart {
         
         val vLines = days.map{date=>
             val nX = x(date.getMillis())
-            List(
+            Seq(
                 """<line x1="""" + nX + """" y1="0" x2="""" + nX + """" y2="""" + y(nHeight) + """" class="verticalLine"/>""",
                 """ <text x="""" + nX + """" y="""" + y(nHeight) + """" >""" + date.getWeekOfWeekyear() + """</text>"""
             )
-        }.flatten.toList
+        }.flatten.toSeq
         
         val goalLines = goals.map {goal=>
-          val yVal = y(topMargin + (nHeight - goal))
+          val yVal = y(topMargin + (nHeight - goal.points))
           """<line class="projection" y1="""" + yVal + """" x1="""" + x(start) + """" y2="""" + yVal + """" x2="""" + x(chartEndTime) + """" />"""              
         }
         
         val latest = stats.last
         val otherLines = if(whenProjectedComplete>0){
-          List(
+          Seq(
                 """<line class="projection" y1="""" + y(topMargin + latest.done) + """" x1="""" + x(latest.when) + """" y2="""" + y(topMargin + latest.total) + """" x2="""" + x(whenProjectedComplete) + """" />"""
           )
         }else{
-          List()
+          Seq()
         }
         
-        bands ::: hLines ::: vLines ::: goalLines ::: otherLines     
+        bands ++ hLines ++ vLines ++ goalLines ++ otherLines     
       }
         
         

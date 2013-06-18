@@ -268,7 +268,7 @@ object Etherlog {
                               stats=stats.map(_._1).toList.reverse, 
                               lastTime = lastTime, 
                               whenProjectedComplete = version.projectedEnd.getOrElse(0),
-                              goals=version.backlog.goalLines
+                              goals=List()//version.backlog.goalLines
                          )
               
               OK(Bytes("image/svg+xml", text.getBytes()))

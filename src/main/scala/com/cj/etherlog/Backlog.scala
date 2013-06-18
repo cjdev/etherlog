@@ -16,7 +16,7 @@ case class Item(
     val isComplete:Option[Boolean] = Some(false),
     val name:String,
     val kind:String,
-    val estimates:Option[List[Estimate]]
+    val estimates:Option[Seq[Estimate]]
 ){
   def bestEstimate() = estimates match {
       case Some(e) => {
@@ -36,7 +36,7 @@ case class Backlog (
     val name:String,
     val memo:String,
     val projectedVelocity:Option[Int] = None,
-    val items:List[Item]){
+    val items:Seq[Item]){
  
   def totalSize() = items.size match {
       case 0=>0;
@@ -106,7 +106,7 @@ case class Backlog (
 //          println("   " + shortName(goalName) + ", qty " + amt + "(" + (totalSize-amt) + ")")
 //      }
 
-      totalsByGoalName.values.map(totalSize-_).toList
+      totalsByGoalName.values.map(totalSize-_).toSeq
   }
   
 }

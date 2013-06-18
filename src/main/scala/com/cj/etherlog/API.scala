@@ -1,10 +1,10 @@
 package com.cj.etherlog.api { 
   
-    case class HistoryItem (val version:String, val when:Long, val memo:String)
+    case class HistoryItem (version:String, when:Long, memo:String)
     
-    case class StatsLogEntry (val version:String, val when:Long, val memo:String, val todo:Int, val done:Int){
+    case class StatsLogEntry (version:String, when:Long, memo:String, todo:Int, done:Int){
         def total = done + todo
     }
     
-    case class BacklogListEntry (val id:String, val name:String)
+    case class BacklogListEntry (id:String, name:String)
 }

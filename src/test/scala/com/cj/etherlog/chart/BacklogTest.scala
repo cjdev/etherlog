@@ -19,7 +19,7 @@ class BacklogTest {
       name = name, 
       kind = "story", 
       isComplete = Some(done),
-      estimates = Some(List(
+      estimates = Some(Seq(
                   Estimate(
                         id = name + "e",
                         value = estimate,
@@ -36,7 +36,7 @@ class BacklogTest {
         id = "foo",
         name = "The Backlog",
         memo = "Version 1",
-        items = List(
+        items = Seq(
             storyWithEstimate(name="put dishes in dishwasher", estimate=10, done=false),
             storyWithEstimate(name="put away dishes", estimate=20, done=false),
             goal("clean dishes"),
@@ -51,7 +51,7 @@ class BacklogTest {
     val result = backlog.goalLines
     
     // then
-    Assert.assertEquals(List(70, 40, 0), result)
+    Assert.assertEquals(Seq(70, 40, 0), result)
   }
   
     
@@ -62,7 +62,7 @@ class BacklogTest {
         id = "foo",
         name = "The Backlog",
         memo = "Version 1",
-        items = List(
+        items = Seq(
             storyWithEstimate(name="put dishes in dishwasher", estimate=10, done=true),
             storyWithEstimate(name="put away dishes", estimate=20, done=true),
             goal("clean dishes"),
@@ -77,7 +77,7 @@ class BacklogTest {
     val result = backlog.goalLines
     
     // then
-    Assert.assertEquals(List(70, 40, 0), result)
+    Assert.assertEquals(Seq(70, 40, 0), result)
   }
     
   @Test
@@ -87,7 +87,7 @@ class BacklogTest {
         id = "foo",
         name = "The Backlog",
         memo = "Version 1",
-        items = List(
+        items = Seq(
             storyWithEstimate(name="put dishes in dishwasher", estimate=10, done=true),
             storyWithEstimate(name="put away dishes", estimate=20, done=false),
             goal("clean dishes"),
@@ -102,7 +102,7 @@ class BacklogTest {
     val result = backlog.goalLines
     
     // then
-    Assert.assertEquals(List(40, 40, 0), result)
+    Assert.assertEquals(Seq(40, 40, 0), result)
   }
   
   
@@ -113,13 +113,13 @@ class BacklogTest {
         id = "foo",
         name = "The Backlog",
         memo = "Version 1",
-        items = List()
+        items = Seq()
     )
     
     // when
     val result = backlog.goalLines
     
     // then
-    Assert.assertEquals(result, List())
+    Assert.assertEquals(result, Seq())
   }
 }

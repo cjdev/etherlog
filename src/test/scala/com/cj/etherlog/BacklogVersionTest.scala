@@ -12,7 +12,7 @@ class BacklogVersionTest {
     val v = aBackLogVersion(
                 when=1000L, 
                 projectedVelocity=None, 
-                items=List(
+                items=Seq(
                             storyWithEstimate(name="Do Something", estimate=1, done = false)
                 ))
     // when
@@ -28,7 +28,7 @@ class BacklogVersionTest {
     val v = aBackLogVersion(
                 when=1000L, 
                 projectedVelocity=Some(1), 
-                items=List(
+                items=Seq(
                             storyWithEstimate(name="Do Something", estimate=1, done = false)
                 ))
     // when
@@ -44,7 +44,7 @@ class BacklogVersionTest {
     val v =  aBackLogVersion(
                 when=0L, 
                 projectedVelocity=Some(1), 
-                items=List(
+                items=Seq(
                     storyWithEstimate(name="Do Something", estimate=20, done = true),
                     storyWithEstimate(name="Do Something", estimate=1, done = false)
                 )) 
@@ -63,7 +63,7 @@ class BacklogVersionTest {
     val v =  aBackLogVersion(
                 when=0L, 
                 projectedVelocity=Some(1), 
-                items=List(
+                items=Seq(
                             storyWithEstimate(name="Do Something", estimate=1, done = false)
                 )) 
                 
@@ -81,7 +81,7 @@ class BacklogVersionTest {
     val v =  aBackLogVersion(
                 when=0L, 
                 projectedVelocity=Some(5), 
-                items=List(
+                items=Seq(
                             storyWithEstimate(name="Mix", estimate=5, done = false),
                             storyWithEstimate(name="Bake", estimate=2, done = false),
                             storyWithEstimate(name="Serve", estimate=13, done = false),
@@ -103,7 +103,7 @@ class BacklogVersionTest {
       name = name, 
       kind = "story", 
       isComplete = Some(done),
-      estimates = Some(List(
+      estimates = Some(Seq(
                   Estimate(
                         id = name + "e",
                         value = estimate,
@@ -114,7 +114,7 @@ class BacklogVersionTest {
     )
     
     
-  private def aBackLogVersion(when:Long, projectedVelocity:Option[Int], items:List[Item]) = BacklogVersion(
+  private def aBackLogVersion(when:Long, projectedVelocity:Option[Int], items:Seq[Item]) = BacklogVersion(
                 id="whatever",
                 when = when,
                 isPublished = true, 
