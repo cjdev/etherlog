@@ -38,14 +38,16 @@ class ChartTest {
                       stats=input, 
                       lastTime=1364089938268L, 
                       goals=Seq(GoalData(
+                                  description="foo",
                                   points = 2), 
                                 GoalData(
+                                  description="bar",
                                   points=1, 
                                   when = Some(1364071916138L))), 
                       whenProjectedComplete=1364089938268L)
       
       // then
-      val expected = resourceAsString("my.svg")
+      val expected = resourceAsString("my.svg").replaceAll("FORMATTED_TIME_A", "Saturday, March 23, 2013")
       assertEquals(expected, svg)
     }
     
@@ -62,15 +64,17 @@ class ChartTest {
                   stats=input, 
                   lastTime=3, 
                   goals=Seq(GoalData(
+                              description="foo",
                               points = 2), 
                            GoalData(
+                              description="bar",
                               points=1, 
                               when = Some(2))),
                   whenProjectedComplete=3
                 )
       
       // then
-      val expected = resourceAsString("my.svg")
+      val expected = resourceAsString("my.svg").replaceAll("FORMATTED_TIME_A", "Wednesday, December 31, 1969")
       
       FileUtils.write(new File("/home/stu/Desktop/result.svg"), svg)
       

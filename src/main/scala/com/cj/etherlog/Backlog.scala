@@ -103,7 +103,7 @@ case class Backlog (
       totalsByGoalName.map{entry=>
         val (name, amount) = entry
         val goal = goalsByName(name)
-        GoalData(points=totalSize-amount, when=goal.when)
+        GoalData(description=name, points=totalSize-amount, when=goal.when)
       }.toSeq
   }
   

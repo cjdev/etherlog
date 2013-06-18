@@ -2,9 +2,11 @@ package com.cj.etherlog
 
 import com.cj.etherlog.api._
 import org.joda.time._
+import org.joda.time.format.DateTimeFormat
     
 package object chart {
-
+    private val dateFormat = DateTimeFormat.fullDate
+    
     def makeSvg(stats:Seq[StatsLogEntry], chartWidth:Int = 50, chartHeight:Int = 10, goals:Seq[GoalData] = Seq(), whenProjectedComplete:Long, lastTime:Long) = {
         val leftMargin = 2;
         val rightMargin = 2;
@@ -97,10 +99,11 @@ package object chart {
         val days = dayBoundaries.takeWhile(_.getMillis() <= chartEndTime).filter(_.getMillis()>start);
         
         val vLines = days.map{date=>
+            val title = date.toYearMonthDay().toString() + " through " + date.plusWeeks(1).toYearMonthDay().toString()
             val nX = x(date.getMillis())
             Seq(
                 """<line x1="""" + nX + """" y1="0" x2="""" + nX + """" y2="""" + y(nHeight) + """" class="verticalLine"/>""",
-                """ <text x="""" + nX + """" y="""" + y(nHeight) + """" >""" + date.getWeekOfWeekyear() + """</text>"""
+                """ <text x="""" + nX + """" y="""" + y(nHeight) + """" >""" + date.getWeekOfWeekyear() + """<title>""" + title + """</title></text>"""
             )
         }.flatten.toSeq
         
@@ -108,7 +111,13 @@ package object chart {
           val yVal = y(topMargin + (nHeight - goal.points))
           
           val dot = goal.when match {
-            case Some(when)=> Some("""<circle cx="""" + x(when) + """" cy="""" + yVal + """" r=".25"/>""")
+            case Some(when)=> {
+              val date = goal.when match {
+                case Some(millis)=> dateFormat.print(new DateTime(millis)) + ": "
+                case None => ""
+              }
+              Some("""<circle cx="""" + x(when) + """" cy="""" + yVal + """" r=".25"><title>""" + date + goal.description  + """</title></circle>""")
+            }
             case None => None
           }
           
@@ -148,7 +157,7 @@ package object chart {
             fill:green;
         }
         text {
-            font-size:1pt;
+            font-size:.5pt;
             font-family:sans-serif;
         }
         xlabel {

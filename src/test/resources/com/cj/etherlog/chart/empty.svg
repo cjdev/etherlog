@@ -13,7 +13,7 @@
             fill:green;
         }
         text {
-            font-size:1pt;
+            font-size:.5pt;
             font-family:sans-serif;
         }
         xlabel {
