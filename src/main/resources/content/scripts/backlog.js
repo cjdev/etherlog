@@ -376,41 +376,37 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  currency = view.currencies.val();
 			  value = view.value.val();
 			  
+			  if(value === ""){
+			      value = "0";
+			      view.value.val("0");
+			  }else if(value.length == 2 && value.indexOf("0") === 0){
+                  value = value.substring(1);
+                  view.value.val(value);
+			  }
+			  
 			  if(value!==oldValue || currency !==oldCurrency){
-				  
 
-				 if(value<=0 && oldValue){
-					 alert("You must specify a value");
-					 view.value.val(oldValue);
-				 }else{
-					 oldValue = value;
-					 oldCurrency = currency;
-//					 console.log("Estimate: " + currency + " " + value);
+				 oldValue = value;
+				 oldCurrency = currency;
+				 
+				 if(currency !== ""){
+					 var estimate = getEstimateForCurrency(currency);
 					 
 					 
-					 if(currency !== ""){
-						 var estimate = getEstimateForCurrency(currency);
-						 
-						 
-						 if(!estimate){
-//							 console.log("no existing " + currency + " estimate");
-							 estimate = {id:uuid()};
-							 if(!item.estimates){
-								 item.estimates = [];
-							 }
-							 item.estimates.push(estimate);
-						 }else{
-//							 console.log(estimate);
+					 if(!estimate){
+						 estimate = {id:uuid()};
+						 if(!item.estimates){
+							 item.estimates = [];
 						 }
-						 
-						 estimate.currency = currency;
-						 estimate.value = value;
-						 estimate.when = new Date().getTime();
-						 
-						 sendWorkInProgress();
+						 item.estimates.push(estimate);
 					 }
+					 
+					 estimate.currency = currency;
+					 estimate.value = value;
+					 estimate.when = new Date().getTime();
+					 
+					 sendWorkInProgress();
 				 }
-				  
 			  }
 		  }
 		  
