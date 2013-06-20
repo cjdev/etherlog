@@ -281,7 +281,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	      };
 	  }
 	  
-	  function showVersion(version){
+	  function showVersion(version, fn){
 		  var monitor = activityMonitor.show();
 		  
 		  http({
@@ -291,6 +291,9 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 				  view.memoTextArea.css("visibility", "visible");
 				  backlog = JSON.parse(response.body);
 				  render();
+				  if(fn){
+				      fn();
+				  }
 				  monitor.done();
 			  }
 		  });
@@ -669,7 +672,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  var slider = HistorySlider(view.slider);
 	  
 	  view.editButton.button().click(function(){
-		  showCurrentVersion(function(){
+	      showWIPVersion(function(){
 			  view.commitMessage.val("");
 			  showEditMode();
 			  slider.showCurrent();
@@ -769,20 +772,34 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	  view.velocityTextField.keyup(handleVelocityInput);
       view.velocityTextField.change(handleVelocityInput);
 	  
+      
+      function showWIPVersion(fn){
+          showLatestVersion(fn, true);
+      }
+      function showLatestVersion(fn, evenIfWIP){
+          var monitor = activityMonitor.show();
+          http({
+              url: "/api/backlogs/" + backlogId + "/history?showLatestEvenIfWip=" + evenIfWIP,
+              method: "GET",
+              onResponse: function (response) {
+                  var history =JSON.parse(response.body);
+                  var latest = history[0];
+                  if(evenIfWIP){
+                      when = latest.when;
+                  }
+                  showVersion(latest.version, function(){
+                      if(fn){
+                          fn();
+                      }
+                      monitor.done();
+                  });
+              }
+          });
+          
+      }
+      
 	  function showCurrentVersion(fn){
-		  var monitor = activityMonitor.show();
-		  http({
-			  url: "/api/backlogs/" + backlogId,
-	          method: "GET",
-	          onResponse: function (response) {
-	        	  backlog=JSON.parse(response.body);
-	              render();
-	              if(fn){
-	            	  fn();
-	              }
-				  monitor.done();
-	          }
-		  });
+          showLatestVersion(fn, false);
 	  }
 
 	  var chart = (function(){

@@ -93,6 +93,7 @@ object Etherlog {
   
   
   def main(args: Array[String]) {
+    val showLatestEvenIfWipParamName = "showLatestEvenIfWip"
     
     val dataPath = new Path("data");
     
@@ -100,27 +101,7 @@ object Etherlog {
     val backlogs = new Database[BacklogStatus](new Path(dataPath, "backlogs"))
     val versions = new Database[BacklogVersion](new Path(dataPath, "versions"))
     
-    if(!backlogs.contains("23")){
-      val template = Jerkson.parse[Backlog](getClass().getResourceAsStream("/sample-data.js"))
-      val initialBacklog = new Backlog(
-                              id="23", 
-                              name= template.name,
-                              memo="initial sample version",
-                              items = template.items)
-      
-      val initialVersion = new BacklogVersion(
-                                  id = UUID.randomUUID().toString(),
-                                  when = System.currentTimeMillis(),
-                                  isPublished = true,
-                                  previousVersion = null,
-                                  backlog = initialBacklog
-                              )
-      
-        backlogs.put(
-                id="23", 
-                data = new BacklogStatus(id="23", latestVersion = initialVersion.id))
-        versions.put(initialVersion.id, initialVersion)
-    }
+    
     
     val versionsCache = scala.collection.mutable.Map[String, BacklogVersion]()
     
@@ -220,17 +201,35 @@ object Etherlog {
           status.id
      }
     
+     def parseBoolean(value:String):Option[Boolean] = {
+       if(value==null){
+         None
+       } else value.toLowerCase() match {
+         case "false" => Some(false)
+         case "true" => Some(true)
+         case _ => throw new Exception("Not true|false: " + value)
+       } 
+     }
+     
      def buildStatsLogFromQueryString(id:String, req:Request) = {
       val endParam = req.query().valueFor("end")
-      val showLatestEvenIfWipParam = req.query().valueFor("showLatestEvenIfWip")
+      val showLatestEvenIfWipParam = req.query().valueFor(showLatestEvenIfWipParamName)
       
       val end = if(endParam==null) System.currentTimeMillis() else endParam.toLong
-      val showLatestEvenIfWip = if(showLatestEvenIfWipParam==null) false else showLatestEvenIfWipParam.toBoolean
+      val showLatestEvenIfWip = parseBoolean(showLatestEvenIfWipParam).getOrElse(false)
       
       
       buildStatsLog(id=id, until=end, includeCurrentState = showLatestEvenIfWip);
       
      }
+     
+    def getHistory(id:String):Seq[HistoryItem] = {
+      val results = new ListBuffer[HistoryItem]()
+      scanBacklogHistory(id, {version=>
+        results += HistoryItem(version=version.id, when=version.when, memo=version.backlog.memo)
+      }) 
+      results.toSeq
+    }
      
     val port = 43180
     
@@ -283,13 +282,17 @@ object Etherlog {
         new HttpObject("/api/backlogs/{id}/history"){
             override def get(req:Request) = {
               val id = req.path().valueFor("id")
-              val results = new ListBuffer[HistoryItem]()
-              scanBacklogHistory(id, {version=>
-                results += HistoryItem(version=version.id, when=version.when, memo=version.backlog.memo)
-              }) 
+              val showLatestEvenIfWipParam = req.query().valueFor(showLatestEvenIfWipParamName)
               
-              var savePoints = results.filter(item=>item.memo != "work-in-progress")
-              OK(JerksonJson(savePoints))
+              val showLatestEvenIfWip = parseBoolean(showLatestEvenIfWipParam).getOrElse(false)
+              
+              val fullHistory = getHistory(id)
+              
+              val results = fullHistory.filter{item=>
+                    val isLast = fullHistory.first eq item
+                    (showLatestEvenIfWip && isLast) || item.memo != "work-in-progress"
+              }
+              OK(JerksonJson(results))
             }
             
         },
