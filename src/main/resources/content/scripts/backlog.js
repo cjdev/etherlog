@@ -264,8 +264,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 					    	  var selection = ui.value;
 					    	  var i = history[selection];
 					    	  console.log(ui.value + " " + i.version + "(" + i.memo + ") on " + i.when);
-					    	  when = i.when;
-					    	  showVersion(i.version);
+					    	  showVersion(i.version, i.when);
 					      }
 					    });
 		    		  
@@ -281,7 +280,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 	      };
 	  }
 	  
-	  function showVersion(version, fn){
+	  function showVersion(version, vWhen, fn){
 		  var monitor = activityMonitor.show();
 		  
 		  http({
@@ -289,6 +288,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  method:"GET",
 			  onResponse:function(response){
 				  view.memoTextArea.css("visibility", "visible");
+				  when = vWhen;
 				  backlog = JSON.parse(response.body);
 				  render();
 				  if(fn){
@@ -784,10 +784,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
               onResponse: function (response) {
                   var history =JSON.parse(response.body);
                   var latest = history[0];
-                  if(evenIfWIP){
-                      when = latest.when;
-                  }
-                  showVersion(latest.version, function(){
+                  showVersion(latest.version, latest.when, function(){
                       if(fn){
                           fn();
                       }
