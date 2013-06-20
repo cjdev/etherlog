@@ -8,10 +8,9 @@
 		<script type="text/javascript" data-main="backlog" src="/scripts/require.js"></script>
 	</head>
 	<body>
-	
+	<img class="chart floatingHeader" style="visibility:hidden;"></img>
 	<div id="top">
 			
-<!-- 		<div style="position:fixed;background:white;margin:0px;padding:0px;width:100%;right: 0;top: 0; z-index: 300000;"> -->
 			<div id="header" style="margin:10px;">
 				<div><span id="title"></span><span id="summary"></span><button class="edit-button">Edit</button><img class="throbber" style="margin-left:5px; width:25px;height:25px;"src="/throbber.gif"></img></div>
 				<div class="velocity-div" style="display:none;">Velocity: <input class="velocity-text" type="text"></name></div>
@@ -25,11 +24,41 @@
 			<div id="slider"></div>
 			<img class="chart" ></img>
 			</div>
-<!-- 		</div> -->
 		
 	</div>
 	<div class="backlog">
 	
 	</div>
+	<script type="text/javascript">
+	require(["jquery"], function($){
+	    function updateFloatingChart() {
+		    	var b = $(".backlog");
+		        var el             = $(b),
+		            offset         = el.offset(),
+		            scrollTop      = $(window).scrollTop(),
+		            floatingHeader = $(".floatingHeader")
+		        console.log(floatingHeader.length);
+		        if ((scrollTop > (offset.top - floatingHeader.height())) ) {
+		            floatingHeader.css({
+		             "visibility": "visible"
+		            });
+		        } else {
+		            floatingHeader.css({
+		             "visibility": "hidden"
+		            });      
+		        };
+		 }
+		
+		// DOM Ready      
+		$(function() {
+
+		   $(window)
+		    .scroll(updateFloatingChart)
+		    .trigger("scroll");
+		   
+		});
+	});
+	
+	</script>
 	</body>
 </html>

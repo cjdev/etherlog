@@ -3,6 +3,14 @@ img.chart {
 	width:100%;
 }
 
+.floatingHeader {
+  position: fixed;
+  top: 0;
+  opacity:1;
+  background:white;
+  z-index:1000;
+}
+
 #summary {
 	margin:5px;
 	font-size:14pt;
