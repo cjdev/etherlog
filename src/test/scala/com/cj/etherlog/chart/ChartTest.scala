@@ -76,7 +76,7 @@ class ChartTest {
       // then
       val expected = resourceAsString("my.svg").replaceAll("FORMATTED_TIME_A", "Wednesday, December 31, 1969")
       
-      FileUtils.write(new File("/home/stu/Desktop/result.svg"), svg)
+      FileUtils.write(new File("/tmp/result.svg"), svg)
       
       assertEquals(expected, svg)
     }
