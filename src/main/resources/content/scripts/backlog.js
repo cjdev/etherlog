@@ -810,6 +810,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 			  }
 			  
 			  $("img.chart").attr("src", url);
+        $("a.permalink").attr("href", url);
 			  monitor.done();
 		  }
 		  
