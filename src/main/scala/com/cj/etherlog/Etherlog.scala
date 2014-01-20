@@ -26,6 +26,8 @@ import com.cj.etherlog.api._
 import com.cj.etherlog.chart._
 import org.joda.time.Months
 import org.joda.time.Weeks
+import org.apache.commons.httpclient.methods.PostMethod
+import org.apache.commons.httpclient.HttpClient
 
 object Etherlog {
   
@@ -151,7 +153,7 @@ object Etherlog {
               
               var results = allResults.filter(_._1.when<=until)
               
-              var (latest, _) = results.first
+              var (latest, _) = results.head
               
               results.filter{next=>
                     var (item, _) = next
@@ -289,7 +291,7 @@ object Etherlog {
               val fullHistory = getHistory(id)
               
               val results = fullHistory.filter{item=>
-                    val isLast = fullHistory.first eq item
+                    val isLast = fullHistory.head eq item
                     (showLatestEvenIfWip && isLast) || item.memo != "work-in-progress"
               }
               OK(JerksonJson(results))
@@ -345,6 +347,8 @@ object Etherlog {
               
               versions.put(updatedBacklog.latestVersion, newVersion);
               backlogs.put(id, updatedBacklog)
+
+                notifySubscribers(backlog)
               get(req)
             }
         },
@@ -367,4 +371,20 @@ object Etherlog {
     
     println("etherlog is alive and listening on port " + port);
   }
+
+    def notifySubscribers(backlog: BacklogStatus) {
+        val subscribers:ListBuffer[String] = SubscriberConfiguration.getSubscriberUrls("subscribers.properties")
+        subscribers.foreach(url => {
+            val subscriberUrl = url + backlog.id
+            val postMethod = new PostMethod(subscriberUrl)
+            val client = new HttpClient()
+            val response = client.executeMethod(postMethod)
+
+            if (response != 200) {
+                println("NO RESPONSE FROM BOARD")
+            } else {
+                println("Board notified id " + backlog.id)
+            }
+        })
+    }
 }

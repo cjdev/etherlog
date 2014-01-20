@@ -21,7 +21,7 @@ package object chart {
         
         val aspectRatio = chartWidth.toDouble/chartHeight.toDouble
         
-        val start = stats.firstOption.map(_.when).getOrElse(0L)
+        val start = stats.headOption.map(_.when).getOrElse(0L)
         val lastStatTime = stats.lastOption.map(_.when).getOrElse(0L)
         
         val chartEndTime = Math.max(lastTime, lastStatTime)
