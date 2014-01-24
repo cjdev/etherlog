@@ -11,7 +11,10 @@ object SubscriberConfiguration {
         try {
             for(line <- Source.fromFile(fileName).getLines()) {
                 println(line)
-                urls.append(line)
+                if (line.length > 10) {
+
+                    urls.append(line)
+                }
             }
         } catch {
             case ex: FileNotFoundException => println("Couldn't find that file.")
