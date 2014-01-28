@@ -126,9 +126,10 @@ package object chart {
         
         
         val latest = stats.last
+        println("SCOPE: " + latest.done)
         val otherLines = if(whenProjectedComplete>0){
           Seq(
-                """<line class="projection" y1="""" + y(topMargin + latest.done) + """" x1="""" + x(latest.when) + """" y2="""" + y(topMargin + latest.total) + """" x2="""" + x(whenProjectedComplete) + """" />"""
+                """<line class="projection" y1="""" + y(topMargin + nHeight - latest.todo) + """" x1="""" + x(latest.when) + """" y2="""" + y(topMargin + nHeight) + """" x2="""" + x(whenProjectedComplete) + """" />"""
           )
         }else{
           Seq()

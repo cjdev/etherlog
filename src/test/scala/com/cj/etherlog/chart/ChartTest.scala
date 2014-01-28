@@ -82,7 +82,7 @@ class ChartTest {
     }
      
     @Test
-    def threeItems(){
+    def threeItemsfds(){
       // given
       val input = Seq[StatsLogEntry](
               StatsLogEntry(version="1", when=1, memo="", todo=3, done=0),
@@ -99,4 +99,54 @@ class ChartTest {
       
     }
      
+    
+
+    @Test
+    def burndownLineFollowsAScopeDecreaseWithNothingDone(){
+      // given
+      val input = Seq[StatsLogEntry](
+              StatsLogEntry(version="1", when=1, memo="", todo=10, done=0),
+              StatsLogEntry(version="2", when=2, memo="", todo=5, done=0)
+      )
+      
+      // when
+      val svg = makeSvg(
+                  stats=input, 
+                  lastTime=3, 
+                  goals=Seq(),
+                  whenProjectedComplete=3
+                )
+      
+      // then
+      val expected = resourceAsString("scopeDecreaseWithNothingDone.svg").replaceAll("FORMATTED_TIME_A", "Wednesday, December 31, 1969")
+      
+      assertEquals(expected, svg)
+    }
+    
+    @Test
+    def burndownLineFollowsAScopeDecreaseWithSomethingDone(){
+      // given
+      val input = Seq[StatsLogEntry](
+              StatsLogEntry(version="1", when=1, memo="", todo=10, done=0),
+              StatsLogEntry(version="2", when=2, memo="", todo=5, done=3)
+      )
+      
+      // when
+      val svg = makeSvg(
+                  stats=input, 
+                  lastTime=3, 
+                  goals=Seq(),
+                  whenProjectedComplete=3
+                )
+      
+      // then
+      val expected = resourceAsString("scopeDecreaseWithSomethingDone.svg").replaceAll("FORMATTED_TIME_A", "Wednesday, December 31, 1969")
+      
+//      val f = new File("/tmp/result.svg");
+//      FileUtils.write(f, svg)
+//      Runtime.getRuntime().exec(Array("gnome-open", f.getAbsolutePath()))
+//      
+      assertEquals(expected, svg)
+    }
+    
 }
