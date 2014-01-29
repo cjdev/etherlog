@@ -424,6 +424,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
     function ItemWidget(item, backlogDiv){
         var html, v, view, onDelete, showViewMode;
         const finishedCssClass = "finished";
+        const unfinishedCssClass = "unfinished";
 
         v = $('<div id="' + item.id + '" class="item clearfix">' + 
                 '<img style="display:none;" src="/delete.png"/ class="delete-icon delete-button">' + 
@@ -510,6 +511,17 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
             }
         });
 
+        function setStoryCompletionStateCssClass(){
+            
+            if(item.isComplete){
+                v.addClass(finishedCssClass);
+                v.removeClass(unfinishedCssClass);
+            }else {
+                v.removeClass(finishedCssClass);
+                v.addClass(unfinishedCssClass);
+            }
+        }
+        
         if(item.kind==="goal"){
             v.addClass("milestone divider clearfix");
             showViewMode = function(){
@@ -522,9 +534,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
         }else {
             if(item.kind==="story"){
                 v.addClass("story project-chunk");
-                if(item.isComplete){
-                    v.addClass(finishedCssClass);
-                }
+                setStoryCompletionStateCssClass();
             }else if(item.kind==="epic"){
                 v.addClass("epic project-chunk");
             }
@@ -602,13 +612,10 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
         view.doneButton.button().click(showEditableMode);
 
         view.finishedButton.click(function(){
-            if(item.isComplete){
-                item.isComplete = false;
-                v.removeClass(finishedCssClass);
-            }else{
-                item.isComplete = true;
-                v.addClass(finishedCssClass);
-            }
+
+            item.isComplete = !item.isComplete;
+            setStoryCompletionStateCssClass();
+            
             sendWorkInProgress();
         });
         view.editButton.click(showEditMode);
