@@ -112,16 +112,17 @@ package object chart {
           
           val dot = goal.when match {
             case Some(when)=> {
-              val date = goal.when match {
-                case Some(millis)=> dateFormat.print(new DateTime(millis)) + ": "
-                case None => ""
+              if(when >=lastStatTime){
+                val date = dateFormat.print(new DateTime(when)) + ": "
+                Some("""<circle cx="""" + x(when) + """" cy="""" + yVal + """" r=".25"><title>""" + date + goal.description  + """</title></circle>""")
+              }else{
+                None
               }
-              Some("""<circle cx="""" + x(when) + """" cy="""" + yVal + """" r=".25"><title>""" + date + goal.description  + """</title></circle>""")
             }
             case None => None
           }
           
-          Seq("""<line class="projection" y1="""" + yVal + """" x1="""" + x(start) + """" y2="""" + yVal + """" x2="""" + x(chartEndTime) + """" />""") ++ dot
+          Seq("""<line class="projection" y1="""" + yVal + """" x1="""" + x(lastStatTime) + """" y2="""" + yVal + """" x2="""" + x(chartEndTime) + """" />""") ++ dot
         }
         
         
