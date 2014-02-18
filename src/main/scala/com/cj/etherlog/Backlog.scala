@@ -1,8 +1,6 @@
 package com.cj.etherlog
-
-import org.codehaus.jackson.annotate.JsonTypeInfo
-import org.codehaus.jackson.annotate.JsonTypeInfo.Id
-import org.codehaus.jackson.annotate.JsonTypeInfo.As
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeInfo.{Id, As}
 import com.cj.etherlog.chart.GoalData
 
 case class Estimate(
@@ -45,6 +43,7 @@ case class Backlog (
       case _=> items.foldLeft(0){(accum, item)=> item.bestEstimate.getOrElse(0) + accum}
     }
   
+  def item(id:String) = items.find(_.id==id)
   
   def todo() = items.filter(_.kind!="goal").foldLeft(0){(total, item)=>
     val todo = if(item.isComplete.getOrElse(false)){

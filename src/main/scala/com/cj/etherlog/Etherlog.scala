@@ -3,7 +3,6 @@ package com.cj.etherlog
 import org.httpobjects.jetty.HttpObjectsJettyHandler
 import org.httpobjects.HttpObject
 import org.httpobjects.DSL._
-import org.httpobjects.jackson.JacksonDSL._
 import org.httpobjects.Request
 import org.httpobjects.util.ClasspathResourcesObject
 import org.httpobjects.util.ClasspathResourceObject
@@ -11,8 +10,6 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
-import org.codehaus.jackson.map.ObjectMapper
-import com.codahale.jerkson.{Json => Jerkson}
 import org.httpobjects.Representation
 import java.io.OutputStream
 import java.io.{File => Path}
@@ -28,6 +25,11 @@ import org.joda.time.Months
 import org.joda.time.Weeks
 import org.apache.commons.httpclient.methods.PostMethod
 import org.apache.commons.httpclient.HttpClient
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.joda.time.format.DateTimeFormatter
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.YearMonthDay
 
 object Etherlog {
   
@@ -51,11 +53,21 @@ object Etherlog {
     text.toString()
   }
   
+  val jackson:ObjectMapper = {
+    val mapper = new ObjectMapper()
+    mapper.registerModule(DefaultScalaModule)
+    mapper
+  }
+  
+  def parseJson[T](is:InputStream)(implicit manifest:Manifest[T]):T = {
+    jackson.readValue[T](is, manifest.erasure.asInstanceOf[Class[T]])
+  }
+  
   def JerksonJson(o:AnyRef) = {
     new Representation(){
       override def contentType = "application/json"
       override def write(out:OutputStream){
-        Jerkson.generate(o, out)
+        jackson.writeValue(out, o)
       }
     }
   }
@@ -64,13 +76,13 @@ object Etherlog {
     basePath.mkdirs();
     
     def put(id:String, data:T):Unit  = this.synchronized{
-      Jerkson.generate(data, pathFor(id))
+      jackson.writeValue(pathFor(id), data)
     }
     
     def get(id:String)(implicit manifest:Manifest[T]):T = this.synchronized {
         val stream = new FileInputStream(pathFor(id))
         try {
-            Jerkson.parse[T](stream)
+            parseJson(stream)
         }finally{
           stream.close();
         }
@@ -107,9 +119,8 @@ object Etherlog {
     
     val versionsCache = scala.collection.mutable.Map[String, BacklogVersion]()
     
-    def scanBacklogHistory(backlogId:String, fn:(BacklogVersion)=>Unit) {
+    def scanBacklogHistory(backlogId:String, fn:(BacklogVersion)=>Unit):Unit = {
       val backlog = backlogs.get(backlogId);
-              
       var nextVersionId = backlog.latestVersion
       while(nextVersionId!=null){
         val version = versionsCache.get(nextVersionId) match {
@@ -120,6 +131,17 @@ object Etherlog {
         fn(version)
         nextVersionId = version.previousVersion
       }
+     }
+    
+    def filterBacklogHistory(backlogId:String, fn:(BacklogVersion)=>Boolean):Seq[BacklogVersion]  = {
+      var results = ListBuffer[BacklogVersion]()
+      
+      scanBacklogHistory(backlogId, {next=>
+          val matches = fn(next)
+          if(matches) results += next
+      })
+      
+      results.toSeq
     }
     
     def buildStatsLog(id:String, until:Long, includeCurrentState:Boolean = false)= {
@@ -233,6 +255,7 @@ object Etherlog {
       results.toSeq
     }
      
+    
     val port = 43180
     
     HttpObjectsJettyHandler.launchServer(port, 
@@ -249,7 +272,7 @@ object Etherlog {
             }
             
             override def post(req:Request) = {
-              val backlogRecieved = Jerkson.parse[Backlog](readAsStream(req.representation()));
+              val backlogRecieved = parseJson[Backlog](readAsStream(req.representation()));
               
               val newVersionId = updateBacklog(backlogRecieved);
               
@@ -331,7 +354,7 @@ object Etherlog {
             }
             override def put(req:Request) = {
               val id = req.path().valueFor("id")
-              val newBacklog = Jerkson.parse[Backlog](readAsStream(req.representation()));
+              val newBacklog = parseJson[Backlog](readAsStream(req.representation()));
               val backlog = backlogs.get(id);
               
               val newVersion = new BacklogVersion(
@@ -362,6 +385,87 @@ object Etherlog {
               
               CREATED(Location("/api/errors/" + errorId))
             }
+        },
+        new HttpObject("/api/backlogs/{id}/deltas"){
+          
+            override def get(req:Request) = {
+              val id = req.path().valueFor("id")
+              
+              def toLongOr(s:String, default:Long) = if(s==null) default else s.toLong
+              
+              val from = toLongOr(req.query().valueFor("from"), 0)
+              val to = toLongOr(req.query().valueFor("to"), new Instant().getMillis())
+              val backlog = backlogs.get(id);
+              
+              val changes = filterBacklogHistory(id, {version=>
+                (version.backlog.memo != "work-in-progress") && 
+                (version.when > from) && 
+                (version.when<=to)
+              }).reverse
+              
+              val deltas = changes.zipWithIndex.flatMap{item=>
+                val (version, idx) = item;
+                if(idx > 0){
+                  val previous = changes(idx-1)
+                  Some(version.delta(previous))
+                }else{
+                  None
+                }
+              }
+              
+              OK(JerksonJson(deltas))
+            }
+        },
+        new HttpObject("/api/backlogs/{id}/deltas/{rangeSpec}"){
+          override def get(req:Request) = {
+              val id = req.path().valueFor("id")
+              
+              val rangeSpec = req.path().valueFor("rangeSpec")
+              
+              case class DateRange(from:YearMonthDay, to:YearMonthDay)
+              val publishedChanges = filterBacklogHistory(id, {_.backlog.memo != "work-in-progress"})
+              
+              case class Versions(from:Option[BacklogVersion], to:Option[BacklogVersion])
+              
+              def versionsInDateRange(range:DateRange) = {
+                  val backlog = backlogs.get(id);
+                  
+                  def changesUpTo(date:YearMonthDay) = publishedChanges.filter{change=>
+                    val changeDate = new Instant(change.when).toDateTime().toYearMonthDay()
+                    !changeDate.isAfter(date)
+                  }
+                  Versions(from=changesUpTo(range.from).headOption, 
+                           to=changesUpTo(range.to).headOption )
+              }
+              
+              val SinceDatePattern = "since-(.*)".r
+              val BetweenDatesPattern = "from-(....-..-..)-to-(....-..-..)".r
+              val BetweenTimestampsPattern = "from-([0-9]*)-to-([0-9]*)".r
+              val BetweenIdsPattern = """from-([0-9|a-z|\-]*)-to-([0-9|a-z|\-]*)""".r
+              
+              def millisToYMD(millis:Long) = new Instant(millis).toDateTime().toYearMonthDay()
+              def millisStringToYMD(millis:String) = millisToYMD(millis.toLong)
+              def parseDate(text:String) = DateTimeFormat.forPattern("yyyy-MM-dd").parseDateTime(text).toYearMonthDay()
+              
+              val versions = rangeSpec match {
+                case SinceDatePattern(date) => versionsInDateRange(DateRange(from=parseDate(date), to = new YearMonthDay()))
+                case BetweenDatesPattern(from, to) => versionsInDateRange(DateRange(from=parseDate(from), to=parseDate(to)))
+                case BetweenTimestampsPattern(from, to) => versionsInDateRange(DateRange(from=millisStringToYMD(from), to=millisStringToYMD(to)))
+                case BetweenIdsPattern(from, to) => {
+                  val foo = publishedChanges.find(_.id==from)
+                  val bar = publishedChanges.find(_.id==to)
+                  Versions(from=foo, to=bar)
+                }
+              }
+              
+              versions match {
+                case Versions(Some(from), Some(to))=> OK(JerksonJson(to.delta(from)))
+                case Versions(_, _) => {
+                  NOT_FOUND(Text("Valid dates are " + millisToYMD(publishedChanges.last.when) + " to " + millisToYMD(publishedChanges.head.when)))
+                }
+              }
+              
+          }
         },
         new ClasspathResourceObject("/mockup", "/content/backlog-mockup.html", getClass()),
         new ClasspathResourceObject("/", "/content/index.html", getClass()),

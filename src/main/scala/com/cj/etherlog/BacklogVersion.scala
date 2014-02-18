@@ -1,5 +1,10 @@
 package com.cj.etherlog
 
+case class VersionNameAndTime(id:String, memo:String,
+    when:Long)
+
+case class Delta (from:VersionNameAndTime, to:VersionNameAndTime, added:Int, removed:Int, finished:Int, reopened:Int)
+    
 case class BacklogVersion(
     val id:String,
     val when:Long = System.currentTimeMillis(),
@@ -21,5 +26,56 @@ case class BacklogVersion(
         }
         case None=>None
       }
+  }
+  
+  def versionNameAndTime = VersionNameAndTime(id, backlog.memo, when)
+    
+  def delta(prev:BacklogVersion) = {
+    val change = this
+    
+    if(prev.when > change.when) throw new Exception("time ran backwards: " + prev.when + " to " + change.when)
+    
+    val added = change.backlog.items.filter{item=>
+      !prev.backlog.item(item.id).isDefined
+    }
+    
+    val removed = prev.backlog.items.filter{item=>
+      !change.backlog.item(item.id).isDefined
+    }
+    
+    val finished = change.backlog.items.filter{item=>
+       val isComplete = item.isComplete.getOrElse(false)
+       prev.backlog.item(item.id) match {
+         case Some(old) => 
+           val wasComplete = old.isComplete.getOrElse(false)
+           (!wasComplete) && isComplete
+         case None => isComplete
+       }
+    }
+    
+    val reopened = change.backlog.items.filter{item=>
+       prev.backlog.item(item.id) match {
+         case Some(old) => 
+           val isComplete = item.isComplete.getOrElse(false)
+           val wasComplete = old.isComplete.getOrElse(false)
+           (wasComplete) && !isComplete
+         case None => false
+       }
+    }
+    
+    def sumEstimates(items:Seq[Item]):Int = {
+      val bestEstimates = items.flatMap(_.bestEstimate)
+      val sum = bestEstimates.foldLeft(0)(_+_)
+      sum
+    }
+    
+    Delta(
+        from = prev.versionNameAndTime,
+        to = change.versionNameAndTime,
+        added=sumEstimates(added), 
+        removed=sumEstimates(removed), 
+        finished=sumEstimates(finished), 
+        reopened = sumEstimates(reopened))
+    
   }
 }
