@@ -438,7 +438,8 @@ object Etherlog {
                            to=changesUpTo(range.to).headOption )
               }
               
-              val SinceDatePattern = "since-(.*)".r
+              val SinceDatePattern = "since-(....-..-..)".r
+              val SinceIdPattern = """since-([0-9|a-z|\-]*)""".r
               val BetweenDatesPattern = "from-(....-..-..)-to-(....-..-..)".r
               val BetweenTimestampsPattern = "from-([0-9]*)-to-([0-9]*)".r
               val BetweenIdsPattern = """from-([0-9|a-z|\-]*)-to-([0-9|a-z|\-]*)""".r
@@ -455,6 +456,9 @@ object Etherlog {
                   val foo = publishedChanges.find(_.id==from)
                   val bar = publishedChanges.find(_.id==to)
                   Versions(from=foo, to=bar)
+                }
+                case SinceIdPattern(from) => {
+                  Versions(from=publishedChanges.find(_.id==from), publishedChanges.headOption)
                 }
               }
               
