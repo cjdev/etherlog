@@ -6,10 +6,10 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 
     var when; // SUPERHACK!
 
-    var backlogId = parseBacklogIdFromQueryString();
+    var backlogId = parseBacklogIdFromURL();
 
-    function parseBacklogIdFromQueryString(){
-        var parts = window.location.toString().split("/");
+    function parseBacklogIdFromURL(){
+        var parts = window.location.toString().split("#")[0].split("/");
         if(parts.length>0){
             return parts[parts.length-1];
         }else{
@@ -17,6 +17,15 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
         }
     }
 
+    function goToByScroll(id){
+        $('html,body').animate({scrollTop: $(id).offset().top - $('img.chart').height()},'slow');
+    }
+    var hash = window.location.hash;
+    console.log("hash is " + hash);
+    setTimeout(function(){
+        goToByScroll(hash);
+        goToByScroll(hash);
+    },800);
 
     var widgets = [];
 
