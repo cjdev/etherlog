@@ -22,10 +22,12 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
     }
     var hash = window.location.hash;
     console.log("hash is " + hash);
-    setTimeout(function(){
-        goToByScroll(hash);
-        goToByScroll(hash);
-    },800);
+    if(hash) {
+        setTimeout(function(){
+            goToByScroll(hash);
+            goToByScroll(hash);
+        },800);
+    }
 
     var widgets = [];
 
