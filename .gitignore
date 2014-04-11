@@ -4,3 +4,6 @@ target
 .settings
 .cache
 data
+.idea
+*.iml
+*.swp

@@ -57,7 +57,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
         }
         return {
             showUnknown:showUnknown,
-            show:show  
+            show:show
         };
     }());
 
@@ -66,6 +66,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
             backlog : where.find(".backlog"),
             slider : where.find("#slider"),
             summaryTextArea : where.find("#summary"),
+            hideButton : where.find(".hide-button"),
             editButton : where.find(".edit-button"),
             saveButton : where.find(".save-button"),
             addStoryButton : where.find(".add-story-button"),
@@ -158,7 +159,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
                     $.each(estimates, function(idx, estimate){
                         if(!bestEstimate && estimate.currency === kind){
                             bestEstimate = {type:estimate.currency, value:parseInt(estimate.value, 10)};
-                        } 
+                        }
                     });
                 });
             }
@@ -201,7 +202,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
     }
 
     function updateSummary(){
-        var totals = calculateTotals(backlog); 
+        var totals = calculateTotals(backlog);
         view.summaryTextArea.text("(" + $.map(totals, function(value, key){return key + " " + value + "  ";}) + ")");
     }
 
@@ -242,7 +243,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 
     function moveItemBefore(itemId, beforeId){
         if(itemId!==beforeId){
-            var subject = where.find("#" + itemId); 
+            var subject = where.find("#" + itemId);
 
             subject.detach().insertBefore("#dropZone" + beforeId);
             subject.css("left", 0);
@@ -351,8 +352,8 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 
     function EstimatesWidget(item, parentDiv){
 
-        var v = $('<div id="' + item.id + '" class="estimates-list">' + 
-                '<div class="estimate"><select><option></option><option>swag</option><option>grooming</option><option>team</option></select> <input size="2" type="text"></input>   </div>' + 
+        var v = $('<div id="' + item.id + '" class="estimates-list">' +
+                '<div class="estimate"><select><option></option><option>swag</option><option>grooming</option><option>team</option></select> <input size="2" type="text"></input>   </div>' +
         '</div>');
         var view = {
                 addButton : v.find(".add-button"),
@@ -437,13 +438,13 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
         const finishedCssClass = "finished";
         const unfinishedCssClass = "unfinished";
 
-        v = $('<div id="' + item.id + '" class="item clearfix">' + 
-                '<img style="display:none;" src="/delete.png"/ class="delete-icon delete-button">' + 
-                '<img style="display:none;" src="/pencil.png"/ class="edit-icon edit-button">' + 
-                '<img style="display:none;" src="/medal.png"/ class="finished-icon finished-button">' + 
-                '<div class="controls" >' + 
-                '<div class="date-select-controls" style="display:none;">Target Date:<input type="text" class="date-picker" /></div><button style="display:none;" class="done-button">Done</button>' + 
-                '<div style="display:none;"class="estimates-holder"></div></div>' + 
+        v = $('<div id="' + item.id + '" class="item clearfix">' +
+                '<img style="display:none;" src="/delete.png"/ class="delete-icon delete-button">' +
+                '<img style="display:none;" src="/pencil.png"/ class="edit-icon edit-button">' +
+                '<img style="display:none;" src="/medal.png"/ class="finished-icon finished-button">' +
+                '<div class="controls" >' +
+                '<div class="date-select-controls" style="display:none;">Target Date:<input type="text" class="date-picker" /></div><button style="display:none;" class="done-button">Done</button>' +
+                '<div style="display:none;"class="estimates-holder"></div></div>' +
                 '<span class="label"/>' + '<div class="remainder" style="display:none;"/>' +
         '<textarea style="display:none;"></textarea></div>');
 
@@ -502,7 +503,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 
                 var label = firstLine;
                 if(decoration){
-                    label = label + " " + decoration; 
+                    label = label + " " + decoration;
                 }
 
                 view.label.text(label);
@@ -523,7 +524,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
         });
 
         function setStoryCompletionStateCssClass(){
-            
+
             if(item.isComplete){
                 v.addClass(finishedCssClass);
                 v.removeClass(unfinishedCssClass);
@@ -532,7 +533,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
                 v.addClass(unfinishedCssClass);
             }
         }
-        
+
         if(item.kind==="goal"){
             v.addClass("milestone divider clearfix");
             showViewMode = function(){
@@ -626,7 +627,7 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 
             item.isComplete = !item.isComplete;
             setStoryCompletionStateCssClass();
-            
+
             sendWorkInProgress();
         });
         view.editButton.click(showEditMode);
@@ -688,6 +689,12 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
     }
 
     var slider = HistorySlider(view.slider);
+
+    view.hideButton.button().click(
+        function () {
+            $(".finished").slideToggle();
+        }
+    );
 
     view.editButton.button().click(function(){
         showWIPVersion(function(){

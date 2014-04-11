@@ -161,9 +161,15 @@ div.item div.controls {
 	font-size: 2em;
 }
 .edit-button {
-	margin-left:10px;
-	margin-bottom:10px;
-	float:right;
+    margin-left:10px;
+    margin-bottom:10px;
+    float:right;
+}
+
+.hide-button {
+    margin-left:10px;
+    margin-bottom:10px;
+    float:right;
 }
 
 .memo-text {
