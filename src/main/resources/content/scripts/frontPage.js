@@ -22,13 +22,24 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 		  });
 	  });
 	  
+	  var backlogList = body.find(".backlog-list")
+	  
 	  http({
 		  url: "/api/backlogs",
          method: "GET",
          onResponse: function (response) {
        	  var backlogs=JSON.parse(response.body);
+       	
+       	  function sortByName(a, b){
+       	  var aName = a.name==null?"unnamed":a.name.toLowerCase();
+       	  var bName = b.name==null?"unnamed":b.name.toLowerCase(); 
+       	  return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+       	}
+
+       	backlogs.sort(sortByName);
+       	  
        	  $.each(backlogs, function(idx, backlog){
-       		  body.append('<div><a href="/backlog/' + backlog.id + '">' + backlog.name + '</a></div>');
+       		  body.append('<li class="backlog-list-entry"><a href="/backlog/' + backlog.id + '">' + backlog.name + '</a></li>');
        	  });
          }
 	  });

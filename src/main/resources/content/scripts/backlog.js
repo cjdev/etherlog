@@ -828,10 +828,10 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
 
         function render(when){
             var monitor = activityMonitor.show();
-            var url = "/api/backlogs/" + backlogId + "/chart";
-
+            var url = "/api/backlogs/" + backlogId + "/chart?&showGoalTargetDots=true&showOddWeeks=false&showWeekNumbers=false&showMonthLabels&showCompletedWork&showGoalLabels=false&showMonthVerticals=true&showGoalHLines=false&showGoalVLines";
+            
             if(when){
-                url = url+"?end=" + when + "&showLatestEvenIfWip=true";
+                url = url+"&end=" + when + "&showLatestEvenIfWip=true";
             }
 
             $("img.chart").attr("src", url);
@@ -846,7 +846,8 @@ define(["jquery", "http", "uuid"], function($, http, uuid){
         return {
             render:render,
             refresh:refresh
-        }}());
+        }
+    }());
 
     showCurrentVersion();
 

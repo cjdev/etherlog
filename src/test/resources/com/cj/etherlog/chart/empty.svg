@@ -35,9 +35,21 @@
             fill:black;
         }
         
-        .projection {
+        .projection, .old-projection {
             stroke:black;
             stroke-width:.05;
+        }
+        .old-projection {
+            stroke-dasharray: .5,.5;
+        }
+        .monthBoundary {
+            stroke:grey;
+            stroke-width:.05;
+        }
+        .goal-label {
+            
+            font-size:.35pt;
+            font-family:sans-serif;
         }
       ]]>
     </style>

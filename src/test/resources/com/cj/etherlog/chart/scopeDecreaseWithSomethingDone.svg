@@ -35,23 +35,35 @@
             fill:black;
         }
         
-        .projection {
+        .projection, .old-projection {
             stroke:black;
             stroke-width:.05;
         }
+        .old-projection {
+            stroke-dasharray: .5,.5;
+        }
+        .monthBoundary {
+            stroke:grey;
+            stroke-width:.05;
+        }
+        .goal-label {
+            
+            font-size:.35pt;
+            font-family:sans-serif;
+        }
       ]]>
     </style>
-  <polygon points="2.0,0.8333333333333334 25.0,2.5 25.0,5.0 2.0,0.8333333333333334" class="done"/>
-  <polygon points="2.0,0.8333333333333334 2.0,9.166666666666668 25.0,9.166666666666668 25.0,5.0" class="todo"/>
-  <line y1="7.5" x1="0" y2="7.5" x2="48.0" />
-  <text x="0" y="7.5" >2</text>
-  <line y1="5.833333333333334" x1="0" y2="5.833333333333334" x2="48.0" />
-  <text x="0" y="5.833333333333334" >4</text>
-  <line y1="4.166666666666667" x1="0" y2="4.166666666666667" x2="48.0" />
-  <text x="0" y="4.166666666666667" >6</text>
-  <line y1="2.5" x1="0" y2="2.5" x2="48.0" />
-  <text x="0" y="2.5" >8</text>
-  <line y1="0.8333333333333334" x1="0" y2="0.8333333333333334" x2="48.0" />
-  <text x="0" y="0.8333333333333334" >10</text>
-  <line class="projection" y1="5.0" x1="25.0" y2="9.166666666666668" x2="48.0" />
+  <polygon points="2.0,2.0 25.0,3.2 25.0,5.0 2.0,2.0" class="done"/>
+  <polygon points="2.0,2.0 2.0,8.0 25.0,8.0 25.0,5.0" class="todo"/>
+  <line y1="6.8" x1="0" y2="6.8" x2="48.0" />
+  <text x="0" y="6.8" >2</text>
+  <line y1="5.6" x1="0" y2="5.6" x2="48.0" />
+  <text x="0" y="5.6" >4</text>
+  <line y1="4.4" x1="0" y2="4.4" x2="48.0" />
+  <text x="0" y="4.4" >6</text>
+  <line y1="3.2" x1="0" y2="3.2" x2="48.0" />
+  <text x="0" y="3.2" >8</text>
+  <line y1="2.0" x1="0" y2="2.0" x2="48.0" />
+  <text x="0" y="2.0" >10</text>
+  <line class="projection" y1="5.0" x1="25.0" y2="8.0" x2="48.0" />
 </svg>

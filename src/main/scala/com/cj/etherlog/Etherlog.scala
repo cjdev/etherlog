@@ -146,43 +146,43 @@ object Etherlog {
     
     def buildStatsLog(id:String, until:Long, includeCurrentState:Boolean = false)= {
       val backlog = backlogs.get(id) 
-              val allResults = new ListBuffer[(StatsLogEntry, BacklogVersion)]()
-              
-              def incrementedEstimate(tally:Int, item:Item) = {
-                  item.bestEstimate match {
-                  case Some(value) => {
-                      value + tally
-                  }
-                  case None => tally
-                  }
-              }
-              
-              scanBacklogHistory(id, {version=>
-                    val items = version.backlog.items
-                    val amountComplete:Int = items.filter(_.isComplete.getOrElse(false)).foldLeft(0)(incrementedEstimate);
-                    val amountTodo:Int = items.filter(!_.isComplete.getOrElse(false)).foldLeft(0)(incrementedEstimate);
-                    
-                    val n = (StatsLogEntry(
-                            version=version.id, 
-                            when=version.when, 
-                            memo=version.backlog.memo,
-                            todo=amountTodo,
-                            done=amountComplete), version)
-                    
-                    allResults += n
-                                
-              }) 
-              
-              var results = allResults.filter(_._1.when<=until)
-              
-              var (latest, _) = results.head
-              
-              results.filter{next=>
-                    var (item, _) = next
-                    var includeBecauseItsLast = (includeCurrentState && item.version == latest.version)
-                    var includeBecauseItsNotWIP = item.memo!="work-in-progress" 
-                    includeBecauseItsLast || includeBecauseItsNotWIP
-              }
+      val allResults = new ListBuffer[(StatsLogEntry, BacklogVersion)]()
+      
+      def incrementedEstimate(tally:Int, item:Item) = {
+          item.bestEstimate match {
+          case Some(value) => {
+              value + tally
+          }
+          case None => tally
+          }
+      }
+      
+      scanBacklogHistory(id, {version=>
+            val items = version.backlog.items
+            val amountComplete:Int = items.filter(_.isComplete.getOrElse(false)).foldLeft(0)(incrementedEstimate);
+            val amountTodo:Int = items.filter(!_.isComplete.getOrElse(false)).foldLeft(0)(incrementedEstimate);
+            
+            val n = (StatsLogEntry(
+                    version=version.id, 
+                    when=version.when, 
+                    memo=version.backlog.memo,
+                    todo=amountTodo,
+                    done=amountComplete), version)
+            
+            allResults += n
+                        
+      }) 
+      
+      var results = allResults.filter(_._1.when<=until)
+      
+      var (latest, _) = results.head
+      
+      results.filter{next=>
+            var (item, _) = next
+            var includeBecauseItsLast = (includeCurrentState && item.version == latest.version)
+            var includeBecauseItsNotWIP = item.memo!="work-in-progress" 
+            includeBecauseItsLast || includeBecauseItsNotWIP
+      }
               
     }
     
@@ -293,11 +293,65 @@ object Etherlog {
               
               val version = stats.head._2
               
+              val myStats = stats.map(_._1).toList.reverse
+              
+              val pastProjection = req.query().valueFor("compareWith") match {
+                case null => Seq()
+                case s:String => {
+                  val date = new YearMonthDay(s)
+                  
+                  val matches = ListBuffer[BacklogVersion]()
+                  scanBacklogHistory(id, {version=>
+                    if(new Instant(version.when).isAfter(date.toDateTimeAtMidnight())){
+                        matches += version
+                    }
+                  })
+                  
+                  val maybeLastObservationAtDate = matches.lastOption
+                  maybeLastObservationAtDate match {
+                    case None=>Seq()
+                    case Some(v)=>{
+                      val o = v.backlog
+                      
+                      o.projectedVelocity match {
+                          case Some(weeklyVelocity)=> {
+//                            val pointsDone = o.totalSize - o.todo
+//                            val pointsToGoal = amount - pointsDone
+                            val pointsToGoal = o.todo
+                            val pointsPerWeek = weeklyVelocity
+                            val numWeeksToGoal = pointsToGoal.toDouble/pointsPerWeek.toDouble
+                            val numMillisInWeek = 1000 * 60 * 60 * 24 * 7;
+                            
+                            val millisWhenGoalComplete = (v.when + (numMillisInWeek.toDouble * numWeeksToGoal)).toLong
+                            Seq(ChartProjection(
+                                    from=new Instant(v.when), 
+                                    pointsRemaining=o.todo, 
+                                    whenComplete=new Instant(millisWhenGoalComplete)))
+                          }
+                          case None=>Seq()
+                        }
+                      
+                    }
+                  }
+                }
+              }
+              val last = myStats.last.when
+              System.out.println("last is " + new YearMonthDay(last))
+              
+              val projections = version.projectedEnd match {
+                case None=>Seq()
+                case Some(end) => Seq(ChartProjection(
+                                    from=new Instant(last), 
+                                    pointsRemaining=myStats.last.todo, 
+                                    whenComplete=new Instant(end)))
+              }
+              
               val text = makeSvg(
-                              stats=stats.map(_._1).toList.reverse, 
+                              stats=myStats, 
                               lastTime = lastTime, 
-                              whenProjectedComplete = version.projectedEnd.getOrElse(0),
-                              goals=version.backlog.goalData
+                              projections = projections ++ pastProjection,
+                              goals=version.backlog.goalData(last),
+                              options=ChartOptions.fromQuery(req.query())
                          )
               
               OK(Bytes("image/svg+xml", text.getBytes()))
@@ -472,6 +526,7 @@ object Etherlog {
           }
         },
         new ClasspathResourceObject("/mockup", "/content/backlog-mockup.html", getClass()),
+        new ClasspathResourceObject("/overview", "/content/birdview.html", getClass()),
         new ClasspathResourceObject("/", "/content/index.html", getClass()),
         new ClasspathResourceObject("/backlog/{backlogId}", "/content/backlog.html", getClass()),
         new ClasspathResourcesObject("/{resource*}", getClass(), "/content")

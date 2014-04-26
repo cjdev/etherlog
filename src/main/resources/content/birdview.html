@@ -1,0 +1,137 @@
+<html>
+	<head>
+		<style type="text/css">
+			body {
+			}
+			.project-band {
+				padding:0px;
+				margin:0px;
+				padding-top:20px;	
+				border-top:5px solid grey;
+			}
+			.project-label, .chart-band, .reconciliation-block {
+				margin:0px;
+				border:0px;
+				padding:0px;
+                display:inline-block;
+                vertical-align:top;
+			}
+			
+			.project-label, .chart-band, .reconciliation-block, .burndown-chart {
+                height:350px;
+			}
+			
+			.project-label {
+				width:10%;
+				
+			}
+			.title-link {
+                font-size:20pt;
+                font-family:sans-serif;
+                font-weight:bold;
+			}
+			
+			
+			.burndown-chart {
+				display:inline;
+				width:1300px;
+                /*min-width:1300px;
+				overflow:scroll;*/
+			}
+			.chart-band {
+				width:80%;
+				/*overflow-x:scroll;
+				min-height:450px;*/
+	
+			}
+			.reconciliation-block {
+				width:9%;
+			}
+			.controls {
+                margin:5px;
+			}
+			.controls-band {
+				position:fixed;
+				left:0px;
+				top:0px;
+				margin:0px;
+				width:100%;
+				border-bottom:1px solid grey;
+				background:white;
+			}
+		</style>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+console.log("hi");
+$(function(){
+	var compareDate = "2014-04-01"
+	var body = $("body");
+	
+	function MakeProjectBand(project){
+		var view = $('<div class="project-band">' + 
+                '    <div class="project-label">' + 
+                '      <a class="title-link" target="backlog" href="/backlog/' + project.id + '">' + project.name + '</a>' + 
+                '      <a class="deltas-link" target="_deltas" href="">deltas</a>' + 
+                '    </div>' + 
+                '    <div class="chart-band">' + 
+                '      <div class="chart-holder"><img class="burndown-chart" src=""></img></div>' + 
+                '    </div>' + 
+                '    <div class="reconciliation-block">' + 
+                '    </div>');
+		
+		function setDate(date){
+			console.log("Setting date to " + date)
+            view.find(".deltas-link").attr("href", '/api/backlogs/' + project.id + '/deltas/since-' + date);
+			console.log("Setting date to " + view.find(".deltas-link").attr("href"));
+            view.find(".burndown-chart").attr("src", '/api/backlogs/' + project.id + '/chart?startDate=2014-01-01&showLatestEvenIfWip=true&showGoalTargetDots=false&showOddWeeks=false&showWeekNumbers=false&endDate=2014-11-01&showMonthLabels&showCompletedWork=false&showGoalLabels=false&compareWith=' + date + '&showMonthVerticals=true&weekStartDay=2014-01-08&showGoalHLines=false&showGoalVLines')
+            console.log("Setting date to " + view.find(".deltas-link").attr("href"));
+        }
+		setDate(compareDate);
+		body.append(view);
+		return {setDate:setDate};
+	}
+	
+	function renderProject( project){
+		
+	}
+	var projects = [];
+	
+	function renderProjects(){
+       $(".project-band").remove();
+	   $.get("/api/backlogs", function(response){
+	       $.each(response, function(idx, project){
+	    	   projects.push(MakeProjectBand(project));
+	       });
+	    });
+	}
+	
+	renderProjects();
+	
+	var dateField = $('.compareDateTextField');
+	dateField.keypress(function(event) {
+        if (event.keyCode == 13) {
+        	compareDate = dateField.val();
+        	console.log("date is now " + compareDate)
+        	$.each(projects, function(idx, widget){
+        		widget.setDate(compareDate);
+        	});
+        }
+    });
+});
+</script>
+
+
+	</head>
+	<body>
+	    <div class="controls-band">
+		<div class="controls">
+		<h1>Projects Overview</h1>
+Compare Date: <input class="compareDateTextField" value="2014-01-01" type="text"></input>
+</div>
+</div>
+
+
+
+	</body>
+</html>

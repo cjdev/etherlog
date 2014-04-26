@@ -48,7 +48,7 @@ class BacklogTest {
     )
     
     // when
-    val result = backlog.goalData.map(_.points)
+    val result = backlog.goalData(1L).map(_.points)
     
     // then
     Assert.assertEquals(Seq(70, 40, 0), result)
@@ -74,7 +74,7 @@ class BacklogTest {
     )
     
     // when
-    val result = backlog.goalData.map(_.points)
+    val result = backlog.goalData(1L).map(_.points)
     
     // then
     Assert.assertEquals(Seq(70, 40, 0), result)
@@ -99,7 +99,7 @@ class BacklogTest {
     )
     
     // when
-    val result = backlog.goalData.map(_.points)
+    val result = backlog.goalData(1L).map(_.points)
     
     // then
     Assert.assertEquals(Seq(40, 40, 0), result)
@@ -117,7 +117,7 @@ class BacklogTest {
     )
     
     // when
-    val result = backlog.goalData.map(_.points)
+    val result = backlog.goalData(1L).map(_.points)
     
     // then
     Assert.assertEquals(result, Seq())

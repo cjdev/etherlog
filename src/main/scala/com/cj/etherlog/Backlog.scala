@@ -73,7 +73,7 @@ case class Backlog (
       }
   }
   
-  def goalData() = {
+  def goalData(whenMeasured:Long) = {
       val goals = items.filter(_.kind=="goal");
       
       val goalsByName = goals.foldLeft(Map[String, Item]()){(accum, item) => accum.updated(item.name, item)}
@@ -102,7 +102,23 @@ case class Backlog (
       totalsByGoalName.map{entry=>
         val (name, amount) = entry
         val goal = goalsByName(name)
-        GoalData(description=name, points=totalSize-amount, when=goal.when)
+        
+        
+        val foo = projectedVelocity match {
+          case Some(weeklyVelocity)=> {
+            val pointsDone = totalSize - todo
+            val pointsToGoal = amount - pointsDone
+            val pointsPerWeek = weeklyVelocity
+            val numWeeksToGoal = pointsToGoal.toDouble/pointsPerWeek.toDouble
+            System.out.println(name + " is " + numWeeksToGoal + " weeks away")
+            val numMillisInWeek = 1000 * 60 * 60 * 24 * 7;
+            
+            val millisWhenGoalComplete = (whenMeasured + (numMillisInWeek.toDouble * numWeeksToGoal)).toLong
+            Some(millisWhenGoalComplete)
+          }
+          case None=>None
+        }
+        GoalData(description=name, points=totalSize-amount, when=goal.when, whenForReal=foo)
       }.toSeq
   }
   
