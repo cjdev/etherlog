@@ -71,27 +71,41 @@ package object chart {
             val xLeft = x(prev.when)
             val xRight = x(entry.when)
             
-            val pointsTodo = if(options.showCompletedWork) {Seq(
+            val pointsDone = if(options.showCompletedWork) {
+              Seq(
                 (xLeft, y(nHeight-prev.total)),
                 (xRight, y(nHeight-entry.total)),
                 (xRight, y(nHeight-entry.todo)),
-                (xLeft, y(nHeight-prev.todo)))}else(Seq())
+                (xLeft, y(nHeight-prev.todo)))
+            }else Seq()
                 
-                
-            val pointsDone = Seq(
+            val rightEdgeDone = if(options.showCompletedWork) {
+              Seq(
+                (xRight, y(nHeight-entry.total)),
+                (xRight, y(nHeight-entry.todo)))
+            }else Seq() 
+            
+            
+            val pointsTodo = Seq(
                 (xLeft, y(nHeight-prev.todo)),
                 (xLeft, y(nHeight)),
                 (xRight, y(nHeight)),
                 (xRight, y(nHeight-entry.todo)))
             
+            val rightEdgeTodo = Seq(
+                (xRight, y(nHeight)),
+                (xRight, y(nHeight-entry.todo))
+            )
                 
             def print(points:Seq[(Any, Any)]) = points
                                 .map(x=>x._1 + "," + x._2) // to text
                                 .mkString(" "); // combined
             
             Seq(
-                 """<polygon points="""" + print(pointsTodo) + """" class="done"/>""",
-                 """<polygon points="""" + print(pointsDone) + """" class="todo"/>"""
+                 """<polygon points="""" + print(rightEdgeDone) + """" class="done-right-edge"/>""",
+                 """<polygon points="""" + print(rightEdgeTodo) + """" class="todo-right-edge"/>""",
+                 """<polygon points="""" + print(pointsDone) + """" class="done"/>""",
+                 """<polygon points="""" + print(pointsTodo) + """" class="todo"/>"""
                )
         })
         
@@ -255,7 +269,14 @@ package object chart {
         .todo {
             fill:blue;
         }
-        
+        .todo-right-edge {
+            stroke:blue;
+            stroke-width:.03
+        }
+        .done-right-edge {
+            stroke:green;
+            stroke-width:.03
+        }
         .done {
             fill:green;
         }

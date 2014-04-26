@@ -8,7 +8,14 @@
         .todo {
             fill:blue;
         }
-        
+        .todo-right-edge {
+            stroke:blue;
+            stroke-width:.03
+        }
+        .done-right-edge {
+            stroke:green;
+            stroke-width:.03
+        }
         .done {
             fill:green;
         }
@@ -53,6 +60,8 @@
         }
       ]]>
     </style>
+  <polygon points="25.0,5.0 25.0,5.0" class="done-right-edge"/>
+  <polygon points="25.0,8.0 25.0,5.0" class="todo-right-edge"/>
   <polygon points="2.0,2.0 25.0,5.0 25.0,5.0 2.0,2.0" class="done"/>
   <polygon points="2.0,2.0 2.0,8.0 25.0,8.0 25.0,5.0" class="todo"/>
   <line y1="6.8" x1="0" y2="6.8" x2="48.0" />

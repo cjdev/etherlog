@@ -105,8 +105,8 @@ class ChartTest {
       // then
       val expected = resourceAsString("threeItems.svg")
       
-            writeToFile(svg, new File("/tmp/actual.svg"))
-      writeToFile(expected, new File("/tmp/expected.svg"))
+//            writeToFile(svg, new File("/tmp/actual.svg"))
+//      writeToFile(expected, new File("/tmp/expected.svg"))
       
       assertEquals(expected, svg)
       

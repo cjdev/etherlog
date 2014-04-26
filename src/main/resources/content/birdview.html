@@ -7,7 +7,7 @@
 				padding:0px;
 				margin:0px;
 				padding-top:20px;	
-				border-top:5px solid grey;
+				border-bottom:5px solid grey;
 			}
 			.project-label, .chart-band, .reconciliation-block {
 				margin:0px;
@@ -58,6 +58,10 @@
 				width:100%;
 				border-bottom:1px solid grey;
 				background:white;
+				height:120px;
+			}
+			.contents {
+			     margin-top:120px;
 			}
 		</style>
 
@@ -88,7 +92,7 @@ $(function(){
             console.log("Setting date to " + view.find(".deltas-link").attr("href"));
         }
 		setDate(compareDate);
-		body.append(view);
+		body.find(".contents").append(view);
 		return {setDate:setDate};
 	}
 	
@@ -99,8 +103,15 @@ $(function(){
 	
 	function renderProjects(){
        $(".project-band").remove();
-	   $.get("/api/backlogs", function(response){
-	       $.each(response, function(idx, project){
+	   $.get("/api/backlogs", function(backlogs){
+		   function sortByName(a, b){
+	          var aName = a.name==null?"unnamed":a.name.toLowerCase();
+	          var bName = b.name==null?"unnamed":b.name.toLowerCase(); 
+	          return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+	       }
+
+	       backlogs.sort(sortByName);
+	       $.each(backlogs, function(idx, project){
 	    	   projects.push(MakeProjectBand(project));
 	       });
 	    });
@@ -125,11 +136,13 @@ $(function(){
 	</head>
 	<body>
 	    <div class="controls-band">
-		<div class="controls">
-		<h1>Projects Overview</h1>
-Compare Date: <input class="compareDateTextField" value="2014-01-01" type="text"></input>
-</div>
-</div>
+				<div class="controls">
+				<h1>Projects Overview</h1>
+				Compare Date: <input class="compareDateTextField" value="2014-01-01" type="text"></input>
+				</div>
+		</div>
+		<div class="contents">
+		</div>
 
 
 

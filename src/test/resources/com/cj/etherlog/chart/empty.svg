@@ -8,7 +8,14 @@
         .todo {
             fill:blue;
         }
-        
+        .todo-right-edge {
+            stroke:blue;
+            stroke-width:.03
+        }
+        .done-right-edge {
+            stroke:green;
+            stroke-width:.03
+        }
         .done {
             fill:green;
         }
