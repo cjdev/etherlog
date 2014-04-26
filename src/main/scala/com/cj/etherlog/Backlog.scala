@@ -110,7 +110,6 @@ case class Backlog (
             val pointsToGoal = amount - pointsDone
             val pointsPerWeek = weeklyVelocity
             val numWeeksToGoal = pointsToGoal.toDouble/pointsPerWeek.toDouble
-            System.out.println(name + " is " + numWeeksToGoal + " weeks away")
             val numMillisInWeek = 1000 * 60 * 60 * 24 * 7;
             
             val millisWhenGoalComplete = (whenMeasured + (numMillisInWeek.toDouble * numWeeksToGoal)).toLong
