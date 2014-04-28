@@ -185,7 +185,7 @@ div.item div.controls {
     float:right;
 }
 
-.hide-button {
+.hide-button, .toggle-burndown-button {
     margin-left:10px;
     margin-bottom:10px;
     float:right;

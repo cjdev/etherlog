@@ -66,6 +66,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
             backlog : where.find(".backlog"),
             slider : where.find("#slider"),
             summaryTextArea : where.find("#summary"),
+            toggleBurndownButton: where.find(".toggle-burndown-button"),
             hideButton : where.find(".hide-button"),
             editButton : where.find(".edit-button"),
             saveButton : where.find(".save-button"),
@@ -690,6 +691,11 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
 
     var slider = HistorySlider(view.slider);
 
+    view.toggleBurndownButton.button().click(
+        function () {
+            $("img.chart").slideToggle();
+        }
+    );
     view.hideButton.button().click(
         function () {
             $(".finished").slideToggle();
