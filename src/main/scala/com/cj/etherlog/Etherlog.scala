@@ -192,7 +192,7 @@ object Etherlog {
             }
         }
      
-     def updateBacklog(newBacklogState:Backlog) = {
+     def createBacklog(newBacklogState:Backlog) = {
        
           val backlogId = this.synchronized{
             var candidate = 1
@@ -218,7 +218,8 @@ object Etherlog {
           
           val status = BacklogStatus(
               id=backlogId,
-              latestVersion = initialVersion.id
+              latestVersion = initialVersion.id,
+              whenArchived=None
               )
           
           backlogs.put(backlogId, status)
@@ -254,7 +255,11 @@ object Etherlog {
       }) 
       results.toSeq
     }
-     
+    
+    def toBacklogListEntry(backlogStatus:BacklogStatus)= {
+       val version = versions.get(backlogStatus.latestVersion)
+       BacklogListEntry(id=backlogStatus.id, name=version.backlog.name, whenArchived=backlogStatus.whenArchived)
+    }
     
     val port = 43180
     
@@ -264,8 +269,7 @@ object Etherlog {
                val results = new ListBuffer[BacklogListEntry]()
                
                backlogs.scan{(id, backlog)=>
-                 val version = versions.get(backlog.latestVersion)
-                 results += BacklogListEntry(id=id, name=version.backlog.name)
+                 results += toBacklogListEntry(backlog)//BacklogListEntry(id=id, name=version.backlog.name, whenArchived=backlog.whenArchived)
                }
               
                OK(JerksonJson(results))
@@ -274,7 +278,7 @@ object Etherlog {
             override def post(req:Request) = {
               val backlogRecieved = parseJson[Backlog](readAsStream(req.representation()));
               
-              val newVersionId = updateBacklog(backlogRecieved);
+              val newVersionId = createBacklog(backlogRecieved);
               
               CREATED(Location("/api/backlogs/" + newVersionId))
             }
@@ -371,6 +375,28 @@ object Etherlog {
             }
             
         },
+        new HttpObject("/api/backlogs/{id}/status"){
+            override def put(req:Request) = {
+              val id = req.path().valueFor("id")
+              val backlog = backlogs.get(id)
+              val newStatus = parseJson[BacklogStatusPatch](readAsStream(req.representation()));
+              
+              val whenArchived = (newStatus.archived, backlog.whenArchived) match {
+                case (true, None)=>{
+                  Some(System.currentTimeMillis())
+                }
+                case (false, Some(millis)) => {
+                  None
+                }
+                case (_, whenArchived) => whenArchived
+              }
+              
+              val newBacklog = backlog.copy(whenArchived=whenArchived)
+              backlogs.put(id, newBacklog);
+              
+              OK(JerksonJson(toBacklogListEntry(newBacklog)))
+            }
+        },
         new HttpObject("/api/backlogs/{id}/statsLog"){
             override def get(req:Request) = {
               val id = req.path().valueFor("id")
@@ -414,14 +440,12 @@ object Etherlog {
                                   previousVersion = backlog.latestVersion,
                                   backlog = newBacklog
                               )
-              val updatedBacklog = new BacklogStatus(
-                                          backlog.id, 
-                                          latestVersion = newVersion.id)
+              val updatedBacklog = backlog.copy(latestVersion = newVersion.id)
               
               versions.put(updatedBacklog.latestVersion, newVersion);
               backlogs.put(id, updatedBacklog)
 
-                notifySubscribers(backlog)
+              notifySubscribers(backlog)
               get(req)
             }
         },

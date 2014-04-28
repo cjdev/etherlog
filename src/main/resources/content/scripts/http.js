@@ -1,6 +1,6 @@
 /*jshint newcap: false*/
 /*global $, HttpClient:true */
-define(["jquery", "jqueryui"], function($, jqueryui){ 
+define(["jquery"], function($){ 
 	function HttpClient(request, opts) {
 	    var defaults = { ajax: $.ajax, async: "true" },
 	        options = $.extend(defaults, opts);

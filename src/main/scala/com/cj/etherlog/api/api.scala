@@ -6,5 +6,7 @@ package com.cj.etherlog.api {
         def total = done + todo
     }
     
-    case class BacklogListEntry (id:String, name:String)
+    case class BacklogListEntry (id:String, name:String, whenArchived:Option[Long])
+    
+    case class BacklogStatusPatch (archived:Boolean)
 }

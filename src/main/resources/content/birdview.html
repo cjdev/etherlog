@@ -65,84 +65,16 @@
 			}
 		</style>
 
-<script type="text/javascript" src="/scripts/jquery-1.9.1.min.js"></script>
-<script type="text/javascript">
-console.log("hi");
-$(function(){
-	var compareDate = "2014-04-01"
-	var body = $("body");
-	
-	function MakeProjectBand(project){
-		var view = $('<div class="project-band">' + 
-                '    <div class="project-label">' + 
-                '      <a class="title-link" target="backlog" href="/backlog/' + project.id + '">' + project.name + '</a>' + 
-                '      <a class="deltas-link" target="_deltas" href="">deltas</a>' + 
-                '    </div>' + 
-                '    <div class="chart-band">' + 
-                '      <div class="chart-holder"><img class="burndown-chart" src=""></img></div>' + 
-                '    </div>' + 
-                '    <div class="reconciliation-block">' + 
-                '    </div>');
-		
-		function setDate(date){
-			console.log("Setting date to " + date)
-            view.find(".deltas-link").attr("href", '/api/backlogs/' + project.id + '/deltas/since-' + date);
-			console.log("Setting date to " + view.find(".deltas-link").attr("href"));
-            view.find(".burndown-chart").attr("src", '/api/backlogs/' + project.id + '/chart?startDate=2014-01-01&showLatestEvenIfWip=true&showGoalTargetDots=false&showOddWeeks=false&showWeekNumbers=false&endDate=2014-11-01&showMonthLabels&showCompletedWork=false&showGoalLabels=false&compareWith=' + date + '&showMonthVerticals=true&weekStartDay=2014-01-08&showGoalHLines=false&showGoalVLines')
-            console.log("Setting date to " + view.find(".deltas-link").attr("href"));
-        }
-		setDate(compareDate);
-		body.find(".contents").append(view);
-		return {setDate:setDate};
-	}
-	
-	function renderProject( project){
-		
-	}
-	var projects = [];
-	
-	function renderProjects(){
-       $(".project-band").remove();
-	   $.get("/api/backlogs", function(backlogs){
-		   function sortByName(a, b){
-	          var aName = a.name==null?"unnamed":a.name.toLowerCase();
-	          var bName = b.name==null?"unnamed":b.name.toLowerCase(); 
-	          return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
-	       }
-
-	       backlogs.sort(sortByName);
-	       $.each(backlogs, function(idx, project){
-	    	   projects.push(MakeProjectBand(project));
-	       });
-	    });
-	}
-	
-	renderProjects();
-	
-	var dateField = $('.compareDateTextField');
-	dateField.keypress(function(event) {
-        if (event.keyCode == 13) {
-        	compareDate = dateField.val();
-        	console.log("date is now " + compareDate)
-        	$.each(projects, function(idx, widget){
-        		widget.setDate(compareDate);
-        	});
-        }
+    <script type="text/javascript" src="/require-config.js"></script>
+    <script type="text/javascript" src="/scripts/require.js"></script>
+	<script type="text/javascript">
+    require(["overview"], function(Overview){
+        Overview($("body"));
     });
-});
-</script>
-
-
+	</script>
 	</head>
 	<body>
-	    <div class="controls-band">
-				<div class="controls">
-				<h1>Projects Overview</h1>
-				Compare Date: <input class="compareDateTextField" value="2014-01-01" type="text"></input>
-				</div>
-		</div>
-		<div class="contents">
-		</div>
+
 
 
 

@@ -1,6 +1,21 @@
 
+.backlog-list-section {
+  border:1px solid grey;
+  border-radius:5px;
+}
+
+.add-backlog-button {
+	float:right;
+}
+
+.backlog-list-section .header {
+  padding:5px;
+	
+}
 .backlog-list-entry {
   margin:10px;
+  font-size: 18pt;
+  list-style-type:none;
 }
 
 img.chart {

@@ -1,4 +1,4 @@
-define(["jquery", "http", "uuid"], function($, http, uuid){
+define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid){
 
     const kindsInOrderOfPrecedence = ["team", "grooming", "swag"];
 

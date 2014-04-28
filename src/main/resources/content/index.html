@@ -2,15 +2,20 @@
 	<head>
 	    <title>Etherlog</title>
 		<link rel="stylesheet" href="/styles.css"/>
-		<link rel="stylesheet" href="/jqueryui-theme/minified/jquery-ui.min.css"/>
 		<script type="text/javascript" src="/require-config.js"></script>
 		<script type="text/javascript" data-main="frontPage" src="/scripts/require.js"></script>
 	</head>
 	<body>
 	
 	<h1>Etherlog</h1>
-	<h3><a href="/overview">burndown overview</a></h3>
-	<h3>projects</h3>
+    <h3><a href="/overview">stategic view</a></h3>
+    <div class="backlog-list-section">
+    <div class="header">
+    <button class="add-backlog-button">Add</button>
+    <input type="checkbox" class="show-archived-checkbox">show archived</input>
+    </div>
+    <hr>
 	<ul class="backlog-list"></ul>
+	</div>
 	</body>
 </html>
