@@ -7,6 +7,12 @@ package com.cj.etherlog.api {
     }
     
     case class BacklogListEntry (id:String, name:String, whenArchived:Option[Long])
+     
+    case class VersionNameAndTime(
+        id:String, 
+        memo:String,
+        when:Long)
+
+    case class Delta (from:VersionNameAndTime, to:VersionNameAndTime, added:Int, removed:Int, finished:Int, reopened:Int)
     
-    case class BacklogStatusPatch (archived:Boolean)
 }

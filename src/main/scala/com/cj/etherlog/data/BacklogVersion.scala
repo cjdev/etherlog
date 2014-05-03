@@ -1,10 +1,10 @@
-package com.cj.etherlog
+package com.cj.etherlog.data
 
-case class VersionNameAndTime(id:String, memo:String,
-    when:Long)
+import com.cj.etherlog.api._
+import com.cj.etherlog.Backlog
+import com.cj.etherlog.Item
+import scala.Option.option2Iterable
 
-case class Delta (from:VersionNameAndTime, to:VersionNameAndTime, added:Int, removed:Int, finished:Int, reopened:Int)
-    
 case class BacklogVersion(
     val id:String,
     val when:Long = System.currentTimeMillis(),
