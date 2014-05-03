@@ -50,5 +50,6 @@ package com.cj.etherlog.api {
         val name:String,
         val memo:String,
         val projectedVelocity:Option[Int] = None,
-        val items:Seq[Item])
+        val items:Seq[Item],
+        val optimisticLockVersion:Option[String] = None)
 }

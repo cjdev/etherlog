@@ -21,8 +21,7 @@ class BacklogVersionResource(data:Data) extends HttpObject("/api/backlogs/{id}/h
       
       if(data.versions.contains(versionId)){
         val version = data.versions.get(versionId);
-          
-        OK(JerksonJson(version.backlog))
+        OK(JerksonJson(version.backlog.toDto(versionId)))
       }else{
         NOT_FOUND(Text("No such version"))
       }

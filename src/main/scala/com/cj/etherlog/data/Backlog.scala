@@ -20,7 +20,7 @@ case class Backlog (
         items = dto.items)
   }
   
-  def toDto = BacklogDto(id=id, name=name, memo=memo, projectedVelocity=projectedVelocity, items =items)
+  def toDto(optimisticLockVersion:String) = BacklogDto(id=id, name=name, memo=memo, projectedVelocity=projectedVelocity, items =items, optimisticLockVersion=Some(optimisticLockVersion))
   
   def totalSize() = items.size match {
       case 0=>0;

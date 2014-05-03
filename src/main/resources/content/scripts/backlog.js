@@ -5,6 +5,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
     var backlog, where, lastDragged;
 
     var when; // SUPERHACK!
+    var latestVersion;
 
     var backlogId = parseBacklogIdFromURL();
 
@@ -90,9 +91,11 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
                 var monitor = activityMonitor.show();
                 readView();
                 backlog.memo = "work-in-progress";
-
+                
+//                backlog.optimisticLockVersion = latestVersion;
+                
                 var newBacklogText = JSON.stringify(backlog);
-
+                
                 http({
                     url: "/api/backlogs/" + backlogId ,
                     method: "PUT",
@@ -102,8 +105,13 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
                         if(status===200){
                             lastServerUpdate = t;
                             chart.refresh();
+                            backlog.optimisticLockVersion = JSON.parse(response.body).optimisticLockVersion;
                             updateSummary();
                             setTimeout(sendUpdate, 1000);
+                        }else if(status===409){
+                            console.log(response.body);
+                            alert("Looks like someone else is editing this behind our back!  We need to reload.");
+                            window.location.reload();
                         }else{
                             handleUnexpectedError("Response was " + status + ".  I sent:\n" + newBacklogText);
                             setTimeout(sendUpdate, 1000);
@@ -126,7 +134,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
     function handleUnexpectedError(e){
 
         var error = e?e.toString():"null";
-
+        
         http({
             url: "/api/errors/" ,
             method: "POST",
@@ -267,7 +275,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
                 method:"GET",
                 onResponse:function(response){
                     history = JSON.parse(response.body).reverse();
-
+                    
                     sliderDiv.slider({
                         value:history.length-1,
                         min: 0,

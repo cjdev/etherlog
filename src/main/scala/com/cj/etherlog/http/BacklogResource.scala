@@ -21,7 +21,7 @@ class BacklogResource (data:Data, service:Service) extends HttpObject("/api/back
       val id = req.path().valueFor("id")
       val backlog = data.backlogs.get(id)
       val currentVersion = data.versions.get(backlog.latestVersion);
-      OK(JerksonJson(currentVersion.backlog.toDto))
+      OK(JerksonJson(currentVersion.backlog.toDto(backlog.latestVersion)))
     }
     
     override def put(req:Request) = {
@@ -36,12 +36,21 @@ class BacklogResource (data:Data, service:Service) extends HttpObject("/api/back
                           previousVersion = backlog.latestVersion,
                           backlog = new Backlog(dto))
       
-      val updatedBacklog = backlog.copy(latestVersion = newVersion.id)
+      val lockCheckPasses = dto.optimisticLockVersion match {
+        case None => false
+        case Some(version) => version == backlog.latestVersion
+      }
       
-      data.versions.put(updatedBacklog.latestVersion, newVersion);
-      data.backlogs.put(id, updatedBacklog)
-
-      service.notifySubscribers(backlog)
-      get(req)
+      if(lockCheckPasses){
+        val updatedBacklog = backlog.copy(latestVersion = newVersion.id)
+          data.versions.put(updatedBacklog.latestVersion, newVersion);
+          data.backlogs.put(id, updatedBacklog)
+          
+          service.notifySubscribers(backlog)
+          get(req)
+      }else{
+          CONFLICT(Text(s"Mid-air collission? (given ${dto.optimisticLockVersion} but expected ${backlog.latestVersion}"))
+      }
+      
     }
 }
