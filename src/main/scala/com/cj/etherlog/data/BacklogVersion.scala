@@ -2,7 +2,7 @@ package com.cj.etherlog.data
 
 import com.cj.etherlog.api._
 import com.cj.etherlog.Backlog
-import com.cj.etherlog.Item
+import com.cj.etherlog.api.Item
 import scala.Option.option2Iterable
 
 case class BacklogVersion(
@@ -13,7 +13,7 @@ case class BacklogVersion(
     val backlog:Backlog
 ){
   
-    def projectedEnd() = {
+  def projectedEnd() = {
       backlog.projectedVelocity match {
         case Some(pointsPerWeek) => {
             val todo = backlog.todo

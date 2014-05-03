@@ -2,34 +2,8 @@ package com.cj.etherlog
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeInfo.{Id, As}
 import com.cj.etherlog.chart.GoalData
-
-case class Estimate(
-    val id:String,
-    val currency:String,
-    val value:Int,
-    val when:Long
-    )
-    
-case class Item(
-    val id:String,
-    val isComplete:Option[Boolean] = Some(false),
-    val name:String,
-    val kind:String,
-    val estimates:Option[Seq[Estimate]],
-    val when:Option[Long] = None
-){
-  def bestEstimate() = estimates match {
-      case Some(e) => {
-          val latestEstimate = e.maxBy(_.when)
-          if(latestEstimate!=null){
-            Some(latestEstimate.value);
-          }else{
-            None
-          }
-      }
-      case None => None
-    }
-}
+import com.cj.etherlog.api.BacklogDto
+import com.cj.etherlog.api.Item
 
 case class Backlog (
     val id:String,
@@ -37,7 +11,17 @@ case class Backlog (
     val memo:String,
     val projectedVelocity:Option[Int] = None,
     val items:Seq[Item]){
- 
+  
+  def this(dto:BacklogDto) = {
+    this(id=dto.id,
+        name = dto.name,
+        memo = dto.memo,
+        projectedVelocity = dto.projectedVelocity,
+        items = dto.items)
+  }
+  
+  def toDto = BacklogDto(id=id, name=name, memo=memo, projectedVelocity=projectedVelocity, items =items)
+  
   def totalSize() = items.size match {
       case 0=>0;
       case _=> items.foldLeft(0){(accum, item)=> item.bestEstimate.getOrElse(0) + accum}

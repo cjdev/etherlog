@@ -3,9 +3,8 @@ package com.cj.etherlog.data
 import org.junit.Test
 import org.junit.Test
 import org.junit.Assert
-import com.cj.etherlog.Item
 import com.cj.etherlog.Backlog
-import com.cj.etherlog.Estimate
+import com.cj.etherlog.api._
 
 class BacklogVersionTest {
 

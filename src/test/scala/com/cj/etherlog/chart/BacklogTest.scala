@@ -2,6 +2,7 @@ package com.cj.etherlog.chart
 
 import org.junit.Test
 import com.cj.etherlog._
+import com.cj.etherlog.api._
 import org.junit.Assert
 
 class BacklogTest {

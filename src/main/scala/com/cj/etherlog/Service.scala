@@ -44,6 +44,7 @@ class Service (data:Data) {
         status.id
     }
     
+    
     def notifySubscribers(backlog: BacklogStatus) {
         val subscribers:ListBuffer[String] = SubscriberConfiguration.getSubscriberUrls("subscribers.properties")
         subscribers.foreach(url => {
