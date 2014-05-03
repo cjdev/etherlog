@@ -1,7 +1,6 @@
-package com.cj.etherlog.data
+package com.cj.etherlog.datas
 
 import com.cj.etherlog.api._
-import com.cj.etherlog.Backlog
 import com.cj.etherlog.api.Item
 import scala.Option.option2Iterable
 

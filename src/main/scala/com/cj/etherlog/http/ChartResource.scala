@@ -2,7 +2,7 @@ package com.cj.etherlog.http
 
 import org.httpobjects._
 import org.httpobjects.DSL._
-import com.cj.etherlog.data.Data
+import com.cj.etherlog.datas.Data
 import com.cj.etherlog.Jackson
 import com.cj.etherlog.api.BacklogStatusPatch
 import com.cj.etherlog.Etherlog
@@ -13,8 +13,7 @@ import scala.collection.mutable.ListBuffer
 import org.joda.time.Instant
 import org.joda.time.YearMonthDay
 import com.cj.etherlog.chart.ChartProjection
-import com.cj.etherlog.data.BacklogVersion
-import com.cj.etherlog.data.Data
+import com.cj.etherlog.datas.BacklogVersion
 import com.cj.etherlog.chart.ChartOptions
 import HttpUtils._
 

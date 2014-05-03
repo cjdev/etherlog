@@ -1,16 +1,15 @@
 package com.cj.etherlog.http
 import org.httpobjects._
 import org.httpobjects.DSL._
-import com.cj.etherlog.data.Data
+import com.cj.etherlog.datas.Data
 import com.cj.etherlog.Jackson
 import com.cj.etherlog.api.BacklogStatusPatch
 import com.cj.etherlog.Etherlog
 import com.cj.etherlog.Jackson._
 import scala.collection.mutable.ListBuffer
-import com.cj.etherlog.data.Data
 import com.cj.etherlog.Service
 import com.cj.etherlog.api.BacklogListEntry
-import com.cj.etherlog.Backlog
+import com.cj.etherlog.datas.Backlog
 import com.cj.etherlog.api.HistoryItem
 
 class BacklogVersionResource(data:Data) extends HttpObject("/api/backlogs/{id}/history/{version}"){

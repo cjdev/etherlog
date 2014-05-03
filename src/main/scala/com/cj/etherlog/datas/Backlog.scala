@@ -1,4 +1,4 @@
-package com.cj.etherlog
+package com.cj.etherlog.datas
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeInfo.{Id, As}
 import com.cj.etherlog.chart.GoalData

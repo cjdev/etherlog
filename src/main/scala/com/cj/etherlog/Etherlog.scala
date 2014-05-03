@@ -30,9 +30,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.YearMonthDay
-import com.cj.etherlog.data.BacklogVersion
+import com.cj.etherlog.datas.BacklogVersion
 import com.cj.etherlog.http.BacklogHistoryResource
-import com.cj.etherlog.data.Data
+import com.cj.etherlog.datas.Data
 import com.cj.etherlog.Jackson._
 import com.cj.etherlog.http.BacklogStatusResource
 import com.cj.etherlog.http.ChartResource

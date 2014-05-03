@@ -3,7 +3,7 @@ package com.cj.etherlog.data
 import org.junit.Test
 import org.junit.Test
 import org.junit.Assert
-import com.cj.etherlog.Backlog
+import com.cj.etherlog.datas._
 import com.cj.etherlog.api._
 
 class BacklogVersionTest {

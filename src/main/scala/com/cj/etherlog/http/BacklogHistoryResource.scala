@@ -3,7 +3,7 @@ package com.cj.etherlog.http
 import org.httpobjects._
 import org.httpobjects.DSL._
 import com.cj.etherlog.Util
-import com.cj.etherlog.data.Data
+import com.cj.etherlog.datas.Data
 import com.cj.etherlog.Etherlog
 import com.cj.etherlog.Jackson._
 import HttpUtils._

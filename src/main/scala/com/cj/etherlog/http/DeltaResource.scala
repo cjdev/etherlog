@@ -1,16 +1,15 @@
 package com.cj.etherlog.http
 import org.httpobjects._
 import org.httpobjects.DSL._
-import com.cj.etherlog.data.Data
 import com.cj.etherlog.Jackson
 import com.cj.etherlog.api.BacklogStatusPatch
 import com.cj.etherlog.Etherlog
 import com.cj.etherlog.Jackson._
-import com.cj.etherlog.data.BacklogVersion
+import com.cj.etherlog.datas.BacklogVersion
 import org.joda.time.Instant
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.YearMonthDay
-import com.cj.etherlog.data.Data
+import com.cj.etherlog.datas.Data
 
 class DeltaResource (data:Data) extends HttpObject("/api/backlogs/{id}/deltas/{rangeSpec}"){
   override def get(req:Request) = {

@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 import java.io.InputStream
-import com.cj.etherlog.data.Data
+import com.cj.etherlog.datas.Data
 import com.cj.etherlog.Util
 
 object HttpUtils {

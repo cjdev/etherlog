@@ -1,9 +1,7 @@
 package com.cj.etherlog
 
-import com.cj.etherlog.data.Data
+import com.cj.etherlog.datas.{Backlog, BacklogVersion, Data, BacklogStatus}
 import org.httpobjects.Request
-import com.cj.etherlog.data.BacklogVersion
-import com.cj.etherlog.api.BacklogStatus
 import java.util.UUID
 import scala.collection.mutable.ListBuffer
 import org.apache.commons.httpclient.methods.PostMethod

@@ -1,4 +1,4 @@
-package com.cj.etherlog.api
+package com.cj.etherlog.datas
 
 case class BacklogStatus (
     val id:String,
