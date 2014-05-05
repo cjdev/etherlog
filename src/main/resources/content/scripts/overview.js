@@ -6,7 +6,7 @@ define(["jquery", "underscore"], function($, _){
         body.append('       <div class="controls-band">' + 
                     '                <div class="controls">' + 
                     '                <h1>Strategic View</h1>' + 
-                    '                Compare Date: <input class="compareDateTextField" value="2014-01-01" type="text"></input>' + 
+                    '                Compare Date: <input class="compareDateTextField" value="' + compareDate + '" type="text"></input>' + 
                     '                </div>' + 
                     '        </div>' + 
                     '        <div class="contents">' + 
@@ -58,17 +58,22 @@ define(["jquery", "underscore"], function($, _){
                 });
             });
         }
+        
+        function setDateFromUI(){
 
+            compareDate = dateField.val();
+            console.log("date is now " + compareDate)
+            $.each(projects, function(idx, widget){
+                widget.setDate(compareDate);
+            });
+        }
+        
         renderProjects();
 
         var dateField = body.find('.compareDateTextField');
         dateField.keypress(function(event) {
             if (event.keyCode == 13) {
-                compareDate = dateField.val();
-                console.log("date is now " + compareDate)
-                $.each(projects, function(idx, widget){
-                    widget.setDate(compareDate);
-                });
+                setDateFromUI();
             }
         });
 
