@@ -7,6 +7,7 @@ import java.io.InputStreamReader
 import java.io.InputStream
 import com.cj.etherlog.datas.Data
 import com.cj.etherlog.Util
+import com.cj.etherlog.Clock
 
 object HttpUtils {
   val showLatestEvenIfWipParamName = "showLatestEvenIfWip"
@@ -30,10 +31,10 @@ object HttpUtils {
     }
     text.toString()
   }
-  def buildStatsLogFromQueryString(id:String, req:Request, data:Data) = {
+  def buildStatsLogFromQueryString(id:String, req:Request, data:Data, clock:Clock) = {
     val endParam = req.query().valueFor("end")
     val showLatestEvenIfWipParam = req.query().valueFor(showLatestEvenIfWipParamName)
-    val end = if(endParam==null) System.currentTimeMillis() else endParam.toLong
+    val end = if(endParam==null) clock.now.getMillis else endParam.toLong
     val showLatestEvenIfWip = Util.parseBoolean(showLatestEvenIfWipParam).getOrElse(false)
     data.buildStatsLog(id=id, until=end, includeCurrentState = showLatestEvenIfWip);
   }

@@ -10,8 +10,9 @@ import org.joda.time.Instant
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.YearMonthDay
 import com.cj.etherlog.datas.Data
+import com.cj.etherlog.Clock
 
-class DeltasResource (data:Data) extends HttpObject("/api/backlogs/{id}/deltas"){
+class DeltasResource (data:Data, clock:Clock) extends HttpObject("/api/backlogs/{id}/deltas"){
 
     override def get(req:Request) = {
         val id = req.path().valueFor("id")
@@ -19,7 +20,7 @@ class DeltasResource (data:Data) extends HttpObject("/api/backlogs/{id}/deltas")
         def toLongOr(s:String, default:Long) = if(s==null) default else s.toLong
 
         val from = toLongOr(req.query().valueFor("from"), 0)
-        val to = toLongOr(req.query().valueFor("to"), new Instant().getMillis())
+        val to = toLongOr(req.query().valueFor("to"), clock.now.getMillis())
         val backlog = data.backlogs.get(id)
 
         val changes = data.filterBacklogHistory(id, {version=>

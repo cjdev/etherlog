@@ -80,7 +80,21 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
             velocityDiv : where.find(".velocity-div")
     };
 
-    var lastServerUpdate = new Date().getTime();
+    
+    function getTime(){
+        var millis;
+        $.ajax("/api/clock", {
+            async:false,
+            success:function(r){
+                millis = parseInt(r,10);
+                console.log("time is " + new Date(millis));
+            }
+        });
+        
+        return millis;
+    }
+
+    var lastServerUpdate = getTime();
     var lastChange = lastServerUpdate;
 
     function sendUpdate(){
@@ -148,7 +162,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
 
     function sendWorkInProgress(){
         activityMonitor.showUnknown();
-        lastChange = new Date().getTime();
+        lastChange = getTime();
     }
 
 
@@ -197,7 +211,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
     function render(){
 
         view.velocityTextField.val(backlog.projectedVelocity);
-        view.memoTextArea.text(formatLongDateTime(when?when:new Date().getTime()) + ": " + backlog.memo);
+        view.memoTextArea.text(formatLongDateTime(when?when:getTime()) + ": " + backlog.memo);
         view.title.text(backlog.name);
         $("title").text(backlog.name); // << HACK!
         view.backlog.empty();
@@ -427,7 +441,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
 
                     estimate.currency = currency;
                     estimate.value = value;
-                    estimate.when = new Date().getTime();
+                    estimate.when = getTime();
 
                     sendWorkInProgress();
                 }
@@ -854,7 +868,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
         }
 
         function refresh(){
-            render(new Date().getTime())
+            render(getTime())
         }
 
         return {

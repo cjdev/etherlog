@@ -16,13 +16,14 @@ import com.cj.etherlog.chart.ChartProjection
 import com.cj.etherlog.datas.BacklogVersion
 import com.cj.etherlog.chart.ChartOptions
 import HttpUtils._
+import com.cj.etherlog.Clock
 
-class ChartResource(data:Data, service:Service) extends HttpObject("/api/backlogs/{id}/chart"){
+class ChartResource(data:Data, service:Service, clock:Clock) extends HttpObject("/api/backlogs/{id}/chart"){
     override def get(req:Request) = {
       val id = req.path().valueFor("id")
-      val stats = buildStatsLogFromQueryString(id, req, data);
+      val stats = buildStatsLogFromQueryString(id, req, data, clock);
       val nowParam = req.query().valueFor("now");
-      val now = if(nowParam==null) System.currentTimeMillis() else nowParam.toLong
+      val now = if(nowParam==null) clock.now.getMillis else nowParam.toLong
       
       val lastTime = now + (Months.months(3).toMutablePeriod().toDurationFrom(new Instant(now)).getMillis())
       

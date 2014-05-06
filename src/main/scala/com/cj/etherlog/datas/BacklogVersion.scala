@@ -6,7 +6,7 @@ import scala.Option.option2Iterable
 
 case class BacklogVersion(
     val id:String,
-    val when:Long = System.currentTimeMillis(),
+    val when:Long,
     val isPublished:Boolean, 
     val previousVersion:String,
     val backlog:Backlog

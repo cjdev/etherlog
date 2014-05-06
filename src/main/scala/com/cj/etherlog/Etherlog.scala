@@ -43,35 +43,37 @@ import com.cj.etherlog.http.DeltaResource
 import com.cj.etherlog.http.DeltasResource
 import com.cj.etherlog.http.BacklogResource
 import com.cj.etherlog.http.ErrorsResource
+import com.cj.etherlog.http.TimeTravelResource
 
 object Etherlog {
-  
+  def timeTravelModeIsActivated(args:Array[String]) = args.size >0 && args(0) == "enableTimeTravel"
+    
   def main(args: Array[String]) {
     val data = new Data(new Path("data"))
-    val service = new Service(data)
     
-    class ChartStylesheet(parentPath:String) extends HttpObject(parentPath + "/mystyle.css"){
-        override def get(req:Request) = {
-          OK(FromClasspath("text/css", "/content/mystyle.css", getClass))
-        }
-    }
-     
+    val clock = new FastForwardableClock(
+                        enableTimeTravel = timeTravelModeIsActivated(args));
+    
+    val service = new Service(data, clock)
+    
     val port = 43180
     
     launchServer(port, 
+        "/api/clock" -> new TimeTravelResource(clock=clock),
         "/api/backlogs" -> new BacklogsResource(data=data, service=service),
         "/api/backlogs/{id}/mystyle.css" -> new ChartStylesheet("/api/backlogs/{id}"),
         "/backlog/mystyle.css" -> new ChartStylesheet("/backlog"),
-        "/api/backlogs/{id}/chart" -> new ChartResource(data=data, service=service),
+        "/api/backlogs/{id}/chart" -> new ChartResource(data=data, service=service, clock=clock),
         "/api/backlogs/{id}/history" -> new BacklogHistoryResource(data=data),
-        "/api/backlogs/{id}/status" -> new BacklogStatusResource(data),
-        "/api/backlogs/{id}/statsLog" -> new StatsLogResource(data=data, service=service),
+        "/api/backlogs/{id}/status" -> new BacklogStatusResource(data, clock=clock),
+        "/api/backlogs/{id}/statsLog" -> new StatsLogResource(data=data, service=service, clock=clock),
         "/api/backlogs/{id}/history/{version}" -> new BacklogVersionResource(data=data),
-        "/api/backlogs/{id}" -> new BacklogResource(data, service=service),
+        "/api/backlogs/{id}" -> new BacklogResource(data, service=service, clock=clock),
         "/api/errors" -> new ErrorsResource(data),
-        "/api/backlogs/{id}/deltas" -> new DeltasResource(data),
-        "/api/backlogs/{id}/deltas/{rangeSpec}" -> new DeltaResource(data),
+        "/api/backlogs/{id}/deltas" -> new DeltasResource(data, clock=clock),
+        "/api/backlogs/{id}/deltas/{rangeSpec}" -> new DeltaResource(data, clock=clock),
         "/overview" -> new ClasspathResourceObject("/overview", "/content/birdview.html", getClass()),
+        "/timemachine" -> new ClasspathResourceObject("/timemachine", "/content/timemachine.html", getClass()),
         "/" -> new ClasspathResourceObject("/", "/content/index.html", getClass()),
         "/backlog/{backlogId}" -> new ClasspathResourceObject("/backlog/{backlogId}", "/content/backlog.html", getClass()),
         "/{resource*}" -> new ClasspathResourcesObject("/{resource*}", getClass(), "/content")
@@ -91,5 +93,11 @@ object Etherlog {
     }
     
     HttpObjectsJettyHandler.launchServer(port, resources.map(_._2):_*)
+  }
+  
+  class ChartStylesheet(parentPath:String) extends HttpObject(parentPath + "/mystyle.css"){
+    override def get(req:Request) = {
+      OK(FromClasspath("text/css", "/content/mystyle.css", getClass))
+    }
   }
 }

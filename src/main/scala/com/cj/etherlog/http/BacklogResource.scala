@@ -13,8 +13,10 @@ import com.cj.etherlog.datas.Backlog
 import com.cj.etherlog.datas.BacklogVersion
 import java.util.UUID
 import HttpUtils._
+import com.cj.etherlog.Clock
+import org.joda.time.Instant
 
-class BacklogResource (data:Data, service:Service) extends HttpObject("/api/backlogs/{id}"){
+class BacklogResource (data:Data, service:Service, clock:Clock) extends HttpObject("/api/backlogs/{id}"){
     
     override def get(req:Request) = {
       val id = req.path().valueFor("id")
@@ -30,10 +32,12 @@ class BacklogResource (data:Data, service:Service) extends HttpObject("/api/back
       
       val newVersion = new BacklogVersion(
                           id = UUID.randomUUID().toString(),
-                          when = System.currentTimeMillis(),
+                          when = clock.now.getMillis,
                           isPublished = false,
                           previousVersion = backlog.latestVersion,
                           backlog = new Backlog(dto))
+      
+      println("the time is now " + new Instant(newVersion.when))
       
       val lockCheckPasses = dto.optimisticLockVersion match {
         case None => false

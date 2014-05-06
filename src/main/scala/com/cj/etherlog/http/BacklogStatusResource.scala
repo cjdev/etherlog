@@ -8,8 +8,9 @@ import com.cj.etherlog.api.BacklogStatusPatch
 import com.cj.etherlog.Etherlog
 import com.cj.etherlog.Jackson._
 import HttpUtils._
+import com.cj.etherlog.Clock
 
-class BacklogStatusResource(data:Data) extends HttpObject("/api/backlogs/{id}/status"){
+class BacklogStatusResource(data:Data, clock:Clock) extends HttpObject("/api/backlogs/{id}/status"){
     override def put(req:Request) = {
       val id = req.path().valueFor("id")
       val backlog = data.backlogs.get(id)
@@ -17,7 +18,7 @@ class BacklogStatusResource(data:Data) extends HttpObject("/api/backlogs/{id}/st
       
       val whenArchived = (newStatus.archived, backlog.whenArchived) match {
         case (true, None)=>{
-          Some(System.currentTimeMillis())
+          Some(clock.now.getMillis)
         }
         case (false, Some(millis)) => {
           None

@@ -10,8 +10,9 @@ import org.joda.time.Instant
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.YearMonthDay
 import com.cj.etherlog.datas.Data
+import com.cj.etherlog.Clock
 
-class DeltaResource (data:Data) extends HttpObject("/api/backlogs/{id}/deltas/{rangeSpec}"){
+class DeltaResource (data:Data, clock:Clock) extends HttpObject("/api/backlogs/{id}/deltas/{rangeSpec}"){
   override def get(req:Request) = {
       val id = req.path().valueFor("id")
       
@@ -44,7 +45,7 @@ class DeltaResource (data:Data) extends HttpObject("/api/backlogs/{id}/deltas/{r
       def parseDate(text:String) = DateTimeFormat.forPattern("yyyy-MM-dd").parseDateTime(text).toYearMonthDay()
       
       val versions = rangeSpec match {
-        case SinceDatePattern(date) => versionsInDateRange(DateRange(from=parseDate(date), to = new YearMonthDay()))
+        case SinceDatePattern(date) => versionsInDateRange(DateRange(from=parseDate(date), to = new YearMonthDay(clock.now)))
         case BetweenDatesPattern(from, to) => versionsInDateRange(DateRange(from=parseDate(from), to=parseDate(to)))
         case BetweenTimestampsPattern(from, to) => versionsInDateRange(DateRange(from=millisStringToYMD(from), to=millisStringToYMD(to)))
         case BetweenIdsPattern(from, to) => {

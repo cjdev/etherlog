@@ -9,11 +9,12 @@ import com.cj.etherlog.Etherlog
 import com.cj.etherlog.Jackson._
 import com.cj.etherlog.Service
 import HttpUtils._
+import com.cj.etherlog.Clock
 
-class StatsLogResource (data:Data, service:Service) extends HttpObject("/api/backlogs/{id}/statsLog"){
+class StatsLogResource (data:Data, service:Service, clock:Clock) extends HttpObject("/api/backlogs/{id}/statsLog"){
     override def get(req:Request) = {
       val id = req.path().valueFor("id")
-      val stats = buildStatsLogFromQueryString(id, req, data);
+      val stats = buildStatsLogFromQueryString(id, req, data, clock);
       
       OK(JerksonJson(stats))
     }

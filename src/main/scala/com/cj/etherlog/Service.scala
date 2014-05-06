@@ -7,7 +7,7 @@ import scala.collection.mutable.ListBuffer
 import org.apache.commons.httpclient.methods.PostMethod
 import org.apache.commons.httpclient.HttpClient
 
-class Service (data:Data) {
+class Service (data:Data, clock:Clock) {
 
     def createBacklog(newBacklogState:Backlog) = {
         
@@ -27,6 +27,7 @@ class Service (data:Data) {
                 
         val initialVersion = BacklogVersion(
                 id=UUID.randomUUID().toString(),
+                when = clock.now().getMillis(),
                 backlog = initialBacklog,
                 isPublished= false, 
                 previousVersion = null)
