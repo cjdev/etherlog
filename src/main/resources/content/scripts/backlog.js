@@ -1,14 +1,14 @@
 define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid){
-
+    
     const kindsInOrderOfPrecedence = ["team", "grooming", "swag"];
-
+    
     var backlog, where, lastDragged;
-
+    
     var when; // SUPERHACK!
     var latestVersion;
-
+    
     var backlogId = parseBacklogIdFromURL();
-
+    
     function parseBacklogIdFromURL(){
         var parts = window.location.toString().split("#")[0].split("/");
         if(parts.length>0){
@@ -17,7 +17,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
             return undefined;
         }
     }
-
+    
     function goToByScroll(id){
         $('html,body').animate({scrollTop: $(id).offset().top - $('img.chart').height()},'slow');
     }
@@ -29,11 +29,11 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
             goToByScroll(hash);
         },800);
     }
-
+    
     var widgets = [];
-
+    
     where = $("body");
-
+    
     var activityMonitor = (function(){
         var view = $(".throbber");
         var items = [];
@@ -106,8 +106,6 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
                 readView();
                 backlog.memo = "work-in-progress";
                 
-//                backlog.optimisticLockVersion = latestVersion;
-                
                 var newBacklogText = JSON.stringify(backlog);
                 
                 http({
@@ -164,7 +162,52 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
         activityMonitor.showUnknown();
         lastChange = getTime();
     }
+    
+    function showCommitDialog(){
+        var view = $(".commit-dialog");
+//        view.dialog({
+//            title:"Ready to share your changes with the outside world?",
+//            modal:true,
+//            width:"80%"
+//        });
+        
+        function toggleStuff(){
+            $.each([".backlog", ".floatingHeader", ".commit-dialog", ".save-button", ".hide-button", ".velocity-div",
+                    ".add-story-button", ".add-epic-button", ".add-goal-button"], function(idx, i){
+                $(i).toggle();
+            });
+        }
+        
+        function closeDialog(){
+            toggleStuff();
+        }
+        
+        toggleStuff();
+        
+        view.find(".cancel-button").click(function(){
+            closeDialog();
+        });
+        
+        view.find(".publish-button").click(function(){
+          backlog.memo = view.find(".commit-message").val();
+          http({
+              url: "/api/backlogs/" + backlogId,
+              method: "PUT",
+              data:JSON.stringify(backlog),
+              onResponse: function (response) {
+                  closeDialog();
+                  showViewMode();
+                  slider.refresh();
+                  window.location.reload();
+              }
+          });
+        });
+        
 
+
+        
+    }
+    
 
     function calculateTotals(backlog){
         var totals = {};
@@ -241,7 +284,8 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
         view.addStoryButton.show();
         view.addEpicButton.show();
         view.addGoalButton.show();
-        view.velocityDiv.show();
+        view.velocityDiv.slideDown();
+        view.slider.slideUp();
     }
 
     function showViewMode(){
@@ -253,6 +297,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
         view.addEpicButton.hide();
         view.addGoalButton.hide();
         view.velocityDiv.hide();
+        view.slider.show();
         render();
     }
 
@@ -736,16 +781,9 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
     view.saveButton.button().click(function(){
 
         readView();
-
-        http({
-            url: "/api/backlogs/" + backlogId,
-            method: "PUT",
-            data:JSON.stringify(backlog),
-            onResponse: function (response) {
-                showViewMode();
-                slider.refresh();
-            }
-        });
+        
+        showCommitDialog();
+        
 
     });
 
@@ -806,18 +844,13 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
 
         try{
             var newVelocity = readIntegerOrUndefinedIfBlank(view.velocityTextField.val());
-//          console.log("new velocity:" + newVelocity);
-
             if(newVelocity!==backlog.projectedVelocity){
-//              console.log("Updating velocity velocity: " + newVelocity);
                 backlog.projectedVelocity = newVelocity;
                 sendWorkInProgress();
             }
 
         }catch(err){
-//          console.log("Setting back to " + backlog.projectedVelocity);
             view.velocityTextField.val(backlog.projectedVelocity);
-            //alert(err);
         }
 
     }

@@ -28,6 +28,7 @@ img.chart {
   opacity:1;
   background:white;
   z-index:1000;
+  box-shadow: rgb(136, 136, 136) 10px 10px 5px;
 }
 
 #summary {
@@ -109,7 +110,7 @@ background-position: center;
 .drop-zone {
 	background:grey;
 	height:20px;
-	width:300px;
+	width:100%;
 }
 img.add-icon {
 	float:right;
@@ -151,7 +152,6 @@ div.backlog {
   border:2px solid grey;
   height:40px;
   width:100%;
-  margin:10px;
   height:10em;
 }
 
