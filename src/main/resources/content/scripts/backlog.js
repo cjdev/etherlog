@@ -170,15 +170,17 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
         cancelButton = view.find(".cancel-button").button();
         
         function toggleStuff(){
-            $.each([".backlog", ".floatingHeader",  ".save-button", ".hide-button", ".velocity-div",
+            $.each([".floatingHeader",  ".save-button", ".hide-button", ".velocity-div",
                     ".add-story-button", ".add-epic-button", ".add-goal-button"], function(idx, i){
                 $(i).toggle();
             });
         }
         
         function closeDialog(){
-            $(".commit-dialog").slideUp();
-            toggleStuff();
+            $(".commit-dialog").fadeOut(function(){
+                $(".backlog").fadeIn();
+                toggleStuff();
+            });
         }
         
         cancelButton.click(function(){
@@ -217,7 +219,9 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
             });
             toggleStuff();
             $(".chart").slideDown();
-            $(".commit-dialog").slideDown();
+            $(".backlog").fadeOut(function(){
+                $(".commit-dialog").fadeIn();
+            });
         }
         
         return {
@@ -227,61 +231,6 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
     
     var commitDialog = CommitDialog();
     
-    function showCommitDialog(){
-        commitDialog.show();
-//        var view = $(".commit-dialog");
-//        
-//        http({
-//            url: "/api/backlogs/" + backlogId + "/deltas/since-last-published",
-//            method: "GET",
-//            onResponse: function (response) {
-//                var changes = JSON.parse(response.body);
-//                view.find(".summary-added").text(changes.added + " points");
-//                view.find(".summary-removed").text(changes.removed + " points");
-//                view.find(".summary-finished").text(changes.finished + " points");
-//                view.find(".summary-reopened").text(changes.reopened + " points");
-//            }
-//        });
-//        
-//        function toggleStuff(){
-//            $.each([".backlog", ".floatingHeader", ".commit-dialog", ".save-button", ".hide-button", ".velocity-div",
-//                    ".add-story-button", ".add-epic-button", ".add-goal-button"], function(idx, i){
-//                $(i).toggle();
-//            });
-//        }
-//        
-//        function closeDialog(){
-//            toggleStuff();
-//        }
-//        
-//        toggleStuff();
-//        
-//        view.find(".cancel-button").click(function(){
-//            console.log("cancel clicked");
-//            closeDialog();
-//        });
-//        
-//        view.find(".publish-button").click(function(){
-//          backlog.memo = view.find(".commit-message").val();
-//          http({
-//              url: "/api/backlogs/" + backlogId,
-//              method: "PUT",
-//              data:JSON.stringify(backlog),
-//              onResponse: function (response) {
-//                  closeDialog();
-//                  showViewMode();
-//                  slider.refresh();
-//                  window.location.reload();
-//              }
-//          });
-//        });
-        
-
-
-        
-    }
-    
-
     function calculateTotals(backlog){
         var totals = {};
 
@@ -852,12 +801,8 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
     });
 
     view.saveButton.button().click(function(){
-
         readView();
-        
-        showCommitDialog();
-        
-
+        commitDialog.show();
     });
 
 
