@@ -15,11 +15,12 @@ import com.cj.etherlog.Clock
 class DeltaResource (data:Data, clock:Clock) extends HttpObject("/api/backlogs/{id}/deltas/{rangeSpec}"){
   override def get(req:Request) = {
       val id = req.path().valueFor("id")
+      val backlog = data.backlogs.get(id)
       
       val rangeSpec = req.path().valueFor("rangeSpec")
-      
       case class DateRange(from:YearMonthDay, to:YearMonthDay)
-      val publishedChanges = data.filterBacklogHistory(id, {_.backlog.memo != "work-in-progress"})
+      val publishedChanges = data.filterBacklogHistory(id, {version=>version.backlog.memo != "work-in-progress"})
+      
       
       case class Versions(from:Option[BacklogVersion], to:Option[BacklogVersion])
       
@@ -34,6 +35,7 @@ class DeltaResource (data:Data, clock:Clock) extends HttpObject("/api/backlogs/{
                    to=changesUpTo(range.to).headOption )
       }
       
+      val SinceLastPublished = "since-last-published".r
       val SinceDatePattern = "since-(....-..-..)".r
       val SinceIdPattern = """since-([0-9|a-z|\-]*)""".r
       val BetweenDatesPattern = "from-(....-..-..)-to-(....-..-..)".r
@@ -43,8 +45,11 @@ class DeltaResource (data:Data, clock:Clock) extends HttpObject("/api/backlogs/{
       def millisToYMD(millis:Long) = new Instant(millis).toDateTime().toYearMonthDay()
       def millisStringToYMD(millis:String) = millisToYMD(millis.toLong)
       def parseDate(text:String) = DateTimeFormat.forPattern("yyyy-MM-dd").parseDateTime(text).toYearMonthDay()
-      
+      println(rangeSpec)
       val versions = rangeSpec match {
+        case "since-last-published" => {
+          println("since last published")
+          Versions(from=Some(publishedChanges.head), to=Some(data.versions.get(backlog.latestVersion)))}
         case SinceDatePattern(date) => versionsInDateRange(DateRange(from=parseDate(date), to = new YearMonthDay(clock.now)))
         case BetweenDatesPattern(from, to) => versionsInDateRange(DateRange(from=parseDate(from), to=parseDate(to)))
         case BetweenTimestampsPattern(from, to) => versionsInDateRange(DateRange(from=millisStringToYMD(from), to=millisStringToYMD(to)))
@@ -54,7 +59,7 @@ class DeltaResource (data:Data, clock:Clock) extends HttpObject("/api/backlogs/{
           Versions(from=foo, to=bar)
         }
         case SinceIdPattern(from) => {
-          Versions(from=publishedChanges.find(_.id==from), publishedChanges.headOption)
+          Versions(from=publishedChanges.find(_.id==from), to=publishedChanges.headOption)
         }
       }
       

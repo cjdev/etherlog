@@ -163,33 +163,33 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
         lastChange = getTime();
     }
     
-    function showCommitDialog(){
-        var view = $(".commit-dialog");
-//        view.dialog({
-//            title:"Ready to share your changes with the outside world?",
-//            modal:true,
-//            width:"80%"
-//        });
+    function CommitDialog(){
+        var view = $(".commit-dialog"), publishButton, cancelButton;
+        
+        publishButton = view.find(".publish-button").button();
+        cancelButton = view.find(".cancel-button").button();
         
         function toggleStuff(){
-            $.each([".backlog", ".floatingHeader", ".commit-dialog", ".save-button", ".hide-button", ".velocity-div",
+            $.each([".backlog", ".floatingHeader",  ".save-button", ".hide-button", ".velocity-div",
                     ".add-story-button", ".add-epic-button", ".add-goal-button"], function(idx, i){
                 $(i).toggle();
             });
         }
         
         function closeDialog(){
+            $(".commit-dialog").slideUp();
             toggleStuff();
         }
         
-        toggleStuff();
-        
-        view.find(".cancel-button").click(function(){
+        cancelButton.click(function(){
+            console.log("cancel clicked");
             closeDialog();
         });
         
-        view.find(".publish-button").click(function(){
-          backlog.memo = view.find(".commit-message").val();
+        publishButton.click(function(){
+          var memo = view.find(".commit-message").val();
+          // TODO: Add some basic memo validation here, 'cause empty memos are a pain
+          backlog.memo = memo;
           http({
               url: "/api/backlogs/" + backlogId,
               method: "PUT",
@@ -198,10 +198,83 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
                   closeDialog();
                   showViewMode();
                   slider.refresh();
-                  window.location.reload();
+                  window.location.reload(); // HACK!  TODO: remove this when you figure out the "chart doesn't refresh after saving" bug
               }
           });
         });
+        
+        function show(){
+            http({
+                url: "/api/backlogs/" + backlogId + "/deltas/since-last-published",
+                method: "GET",
+                onResponse: function (response) {
+                    var changes = JSON.parse(response.body);
+                    view.find(".summary-added").text(changes.added + " points");
+                    view.find(".summary-removed").text(changes.removed + " points");
+                    view.find(".summary-finished").text(changes.finished + " points");
+                    view.find(".summary-reopened").text(changes.reopened + " points");
+                }
+            });
+            toggleStuff();
+            $(".chart").slideDown();
+            $(".commit-dialog").slideDown();
+        }
+        
+        return {
+            show:show
+        };
+    }
+    
+    var commitDialog = CommitDialog();
+    
+    function showCommitDialog(){
+        commitDialog.show();
+//        var view = $(".commit-dialog");
+//        
+//        http({
+//            url: "/api/backlogs/" + backlogId + "/deltas/since-last-published",
+//            method: "GET",
+//            onResponse: function (response) {
+//                var changes = JSON.parse(response.body);
+//                view.find(".summary-added").text(changes.added + " points");
+//                view.find(".summary-removed").text(changes.removed + " points");
+//                view.find(".summary-finished").text(changes.finished + " points");
+//                view.find(".summary-reopened").text(changes.reopened + " points");
+//            }
+//        });
+//        
+//        function toggleStuff(){
+//            $.each([".backlog", ".floatingHeader", ".commit-dialog", ".save-button", ".hide-button", ".velocity-div",
+//                    ".add-story-button", ".add-epic-button", ".add-goal-button"], function(idx, i){
+//                $(i).toggle();
+//            });
+//        }
+//        
+//        function closeDialog(){
+//            toggleStuff();
+//        }
+//        
+//        toggleStuff();
+//        
+//        view.find(".cancel-button").click(function(){
+//            console.log("cancel clicked");
+//            closeDialog();
+//        });
+//        
+//        view.find(".publish-button").click(function(){
+//          backlog.memo = view.find(".commit-message").val();
+//          http({
+//              url: "/api/backlogs/" + backlogId,
+//              method: "PUT",
+//              data:JSON.stringify(backlog),
+//              onResponse: function (response) {
+//                  closeDialog();
+//                  showViewMode();
+//                  slider.refresh();
+//                  window.location.reload();
+//              }
+//          });
+//        });
         
 
 

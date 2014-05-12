@@ -31,7 +31,7 @@
           <span id="summary"></span>
           <img class="throbber" style="margin-left:5px; width:25px;height:25px;"src="/throbber.gif" />
         </div>
-				<div class="velocity-div" style="display:none;">Velocity: <input class="velocity-text" type="text"></name></div>
+				<div class="velocity-div" style="display:none;">Weekly Velocity: <input class="velocity-text" type="text"></name></div>
 				<div class="memo-text"></div>
 				
 				
@@ -46,7 +46,16 @@
                 <button class="edit-button">Edit</button>
 			</div>
         <div class="commit-dialog" style="display:none;">
-             Describe your changes:<textarea class="commit-message"></textarea> 
+             <div>
+             <h2>Change Summary:</h2>
+             <pre>
+               <span class="summary-added">3 new stories (24 points)</span> Added
+               <span class="summary-removed">3 stories (33 points)</span> Removed
+               <span class="summary-finished">3 stories (+33 points)</span> Completed
+               <span class="summary-reopened">1 story (3 points)</span> Reopened
+             </pre>
+             </div>
+             <div><h2>Change Memo</h2><textarea placeholder="Short explanation of why you made these changes." class="commit-message"></textarea></div> 
              <button class="cancel-button">Cancel</button> 
              <button class="publish-button">Publish</button> 
         </div>
