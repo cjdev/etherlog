@@ -18,7 +18,7 @@ import com.cj.etherlog.chart.ChartOptions
 import HttpUtils._
 import com.cj.etherlog.Clock
 
-class ChartResource(data:Data, service:Service, clock:Clock) extends HttpObject("/api/backlogs/{id}/chart"){
+class DefaultChartResource(data:Data, service:Service, clock:Clock) extends HttpObject("/api/backlogs/{id}/chart/default"){
     override def get(req:Request) = {
       val id = req.path().valueFor("id")
       val stats = buildStatsLogFromQueryString(id, req, data, clock);
@@ -79,7 +79,7 @@ class ChartResource(data:Data, service:Service, clock:Clock) extends HttpObject(
                             whenComplete=new Instant(end)))
       }
       
-      val text = com.cj.etherlog.chart.makeSvg(
+      val text = com.cj.etherlog.chart.DefaultChart.makeSvg(
                       stats=myStats, 
                       lastTime = lastTime, 
                       projections = projections ++ pastProjection,

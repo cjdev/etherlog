@@ -5,13 +5,26 @@ import com.cj.etherlog.api.BacklogListEntry
 import com.cj.etherlog.api.StatsLogEntry
 import com.cj.etherlog.api.Item
 import com.cj.etherlog.api.HistoryItem
+import com.cj.etherlog.api.GlobalConfig
 
 class Data (val dataPath:Path){
     
     val errors = new Database[String](new Path(dataPath, "errors"))
     val backlogs = new Database[BacklogStatus](new Path(dataPath, "backlogs"))
     val versions = new Database[BacklogVersion](new Path(dataPath, "versions"))
+    val config = new Database[GlobalConfig](new Path(dataPath, "config"))
     
+    def setGlobalConfig(n:GlobalConfig) = {
+      config.put("global", n)
+    }
+    
+    def getGlobalConfig() = {
+      if(config.contains("global")){
+        config.get("global")
+      }else{
+        GlobalConfig()
+      }
+    }
     
     
     val versionsCache = scala.collection.mutable.Map[String, BacklogVersion]()

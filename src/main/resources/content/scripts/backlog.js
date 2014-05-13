@@ -2,6 +2,16 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
     
     const kindsInOrderOfPrecedence = ["team", "grooming", "swag"];
     
+    var globalConfig;
+    
+    http({
+        url: "/api/config",
+        method: "GET",
+        onResponse: function (response) {
+            globalConfig = JSON.parse(response.body);
+        }
+    });
+    
     var backlog, where, lastDragged;
     
     var when; // SUPERHACK!
@@ -907,7 +917,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
 
         function render(when){
             var monitor = activityMonitor.show();
-            var url = "/api/backlogs/" + backlogId + "/chart?&showGoalTargetDots=true&showOddWeeks=false&showWeekNumbers=false&showMonthLabels&showCompletedWork&showGoalLabels=false&showMonthVerticals=true&showGoalHLines=false&showGoalVLines";
+            var url = "/api/backlogs/" + backlogId + "/chart/" + globalConfig.defaultChartType + "?&showGoalTargetDots=true&showOddWeeks=false&showWeekNumbers=false&showMonthLabels&showCompletedWork&showGoalLabels=false&showMonthVerticals=true&showGoalHLines=false&showGoalVLines";
             
             if(when){
                 url = url+"&end=" + when + "&showLatestEvenIfWip=true";

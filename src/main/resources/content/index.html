@@ -11,10 +11,19 @@
     <h3><a href="/overview">stategic view</a></h3>
     <div class="backlog-list-section">
     <div class="header">
-    <button class="add-backlog-button">Add</button>
-    <input type="checkbox" class="show-archived-checkbox">show archived</input>
+	    <button class="configure-global-settings-button header-button">Settings</button>
+	    <button class="add-backlog-button header-button">New Backlog</button>
+	    <input type="checkbox" class="show-archived-checkbox">show archived</input>
+	    
     </div>
     <hr>
+    <div class="settings-area" style="display:none;">
+    <h2>Settings</h2>
+       Chart Type: 
+          <input type="radio" name="chart-type" value="default">continuous</input>
+          <input type="radio" name="chart-type" value="iteration-bars">iteration bars (beta)</input>
+    
+    </div>
 	<ul class="backlog-list"></ul>
 	</div>
 	</body>

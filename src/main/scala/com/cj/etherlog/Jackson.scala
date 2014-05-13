@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import java.io.InputStream
 import org.httpobjects.Representation
 import java.io.OutputStream
+import com.cj.etherlog.http.HttpUtils
 
 object Jackson {
 
@@ -18,6 +19,8 @@ object Jackson {
   def parseJson[T](is:InputStream)(implicit manifest:Manifest[T]):T = {
     jackson.readValue[T](is, manifest.erasure.asInstanceOf[Class[T]])
   }
+  
+  def parse[T](r:Representation)(implicit manifest:Manifest[T]) = Jackson.parseJson[T](HttpUtils.readAsStream(r));
   
   def JerksonJson(o:AnyRef) = {
     new Representation(){

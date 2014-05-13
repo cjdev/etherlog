@@ -1,5 +1,7 @@
 package com.cj.etherlog.api { 
-  
+    
+    case class GlobalConfig (defaultChartType:String = "default") 
+    
     case class HistoryItem (version:String, when:Long, memo:String)
     
     case class StatsLogEntry (version:String, when:Long, memo:String, todo:Int, done:Int){

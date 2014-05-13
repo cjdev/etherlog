@@ -8,8 +8,9 @@ import java.io.File
 import com.cj.etherlog.api._
 import org.junit.Test
 import org.joda.time.Instant
+import com.cj.etherlog.chart.DefaultChart.makeSvg
     
-class ChartTest {
+class DefaultChartTest {
     
     def resourceAsString(name:String) = IOUtils.toString(getClass().getResourceAsStream(name))
   

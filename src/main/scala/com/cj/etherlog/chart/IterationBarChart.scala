@@ -1,19 +1,31 @@
-package com.cj.etherlog
+package com.cj.etherlog.chart
 
 import com.cj.etherlog.api._
 import org.joda.time._
 import org.joda.time.format.DateTimeFormat
 import org.httpobjects.Query
-    
-package object chart {
+     
+case class IterationStats (
+    val todoFromLastIterationMinusDone:Int, 
+    val addedThisIteration:Int, 
+    val extras:Map[String, Int], 
+    val start:Long, 
+    val end:Long, 
+    val finished:Int,
+    val whenProjectedComplete:Option[Long]) {
+  
+  def scope = todoFromLastIterationMinusDone + addedThisIteration
+}
+
+object IterationBarChart {
     private val dateFormat = DateTimeFormat.fullDate
     
-    def makeSvg(stats:Seq[StatsLogEntry], 
+    def makeSvg(stats:Seq[IterationStats], 
                 chartWidth:Int = 50, 
                 chartHeight:Int = 10, 
                 goals:Seq[GoalData] = Seq(), 
-                projections:Seq[ChartProjection], 
                 lastTime:Long,
+                now:Instant,
                 options:ChartOptions = ChartOptions.LEGACY_FORMAT) = {
         
         val leftMargin = 2;
@@ -22,21 +34,21 @@ package object chart {
         
         val nHeight = stats.size match {
           case 0=>0;
-          case _=> stats.map(entry=>entry.done + entry.todo).max
+          case _=> stats.map(entry=>entry.scope).max
         }
         
         val aspectRatio = chartWidth.toDouble/chartHeight.toDouble
         
         val start = options.startDate match {
-          case None => stats.headOption.map(_.when).getOrElse(0L)
+          case None => stats.headOption.map(_.start).getOrElse(0L)
           case Some(date) => date.toDateMidnight().getMillis()
         }
         
-        val lastStatTime = stats.lastOption.map(_.when).getOrElse(0L)
+        val lastStatTime = stats.lastOption.map(_.end).getOrElse(0L)
         
         val chartEndTime = options.endDate match {
           case None => {
-            val allTimes = projections.map(_.whenComplete.getMillis()) ++ List(lastTime, lastStatTime)
+            val allTimes = stats.flatMap(_.whenProjectedComplete) ++ List(lastTime, lastStatTime)
             allTimes.max
           }
           case Some(date) => date.toDateMidnight().getMillis()
@@ -67,46 +79,7 @@ package object chart {
         }else {
           val bands = stats.tail.zipWithIndex.flatMap({case (entry, idx)=>
           
-            val prev = stats(idx)
-            val xLeft = x(prev.when)
-            val xRight = x(entry.when)
-            
-            val pointsDone = if(options.showCompletedWork) {
-              Seq(
-                (xLeft, y(nHeight-prev.total)),
-                (xRight, y(nHeight-entry.total)),
-                (xRight, y(nHeight-entry.todo)),
-                (xLeft, y(nHeight-prev.todo)))
-            }else Seq()
-                
-            val rightEdgeDone = if(options.showCompletedWork) {
-              Seq(
-                (xRight, y(nHeight-entry.total)),
-                (xRight, y(nHeight-entry.todo)))
-            }else Seq() 
-            
-            
-            val pointsTodo = Seq(
-                (xLeft, y(nHeight-prev.todo)),
-                (xLeft, y(nHeight)),
-                (xRight, y(nHeight)),
-                (xRight, y(nHeight-entry.todo)))
-            
-            val rightEdgeTodo = Seq(
-                (xRight, y(nHeight)),
-                (xRight, y(nHeight-entry.todo))
-            )
-                
-            def print(points:Seq[(Any, Any)]) = points
-                                .map(x=>x._1 + "," + x._2) // to text
-                                .mkString(" "); // combined
-            
-            Seq(
-                 """<polygon points="""" + print(rightEdgeDone) + """" class="done-right-edge"/>""",
-                 """<polygon points="""" + print(rightEdgeTodo) + """" class="todo-right-edge"/>""",
-                 """<polygon points="""" + print(pointsDone) + """" class="done"/>""",
-                 """<polygon points="""" + print(pointsTodo) + """" class="todo"/>"""
-               )
+            Seq()
         })
         
         val numLines = 5;
@@ -187,34 +160,47 @@ package object chart {
           Seq()
         }
         
+        val bars = stats.map{iterationStats=>
+            
+            val end = new Instant(iterationStats.end).toDateTime()
+            val start = new Instant(iterationStats.start).toDateTime().plusDays(1)
+            
+            val yValTodo = y(nHeight-iterationStats.todoFromLastIterationMinusDone)
+            val yValAdded = y(nHeight-iterationStats.todoFromLastIterationMinusDone-iterationStats.addedThisIteration)
+            val x1 = x(start.getMillis())
+            val x2 = x(end.getMillis())
+            
+             
+            val todoBar = Seq(
+                (x1, yValTodo),
+                (x2, yValTodo),
+                (x2, y(nHeight)),
+                (x1, y(nHeight)))
+
+            val addedBar = Seq(
+                (x1, yValTodo),
+                (x2, yValTodo),
+                (x2, yValAdded),
+                (x1, yValAdded))
+                
+            def print(points:Seq[(Any, Any)]) = points
+                                .map(x=>x._1 + "," + x._2) // to text
+                                .mkString(" "); // combined
+            
+            val extraClasses = if(now.isBefore(end)){
+              "in-progress"
+            }else{
+              ""
+            }
+            
+            Seq(
+                 s"""<polygon points="${print(todoBar)}" class="todo $extraClasses"/>""",
+                 s"""<polygon points="${print(addedBar)}" class="added $extraClasses"/>"""
+               )
+        }
+        
         val goalLines = goals.flatMap {goal=>
           val yVal = y(nHeight - goal.points)
-          
-          val dot = if(!options.showGoalTargetDots) None else goal.when match {
-            case Some(when)=> {
-              if(when >=lastStatTime){
-                val date = dateFormat.print(new DateTime(when)) + ": "
-                
-                Some("""<circle cx="""" + x(when) + """" cy="""" + yVal + """" r=".25"><title>""" + date + goal.description  + """</title></circle>""")
-              }else{
-                None
-              }
-            }
-            case None => None
-          }
-          
-          val labels = if(options.showGoalLabels){
-                  Seq(""" <text class="goal-label" x="""" + x(lastStatTime) + """" y="""" + yVal + """" >""" + goal.description + """<title>""" + goal.description + """</title></text>""")
-                }else{
-                  Seq()
-                }
-          
-          val hLines = if(options.showGoalHLines){
-                  Seq("""<line class="projection" y1="""" + yVal + """" x1="""" + x(lastStatTime) + """" y2="""" + yVal + """" x2="""" + x(chartEndTime) + """" />""")
-                } else {
-                  Seq()
-                }
-          
           
           val vLines = goal.whenForReal match {
             case None => Seq()
@@ -225,7 +211,6 @@ package object chart {
                 Seq(
                     """<circle cx="""" + x(when) + """" cy="""" + yVal + """" r=".25"><title>""" + text  + """</title></circle>""",
                     """ <text class="goal-label" x="""" + (x(when) +1) + """" y="""" + yVal + """" >""" + text + """<title>""" + text + """</title></text>""")
-    //            Seq("""<line class="projection" y1="""" + yVal + """" x1="""" + x(lastStatTime) + """" y2="""" + yVal + """" x2="""" + x(chartEndTime) + """" />""")
               } else {
                 Seq()
               }
@@ -234,24 +219,29 @@ package object chart {
           
           
           
-          hLines ++ dot ++ labels ++ vLines
+          vLines
         }
         
         
         val latest = stats.last
-        val otherLines = projections.zipWithIndex.flatMap{idxAndProjection=>
-          val (projection, id) = idxAndProjection
+        val otherLines = stats.zipWithIndex.flatMap{idxAndProjection=>
+          val (iteration, id) = idxAndProjection
           val styleClass = if(id==0) {
             "projection"
           }else{
             "old-projection"
           }
-          Seq(
-                """<line class="""" + styleClass + """" y1="""" + y(nHeight - projection.pointsRemaining) + """" x1="""" + xi(projection.from) + """" y2="""" + y(nHeight) + """" x2="""" + xi(projection.whenComplete) + """" />"""
-          )
+          iteration.whenProjectedComplete match {
+            case None=>Seq()
+            case Some(whenProjectedComplete)=> {
+                Seq(
+                   """<line class="""" + styleClass + """" y1="""" + y(nHeight - iteration.scope) + """" x1="""" + x(iteration.end) + """" y2="""" + y(nHeight) + """" x2="""" + x(whenProjectedComplete) + """" />"""
+                )
+            }
+          }
         }
         
-        bands ++ hLines ++ vLines ++ goalLines ++ otherLines ++ monthLines    
+        bars ++ bands ++ hLines ++ vLines ++ goalLines ++ otherLines ++ monthLines
       }
         
         
@@ -279,6 +269,12 @@ package object chart {
         }
         .done {
             fill:green;
+        }
+        .added {
+            fill:orange;
+        }
+        .in-progress {
+            opacity:.5;
         }
         text {
             font-size:.5pt;

@@ -1,5 +1,7 @@
 define(["jquery", "http", "uuid", "underscore"], function($, http, uuid, _){
 	 var body = $("body");
+	 
+	 
 	  body.find(".add-backlog-button").click(function(){
 		  var name = prompt("Give the backlog a name","some name");
 		  if(name===null || !name) return;
@@ -23,6 +25,51 @@ define(["jquery", "http", "uuid", "underscore"], function($, http, uuid, _){
 	  });
 	  
 	  var backlogList = body.find(".backlog-list")
+	  var settingsArea = body.find(".settings-area");
+	  
+	  body.find(".configure-global-settings-button").click(function(){
+	      var items = [backlogList, settingsArea];
+	      
+	      var toHide, toShow;
+	      
+	      if(items[0].is(":visible")){
+              toHide = items[0];
+              toShow = items[1];
+	      }else{
+              toHide = items[1];
+              toShow = items[0];
+	      }
+	      
+	      toHide.slideUp(function(){
+	          toShow.slideDown();
+	      });
+	  });
+	  
+	  
+	  var globalConfig;
+      http({
+          url: "/api/config",
+          method: "GET",
+          onResponse: function (response) {
+              globalConfig = JSON.parse(response.body);
+              var selector = "input[type=radio][value=" + globalConfig.defaultChartType + "]";
+              console.log(selector);
+              settingsArea.find(selector).attr("checked", "true");
+          }
+      });
+      
+      settingsArea.find("input[type=radio]").click(function(){
+          var defaultChartType = settingsArea.find("input[type=radio]:checked").val();
+          console.log("New value: " + defaultChartType);
+          http({
+              url: "/api/config",
+              method: "PUT",
+              data:JSON.stringify({
+                  defaultChartType:defaultChartType
+              })
+          });
+      });
+      
 	  
 	  http({
 		  url: "/api/backlogs",

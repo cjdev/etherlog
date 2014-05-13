@@ -1,6 +1,15 @@
-define(["jquery", "underscore"], function($, _){
+define(["jquery", "underscore", "http"], function($, _, http){
 
     return function constructor(body){
+        var globalConfig;
+        http({
+            url: "/api/config",
+            method: "GET",
+            onResponse: function (response) {
+                globalConfig = JSON.parse(response.body);
+            }
+        });
+        
         var compareDate = "2014-04-01";
         
         body.append('       <div class="controls-band">' + 
@@ -28,7 +37,7 @@ define(["jquery", "underscore"], function($, _){
                 console.log("Setting date to " + date)
                 view.find(".deltas-link").attr("href", '/api/backlogs/' + project.id + '/deltas/since-' + date);
                 console.log("Setting date to " + view.find(".deltas-link").attr("href"));
-                view.find(".burndown-chart").attr("src", '/api/backlogs/' + project.id + '/chart?startDate=2014-01-01&showLatestEvenIfWip=true&showGoalTargetDots=false&showOddWeeks=false&showWeekNumbers=false&endDate=2014-11-01&showMonthLabels&showCompletedWork=false&showGoalLabels=false&compareWith=' + date + '&showMonthVerticals=true&weekStartDay=2014-01-08&showGoalHLines=false&showGoalVLines')
+                view.find(".burndown-chart").attr("src", '/api/backlogs/' + project.id + '/chart/' + globalConfig.defaultChartType + '?startDate=2014-01-01&showLatestEvenIfWip=true&showGoalTargetDots=false&showOddWeeks=false&showWeekNumbers=false&endDate=2014-11-01&showMonthLabels&showCompletedWork=false&showGoalLabels=false&compareWith=' + date + '&showMonthVerticals=true&weekStartDay=2014-01-08&showGoalHLines=false&showGoalVLines')
                 console.log("Setting date to " + view.find(".deltas-link").attr("href"));
             }
             setDate(compareDate);

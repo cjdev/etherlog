@@ -4,8 +4,20 @@
   border-radius:5px;
 }
 
+.header-button {
+    margin:5px;
+}
+
+.configure-global-settings-button {
+	float:right;
+}
+
 .add-backlog-button {
 	float:right;
+}
+
+.settings-area {
+    margin:10px;
 }
 
 .backlog-list-section .header {

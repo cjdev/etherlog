@@ -35,7 +35,7 @@ import com.cj.etherlog.http.BacklogHistoryResource
 import com.cj.etherlog.datas.Data
 import com.cj.etherlog.Jackson._
 import com.cj.etherlog.http.BacklogStatusResource
-import com.cj.etherlog.http.ChartResource
+import com.cj.etherlog.http.DefaultChartResource
 import com.cj.etherlog.http.BacklogsResource
 import com.cj.etherlog.http.StatsLogResource
 import com.cj.etherlog.http.BacklogVersionResource
@@ -44,6 +44,7 @@ import com.cj.etherlog.http.DeltasResource
 import com.cj.etherlog.http.BacklogResource
 import com.cj.etherlog.http.ErrorsResource
 import com.cj.etherlog.http.TimeTravelResource
+import com.cj.etherlog.http.IterationBarChartResource
 
 object Etherlog {
   def timeTravelModeIsActivated(args:Array[String]) = args.size >0 && args(0) == "enableTimeTravel"
@@ -59,11 +60,13 @@ object Etherlog {
     val port = 43180
     
     launchServer(port, 
+        "/api/config" -> new GlobalConfigResource(data=data),
+        "/api/backlogs/{id}/chart/iteration-bars" -> new IterationBarChartResource(data=data, clock=clock),
         "/api/clock" -> new TimeTravelResource(clock=clock),
         "/api/backlogs" -> new BacklogsResource(data=data, service=service),
         "/api/backlogs/{id}/mystyle.css" -> new ChartStylesheet("/api/backlogs/{id}"),
         "/backlog/mystyle.css" -> new ChartStylesheet("/backlog"),
-        "/api/backlogs/{id}/chart" -> new ChartResource(data=data, service=service, clock=clock),
+        "/api/backlogs/{id}/chart/default" -> new DefaultChartResource(data=data, service=service, clock=clock),
         "/api/backlogs/{id}/history" -> new BacklogHistoryResource(data=data),
         "/api/backlogs/{id}/status" -> new BacklogStatusResource(data, clock=clock),
         "/api/backlogs/{id}/statsLog" -> new StatsLogResource(data=data, service=service, clock=clock),
