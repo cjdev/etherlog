@@ -48,6 +48,7 @@ import com.cj.etherlog.http.IterationBarChartResource
 import com.cj.etherlog.http.TeamResource
 import com.cj.etherlog.http.TeamsResource
 import com.cj.etherlog.http.TeamIterationResource
+import com.cj.etherlog.http.TeamIterationStatsResource
 
 object Etherlog {
   def timeTravelModeIsActivated(args:Array[String]) = args.size >0 && args(0) == "enableTimeTravel"
@@ -64,6 +65,7 @@ object Etherlog {
     val port = 43180
     
     launchServer(port, 
+        "/api/backlogs/{id}/iteration-stats" -> new TeamIterationStatsResource(data=data, clock=clock),
         "/api/team/{id}/iteration" -> new TeamIterationResource(data=data, clock=clock),
         "/api/team" -> new TeamsResource(data=data),
         "/api/team/{id}" -> new TeamResource(data=data, clock=clock),

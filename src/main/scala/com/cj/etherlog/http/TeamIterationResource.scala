@@ -23,6 +23,8 @@ import com.cj.etherlog.datas.BacklogVersion
 import com.cj.etherlog.chart.IterationStats
 import com.cj.etherlog.api._
 import org.joda.time.DateTime
+import org.apache.commons.io.IOUtils
+import java.text.NumberFormat
 
 class TeamIterationResource (data:Data, clock:Clock) extends HttpObject("/api/team/{id}/iteration"){
     
@@ -33,13 +35,25 @@ class TeamIterationResource (data:Data, clock:Clock) extends HttpObject("/api/te
      OK(Jackson.JerksonJson(team.iterations))
     }
     
+    def parseIntIfAble(s:String) = {
+      try{
+        Some(s.toLong)
+      }catch{
+        case e:NumberFormatException => None
+      }
+    }
+    
     override def post(req:Request) = {
      val id = req.path.valueFor("id")
+     
+     val str = IOUtils.toString(HttpUtils.readAsStream(req.representation())).trim()
+     val now = new Instant(parseIntIfAble(str).getOrElse(clock.now.getMillis()))
+     
      try{
      println("foo!")
      
      if(data.teams.contains(id)){
-       val today = clock.now.toDateTime().toYearMonthDay()
+       val today = now.toDateTime().toYearMonthDay()
        val team = data.teams.get(id);
        val currentIteration = if(team.iterations.size>0) Some(team.iterations.maxBy(_.start)) else None
        
