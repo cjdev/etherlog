@@ -16,6 +16,10 @@
 	float:right;
 }
 
+.stats-button {
+    float:right;
+}
+
 .settings-area {
     margin:10px;
 }
@@ -24,7 +28,7 @@
   padding:5px;
 	
 }
-.backlog-list-entry {
+.backlog-list-entry, .teams-list-entry{
   margin:10px;
   font-size: 18pt;
   list-style-type:none;

@@ -3,6 +3,7 @@ package com.cj.etherlog.datas
 import com.cj.etherlog.api._
 import com.cj.etherlog.api.Item
 import scala.Option.option2Iterable
+import com.cj.etherlog.Jackson
 
 case class BacklogVersion(
     val id:String,
@@ -34,11 +35,11 @@ case class BacklogVersion(
     
     if(prev.when > change.when) throw new Exception("time ran backwards: " + prev.when + " to " + change.when)
     
-    val added = change.backlog.items.filter{item=>
+    val added = change.backlog.items.filter(_.isStoryOrEpic).filter{item=>
       !prev.backlog.item(item.id).isDefined
     }
     
-    val removed = prev.backlog.items.filter{item=>
+    val removed = prev.backlog.items.filter(_.isStoryOrEpic).filter{item=>
       !change.backlog.item(item.id).isDefined
     }
     
@@ -52,6 +53,7 @@ case class BacklogVersion(
        }
     }
     
+    
     val reopened = change.backlog.items.filter{item=>
        prev.backlog.item(item.id) match {
          case Some(old) => 
@@ -62,11 +64,46 @@ case class BacklogVersion(
        }
     }
     
-    def sumEstimates(items:Seq[Item]):Int = {
+    def sumEstimates(items:Seq[Item]):Foobar = {
       val bestEstimates = items.flatMap(_.bestEstimate)
       val sum = bestEstimates.foldLeft(0)(_+_)
-      sum
+      Foobar(items.map(_.toIdAndShortName), sum)
     }
+    
+    val allItemIds = (change.backlog.items.map(_.id).toList ::: prev.backlog.items.map(_.id).toList).distinct
+    case class ItemDelta(before:Option[Item], after:Option[Item]){
+       def notNew = this match {
+         case ItemDelta(Some(_), Some(_)) => true
+         case _ => false
+       }
+       def wasReopened = {
+         if(notNew){
+             val isComplete = after.get.isComplete.getOrElse(false)
+             val wasComplete = before.get.isComplete.getOrElse(false)
+             (wasComplete) && !isComplete
+         }else{
+           false
+         }
+       }
+       
+       def estimateChanged = this match {
+         case ItemDelta(Some(b), Some(a)) => a.bestEstimate.getOrElse(0) != b.bestEstimate.getOrElse(0)
+         case _ => false
+       }
+       
+       def increase = this match {
+         case ItemDelta(Some(b), Some(a)) => a.bestEstimate.getOrElse(0) - b.bestEstimate.getOrElse(0)
+         case _ => 0
+       }
+    }
+    val beforeAndAfterItems = allItemIds.map{id=>
+        ItemDelta(prev.backlog.item(id), change.backlog.item(id))
+    }
+//    println(Jackson.jackson.writerWithDefaultPrettyPrinter().writeValueAsString(beforeAndAfterItems))
+    val changes = beforeAndAfterItems.filter(_.estimateChanged).filter(!_.wasReopened)
+    val estimateIncreases = changes.map(_.increase).foldLeft(0)((accum, n)=>accum + n)
+    
+    val changedItems = changes.map{d=>d.after.get.toIdAndShortName}
     
     Delta(
         from = prev.versionNameAndTime,
@@ -74,7 +111,8 @@ case class BacklogVersion(
         added=sumEstimates(added), 
         removed=sumEstimates(removed), 
         finished=sumEstimates(finished), 
-        reopened = sumEstimates(reopened))
+        reopened = sumEstimates(reopened),
+        reestimated = Foobar(changedItems, estimateIncreases))
     
   }
 }

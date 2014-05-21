@@ -1,4 +1,4 @@
-define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid){
+define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryui, _, http, uuid){
     
     const kindsInOrderOfPrecedence = ["team", "grooming", "swag"];
     
@@ -79,6 +79,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
             summaryTextArea : where.find("#summary"),
             toggleBurndownButton: where.find(".toggle-burndown-button"),
             hideButton : where.find(".hide-button"),
+            statsButton : where.find(".stats-button"),
             editButton : where.find(".edit-button"),
             saveButton : where.find(".save-button"),
             addStoryButton : where.find(".add-story-button"),
@@ -173,6 +174,26 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
         lastChange = getTime();
     }
     
+    function renderChanges(changes){
+        function summarize(change, label){
+            if(change.items.length>0){
+                return "             " + 
+                        change.items.length + " " + label + " (" + change.totalPoints + " points)\n";
+            }else{
+                return "";
+            }
+        }
+        console.log("Summarizing", changes);
+        var text=   summarize(changes.added, "Added Stories/Epics") + 
+                    summarize(changes.removed,"Removed Stories/Epics") + 
+                    summarize(changes.finished, "Completed stories") + 
+                    summarize(changes.reopened, "Reopened stories") + 
+                    summarize(changes.reestimated, "re-estimated stories/epics");
+        
+        return text;
+        
+    }
+    
     function CommitDialog(){
         var view = $(".commit-dialog"), publishButton, cancelButton;
         
@@ -221,10 +242,9 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
                 method: "GET",
                 onResponse: function (response) {
                     var changes = JSON.parse(response.body);
-                    view.find(".summary-added").text(changes.added + " points");
-                    view.find(".summary-removed").text(changes.removed + " points");
-                    view.find(".summary-finished").text(changes.finished + " points");
-                    view.find(".summary-reopened").text(changes.reopened + " points");
+                    
+                    view.find(".summaries").text(renderChanges(changes));
+                    
                 }
             });
             toggleStuff();
@@ -241,7 +261,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
     
     var commitDialog = CommitDialog();
     
-    function calculateTotals(backlog){
+    function calculateTotals(items){
         var totals = {};
 
         $.each(kindsInOrderOfPrecedence, function(idx, kind){
@@ -263,8 +283,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
             }
             return bestEstimate;
         }
-
-        $.each(backlog.items, function(idx, item){
+        $.each(items, function(idx, item){
             var bestEstimate = findBestEstimate(item);
             if(bestEstimate){
                 totals[bestEstimate.type] = totals[bestEstimate.type] + bestEstimate.value;
@@ -286,7 +305,7 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
     function render(){
 
         view.velocityTextField.val(backlog.projectedVelocity);
-        view.memoTextArea.text(formatLongDateTime(when?when:getTime()) + ": " + backlog.memo);
+        view.memoTextArea.text("Last change " + formatLongDateTime(when?when:getTime()) + ": " + backlog.memo);
         view.title.text(backlog.name);
         $("title").text(backlog.name); // << HACK!
         view.backlog.empty();
@@ -300,8 +319,29 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
     }
 
     function updateSummary(){
-        var totals = calculateTotals(backlog);
-        view.summaryTextArea.text("(" + $.map(totals, function(value, key){return key + " " + value + "  ";}) + ")");
+        var itemsNotDone = _.filter(backlog.items, function(item){return !item.isComplete;});
+        var itemsDone = _.filter(backlog.items, function(item){return item.isComplete;});
+        
+        function printStuff(stuff){
+            return $.map(stuff, function(value, key){return key + " " + value + "  ";})
+        }
+        var totalsTodo = calculateTotals(itemsNotDone);
+        
+        http({
+            url:"/api/backlogs/" + backlog.id + "/deltas/in-" + backlog.optimisticLockVersion,
+            method: "GET",
+            onResponse: function (response) {
+                var changes = JSON.parse(response.body);
+                
+                view.summaryTextArea.text(
+                        renderChanges(changes) + "\n" + 
+                        "TODO: " + printStuff(totalsTodo) + "\n" + 
+                        'DONE: ' + printStuff(calculateTotals(itemsDone)));
+                
+            }
+        });
+        
+        
     }
 
     function showEditMode(){
@@ -801,6 +841,12 @@ define(["jquery", "jqueryui", "http", "uuid"], function($, jqueryui, http, uuid)
         }
     );
 
+    view.statsButton.button().click(
+        function () {
+            $(".details").slideToggle();
+        }
+    );
+    
     view.editButton.button().click(function(){
         showWIPVersion(function(){
             view.commitMessage.val("");

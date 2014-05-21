@@ -45,6 +45,9 @@ import com.cj.etherlog.http.BacklogResource
 import com.cj.etherlog.http.ErrorsResource
 import com.cj.etherlog.http.TimeTravelResource
 import com.cj.etherlog.http.IterationBarChartResource
+import com.cj.etherlog.http.TeamResource
+import com.cj.etherlog.http.TeamsResource
+import com.cj.etherlog.http.TeamIterationResource
 
 object Etherlog {
   def timeTravelModeIsActivated(args:Array[String]) = args.size >0 && args(0) == "enableTimeTravel"
@@ -53,6 +56,7 @@ object Etherlog {
     val data = new Data(new Path("data"))
     
     val clock = new FastForwardableClock(
+                        configDb=data,
                         enableTimeTravel = timeTravelModeIsActivated(args));
     
     val service = new Service(data, clock)
@@ -60,6 +64,9 @@ object Etherlog {
     val port = 43180
     
     launchServer(port, 
+        "/api/team/{id}/iteration" -> new TeamIterationResource(data=data, clock=clock),
+        "/api/team" -> new TeamsResource(data=data),
+        "/api/team/{id}" -> new TeamResource(data=data, clock=clock),
         "/api/config" -> new GlobalConfigResource(data=data),
         "/api/backlogs/{id}/chart/iteration-bars" -> new IterationBarChartResource(data=data, clock=clock),
         "/api/clock" -> new TimeTravelResource(clock=clock),
@@ -79,6 +86,7 @@ object Etherlog {
         "/timemachine" -> new ClasspathResourceObject("/timemachine", "/content/timemachine.html", getClass()),
         "/" -> new ClasspathResourceObject("/", "/content/index.html", getClass()),
         "/backlog/{backlogId}" -> new ClasspathResourceObject("/backlog/{backlogId}", "/content/backlog.html", getClass()),
+        "/team/{teamName}" -> new ClasspathResourceObject("/team/{teamName}", "/content/team.html", getClass()),
         "/{resource*}" -> new ClasspathResourcesObject("/{resource*}", getClass(), "/content")
     );
     

@@ -2,8 +2,12 @@ define(["jquery"], function($){
     
     return function(container){
         var view = $('<h1>Time Machine</h1>' + 
-                       '<h2>The current time is <span class="current-time"></span></h2>' + 
-                       '<button class="jump-button">Jump to tomorrow</button>');
+                       '<h2>The current time is <span class="current-time"></span></h2>' +
+                       '<div class="controls">' + 
+                       '<button class="jump-day">Jump 1 Day</button>' + 
+                       '<button class="jump-week">Jump 1 Week</button>' + 
+                       '<button class="jump-month">Jump 1 Month</button>' + 
+                       '</div>');
         
 
         function getTime(){
@@ -30,18 +34,30 @@ define(["jquery"], function($){
         
         view.appendTo(container);
         
-        
-        var button = $(".jump-button");
-        button.click(function(){
-            console.log("hi");
+        function jump(jumpSizeInMillis){
+            var controls = view.find(".controls");
+            controls.attr("disabled", "disabled");
             $.ajax("/api/clock", {
                 type: 'PUT',
-                data: (1000*60*60*24).toString(),
+                data: jumpSizeInMillis.toString(),
                 success: function(data) {
                     updateClockDisplay();
-                    alert("Jump Complete.  Welcome to tomorrow!");
+//                    alert("Jump Complete.  Welcome to tomorrow!");
+                    
+                    controls.removeAttr("disabled");
                 }
               });
+        }
+        const oneDay = 1000*60*60*24; 
+        view.find("button.jump-day").click(function(){
+            jump(oneDay);
         });
+        view.find("button.jump-week").click(function(){
+            jump(oneDay * 7);
+        });
+        view.find("button.jump-month").click(function(){
+            jump(oneDay * 30);
+        });
+        
     };
 });

@@ -1,6 +1,12 @@
+import com.fasterxml.jackson.annotation.JsonIgnore
+import org.joda.time.YearMonthDay
+
 package com.cj.etherlog.api { 
     
-    case class GlobalConfig (defaultChartType:String = "default") 
+    case class GlobalConfig (defaultChartType:String = "default", clockOffset:Long = 0) 
+    
+    case class IterationDto(start:Long, label:String)
+    case class TeamDto(id:String, name:String, iterations:Seq[IterationDto])
     
     case class HistoryItem (version:String, when:Long, memo:String)
     
@@ -16,8 +22,11 @@ package com.cj.etherlog.api {
         id:String, 
         memo:String,
         when:Long)
-
-    case class Delta (from:VersionNameAndTime, to:VersionNameAndTime, added:Int, removed:Int, finished:Int, reopened:Int)
+    
+    case class ItemIdAndShortName(id:String, name:String)
+    case class Foobar (items:Seq[ItemIdAndShortName], totalPoints:Int)
+    case class Delta (from:VersionNameAndTime, to:VersionNameAndTime, 
+        added:Foobar, removed:Foobar, finished:Foobar, reopened:Foobar, reestimated:Foobar)
     
     case class Estimate(
         val id:String,
@@ -34,6 +43,18 @@ package com.cj.etherlog.api {
         val estimates:Option[Seq[Estimate]],
         val when:Option[Long] = None
     ){
+      
+      @JsonIgnore
+      def isStoryOrEpic() = kind == "epic" || kind == "story"
+      
+      def shortName = {
+        val firstLine = name.lines.toList.headOption.getOrElse("")
+        val maxLength = 100
+        if(firstLine.length()>maxLength) firstLine.substring(0, maxLength) + "..."
+        else firstLine
+      }
+      def toIdAndShortName = ItemIdAndShortName(id, shortName)
+      
       def bestEstimate() = estimates match {
           case Some(e) => {
               val latestEstimate = e.maxBy(_.when)

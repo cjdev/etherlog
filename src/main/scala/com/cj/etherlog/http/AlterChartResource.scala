@@ -111,9 +111,9 @@ class IterationBarChartResource (data:Data, clock:Clock) extends HttpObject("/ap
         val (d, i) = deltaWithIndex;
         val diff = d.endingState.delta(d.startingState)
         
-        val addedThisIteration = diff.added - diff.removed + diff.reopened
+        val addedThisIteration = diff.added.totalPoints - diff.removed.totalPoints + diff.reopened.totalPoints + diff.reestimated.totalPoints
         
-        val todo = d.startingState.backlog.todo - diff.finished
+        val todo = d.startingState.backlog.todo - diff.finished.totalPoints
         
         val x = if(addedThisIteration<0){
           (todo+addedThisIteration, 0)
@@ -132,7 +132,7 @@ class IterationBarChartResource (data:Data, clock:Clock) extends HttpObject("/ap
             extras=Map(),
             start=d.bounds.start.getMillis(),
             end=d.bounds.end.getMillis(),
-            finished=diff.finished,
+            finished=diff.finished.totalPoints,
             whenProjectedComplete=whenProjectedComplete) 
       }
       
