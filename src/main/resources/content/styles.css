@@ -26,7 +26,7 @@
 
 .backlog-list-section .header {
   padding:5px;
-	
+
 }
 .backlog-list-entry, .teams-list-entry{
   margin:10px;
@@ -38,13 +38,24 @@ img.chart {
 	width:100%;
 }
 
+.velocity-div {
+    margin-bottom: 1em;
+}
+
 .floatingHeader {
+  padding: 1em;
+  width:96%;
   position: fixed;
   top: 0;
   opacity:1;
   background:white;
   z-index:1000;
-  box-shadow: rgb(136, 136, 136) 10px 10px 5px;
+  box-shadow: rgb(204,204,204) 5px 5px 5px;
+  border-left: 1px solid rgb(204,204,204);
+}
+
+div.buttons {
+    margin: 1em;
 }
 
 #summary {
@@ -73,7 +84,7 @@ div.project-chunk {
 	line-height: 0;
 	height: 0;
 }
- 
+
 .clearfix {
 	display: inline-block;
 }
@@ -137,7 +148,7 @@ img.edit-icon, img.delete-icon, img.finished-icon {
 }
 
 img.edit-icon, img.delete-icon, img.add-icon, img.finished-icon{
-	
+
 	height:30px;
 	width:30px;
 	margin:2px;
@@ -166,16 +177,14 @@ div.backlog {
 
 .commit-message {
   border:2px solid grey;
-  height:40px;
   width:100%;
   height:10em;
+  margin-bottom: 1em;
 }
 
 #header {
-	
 	margin-bottom:10px;
 }
-
 
 div.item div.estimates-holder {
 	text-align: right;
@@ -191,6 +200,7 @@ div.item div.controls {
 }
 
 #title {
+    padding: .3em 0;
 	display:inline-block;
 	font-weight: bold;
 	font-size: 2em;
@@ -202,8 +212,6 @@ div.item div.controls {
 }
 
 .hide-button, .toggle-burndown-button {
-    margin-left:10px;
-    margin-bottom:10px;
     float:right;
 }
 
@@ -218,7 +226,6 @@ div.item div.controls {
   border:4px solid green;
   background: green;
 }
-
 
 /* THE CHART STUFF */
 div.chart {

@@ -8,9 +8,9 @@
 		<script type="text/javascript" data-main="backlog" src="/scripts/require.js"></script>
 	</head>
 	<body>
-	<div class="floatingHeader" style="visibility:hidden;width:100%;">
+	<div class="floatingHeader" style="visibility:hidden;">
 	   <img class="chart"></img>
-		<div>
+		<div class="buttons">
                 <button style="display:none;" class="save-button">Publish</button>
                 <button style="display:none;" class="add-story-button">Add Story</button>
                 <button style="display:none;" class="add-epic-button">Add Epic</button>
@@ -21,8 +21,7 @@
 		</div>
 	</div>
 	<div id="top">
-			
-			<div id="header" style="margin:10px;">
+        <div id="header" style="margin:10px;">
         <div>
               <div id="slider"></div>
           <span id="title"></span>
@@ -33,11 +32,11 @@
 				   <div class="memo-text"></div>
                    <div id="summary" style="white-space: pre;margin-bottom: 35px;"></div>
 				</div>
-				
-				
-				
+
+
+
 			  <img class="chart" ></img>
-			  
+              <div class="buttons">
                 <button style="display:none;" class="save-button">Publish</button>
                 <button style="display:none;" class="add-story-button">Add Story</button>
                 <button style="display:none;" class="add-epic-button">Add Epic</button>
@@ -46,19 +45,20 @@
                 <button class="hide-button">Finished Stories</button>
                 <button class="stats-button">Stats</button>
                 <button class="edit-button">Edit</button>
+            </div>
 			</div>
         <div class="commit-dialog" style="display:none;">
              <div>
              <h2>Change Summary:</h2>
              <pre class="summaries"></pre>
              </div>
-             <div><h2>Change Memo</h2><textarea placeholder="Short explanation of why you made these changes." class="commit-message"></textarea></div> 
-             <button class="cancel-button">Cancel</button> 
-             <button class="publish-button">Publish</button> 
+             <div><h2>Change Memo</h2><textarea placeholder="Short explanation of why you made these changes." class="commit-message"></textarea></div>
+             <button class="cancel-button">Cancel</button>
+             <button class="publish-button">Publish</button>
         </div>
 	</div>
 	<div class="backlog">
-	
+
 	</div>
 	<script type="text/javascript">
 	require(["jquery"], function($){
@@ -68,7 +68,8 @@
 		            offset         = el.offset(),
 		            scrollTop      = $(window).scrollTop(),
 		            floatingHeader = $(".floatingHeader")
-		        console.log(floatingHeader.length);
+		        //console.log(scrollTop + " >? " + (offset.top - floatingHeader.height()));
+
 		        if ((scrollTop > (offset.top - floatingHeader.height())) ) {
 		            floatingHeader.css({
 		             "visibility": "visible"
@@ -76,20 +77,20 @@
 		        } else {
 		            floatingHeader.css({
 		             "visibility": "hidden"
-		            });      
+		            });
 		        };
 		 }
-		
-		// DOM Ready      
+
+		// DOM Ready
 		$(function() {
 
 		   $(window)
 		    .scroll(updateFloatingChart)
 		    .trigger("scroll");
-		   
+
 		});
 	});
-	
+
 	</script>
 	</body>
 </html>
