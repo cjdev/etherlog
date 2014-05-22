@@ -329,42 +329,32 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
         
         var changesSinceLastPublishedVersion = fetchChanges("in-" + backlog.optimisticLockVersion);
         
-        var averageVelocityText = "";
-        var weekSpans = [2, 6, 12];
-        _.each(weekSpans, function(numWeeks){
-            var nWeeksAgo = formatLongDateTime(when - (1000 * 60 * 60* 24 * 7 * numWeeks));
-            var changesOverPastNWeeks = fetchChanges("from-" + nWeeksAgo + "-to-" + formatLongDateTime(when));
-            var averageVelocity;
-            if(changesOverPastNWeeks){
-                averageVelocity = (changesOverPastNWeeks.finished.totalPoints / numWeeks).toFixed(2);
-            }else{
-                averageVelocity = "[not enough info]";
-            }
-            averageVelocityText += "\n" + numWeeks + " week average weekly velocity: " + averageVelocity;
-        });
+        var summaryText;
+        if(changesSinceLastPublishedVersion){
+            var averageVelocityText = "";
+            var weekSpans = [2, 6, 12];
+            _.each(weekSpans, function(numWeeks){
+                var nWeeksAgo = formatLongDateTime(when - (1000 * 60 * 60* 24 * 7 * numWeeks));
+                var changesOverPastNWeeks = fetchChanges("from-" + nWeeksAgo + "-to-" + formatLongDateTime(when));
+                var averageVelocity;
+                if(changesOverPastNWeeks){
+                    averageVelocity = (changesOverPastNWeeks.finished.totalPoints / numWeeks).toFixed(2);
+                }else{
+                    averageVelocity = "[not enough info]";
+                }
+                averageVelocityText += "\n" + numWeeks + " week average weekly velocity: " + averageVelocity;
+            });
+            
+            
+            summaryText = renderChanges(changesSinceLastPublishedVersion) + "\n" + 
+                    "TODO: " + printStuff(totalsTodo) + "\n" + 
+                    'DONE: ' + printStuff(calculateTotals(itemsDone)) + "\n" + 
+                    averageVelocityText;
+        }else{
+            summaryText = "";
+        }
         
-        
-        view.summaryTextArea.text(
-                renderChanges(changesSinceLastPublishedVersion) + "\n" + 
-                "TODO: " + printStuff(totalsTodo) + "\n" + 
-                'DONE: ' + printStuff(calculateTotals(itemsDone)) + "\n" + 
-                averageVelocityText);
-        
-//        http({
-//            url:"/api/backlogs/" + backlog.id + "/deltas/in-" + backlog.optimisticLockVersion,
-//            method: "GET",
-//            onResponse: function (response) {
-//                var changes = JSON.parse(response.body);
-//                
-//                view.summaryTextArea.text(
-//                        renderChanges(changes) + "\n" + 
-//                        "TODO: " + printStuff(totalsTodo) + "\n" + 
-//                        'DONE: ' + printStuff(calculateTotals(itemsDone)));
-//                
-//            }
-//        });
-        
-        
+        view.summaryTextArea.text(summaryText);
     }
     
     function fetchChanges(expression){
