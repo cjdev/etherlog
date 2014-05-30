@@ -29,7 +29,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
     }
     
     function goToByScroll(id){
-        $('html,body').animate({scrollTop: $(id).offset().top - $('img.chart').height()},'slow');
+        $('html,body').animate({scrollTop: $(id).offset().top - $('.chart').height()},'slow');
     }
     var hash = window.location.hash;
     console.log("hash is " + hash);
@@ -861,7 +861,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
 
     view.toggleBurndownButton.button().click(
         function () {
-            $("img.chart").slideToggle();
+            $(".chart").slideToggle();
         }
     );
     
@@ -1084,10 +1084,21 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
             if(when){
                 url = url+"&end=" + when + "&showLatestEvenIfWip=true";
             }
+            var height = $(".chart").height();
+            
+            if(height>30) $(".chart").css("height", height);
+            $(".chart").html("");
+            
+            $.ajax(url, {
+                dataType:"text",
+                success:function(data){
+                    console.log("data", data);
+                    $(".chart").html(data);
+                    monitor.done();
+                }
+            });
 
-            $("img.chart").attr("src", url);
             $("a.permalink").attr("href", url);
-            monitor.done();
         }
 
         function refresh(){

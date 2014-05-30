@@ -9,7 +9,7 @@
 	</head>
 	<body>
 	<div class="floatingHeader" style="visibility:hidden;">
-	   <img class="chart"></img>
+	   <div class="chart"></div>
 		<div class="buttons">
                 <button style="display:none;" class="save-button">Publish</button>
                 <button style="display:none;" class="add-story-button">Add Story</button>
@@ -31,11 +31,12 @@
 				<div class="details" style="display:none;">
 				   <div class="memo-text"></div>
                    <div id="summary" style="white-space: pre;margin-bottom: 35px;"></div>
+                   <a class="permalink">Chart Permalink</a>
 				</div>
 
 
 
-			  <img class="chart" ></img>
+       <div class="chart"></div>
               <div class="buttons">
                 <button style="display:none;" class="save-button">Publish</button>
                 <button style="display:none;" class="add-story-button">Add Story</button>
@@ -49,8 +50,8 @@
 			</div>
         <div class="commit-dialog" style="display:none;">
              <div>
-             <h2>Change Summary:</h2>
-             <pre class="summaries"></pre>
+                <h2>Change Summary:</h2>
+                <pre class="summaries"></pre>
              </div>
              <div><h2>Change Memo</h2><textarea placeholder="Short explanation of why you made these changes." class="commit-message"></textarea></div>
              <button class="cancel-button">Cancel</button>

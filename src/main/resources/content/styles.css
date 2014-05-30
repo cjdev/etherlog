@@ -34,7 +34,7 @@
   list-style-type:none;
 }
 
-img.chart {
+.chart {
 	width:100%;
 }
 
@@ -167,10 +167,6 @@ div.divider {
   font-style:italic;
 }
 
-img.burndown-chart {
-  float:right;
-}
-
 div.backlog {
   display:inline-block;
   width:100%;
@@ -229,10 +225,11 @@ div.item div.controls {
 }
 
 /* THE CHART STUFF */
-div.chart {
+.chart {
    margin:20px;
 }
-svg {
-   border:2px solid grey;
+.chart svg {
+   border:0px solid grey;
    width:100%;
+   max-height:300px;
 }
