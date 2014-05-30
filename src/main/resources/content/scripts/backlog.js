@@ -881,7 +881,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
                 previousGoal = item;
             } else if(item.kind!="story" || !item.isComplete){
                 console.log("Not a story", item);
-                finishedGoals.push(previousGoal);
+                if(previousGoal) finishedGoals.push(previousGoal);
                 break;
             } else {
                 console.log("finished story", item);
@@ -966,7 +966,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
         
         var middleId = middleItem(idsOfItemsInView);
         
-        var middlePos = undefined;
+        var middlePos = undefined;$
         for (x=0;x<widgets.length;x++){
             var next = widgets[x];
             if(next.id == middleId) {
