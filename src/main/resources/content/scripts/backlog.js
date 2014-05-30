@@ -864,6 +864,8 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
             $("img.chart").slideToggle();
         }
     );
+    
+    
     view.hideButton.button().click(
         function () {
             var finishedDivs, relatedDropZones;
@@ -872,7 +874,9 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
             relatedDropZones = finishedDivs.map(function(idx, i){return $("#dropZone" + $(i).attr('id'));});
             
             finishedDivs.slideToggle();
-            relatedDropZones.slideToggle();
+            relatedDropZones.each(function (idx, i){
+              i.slideToggle();
+            });
         }
     );
 
