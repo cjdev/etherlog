@@ -865,7 +865,13 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
     );
     view.hideButton.button().click(
         function () {
-            $(".finished").slideToggle();
+            var finishedDivs, relatedDropZones;
+            
+            finishedDivs = $(".finished");
+            relatedDropZones = finishedDivs.map(function(idx, i){return $("#dropZone" + $(i).attr('id'));});
+            
+            finishedDivs.slideToggle();
+            relatedDropZones.slideToggle();
         }
     );
 
