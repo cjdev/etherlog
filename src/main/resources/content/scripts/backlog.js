@@ -865,15 +865,44 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
         }
     );
     
+
+    // goals that have only finished items between them and the next goal
+    function detectLeadingFinishedGoals(){
+        var finishedGoals = [];
+        var previousGoal = undefined;
+        for(x=0;x<backlog.items.length;x++){
+            var item = backlog.items[x];
+            if(item.kind=="goal"){
+                console.log("found goal", item);
+                if(previousGoal){
+                    console.log("goal was finished", previousGoal);
+                   finishedGoals.push(previousGoal);
+                }
+                previousGoal = item;
+            } else if(item.kind!="story" || !item.isComplete){
+                console.log("Not a story", item);
+                finishedGoals.push(previousGoal);
+                break;
+            } else {
+                console.log("finished story", item);
+            }
+        }
+        return finishedGoals;
+    }
     
     view.hideButton.button().click(
         function () {
-            var finishedDivs, relatedDropZones;
+            var finishedDivs, relatedDropZones, finishedGoals;
             
             finishedDivs = $(".finished");
             relatedDropZones = finishedDivs.map(function(idx, i){return $("#dropZone" + $(i).attr('id'));});
             
+            finishedGoals = _.map(detectLeadingFinishedGoals(), function(goal){return $("#" + goal.id);});
+            
             finishedDivs.slideToggle();
+            $.each(finishedGoals, function (idx, i){
+              i.slideToggle();
+            });
             relatedDropZones.each(function (idx, i){
               i.slideToggle();
             });
