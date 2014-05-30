@@ -816,7 +816,8 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
         return {
             showEditMode:showEditMode,
             showEditableMode:showEditableMode,
-            scrollTo:scrollTo
+            scrollTo:scrollTo,
+            id:item.id
         };
     }
 
@@ -896,19 +897,67 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
     });
 
 
+
+    /**
+     * http://ejohn.org/blog/getboundingclientrect-is-awesome/
+     */
+    function isElementInViewport (el) {
+        //special bonus for those using jQuery
+        if (el instanceof jQuery) {
+            el = el[0];
+        }
+
+        var rect = el.getBoundingClientRect();
+
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+        );
+    }
+    function onlyVisible(items) {
+        return items.filter(function(idx, i){
+        return isElementInViewport(i);
+        });
+    }
+    
+    
     function addNewItem(item){
 
-        DropZone(item.id, view.backlog);
-        const widget = ItemWidget(item, view.backlog);
-        widget.showEditMode();
-        widgets.push(widget);
-        backlog.items.push(item);
+        var idsOfItemsInView = onlyVisible($(".item")).map(function (){return $(this).attr("id");});
+        
+        function middleItem(array){
+            return array[Math.floor(array.length /2)];
+        }
+        
+        var middleId = middleItem(idsOfItemsInView);
+        
+        var middlePos = undefined;
+        for (x=0;x<widgets.length;x++){
+            var next = widgets[x];
+            if(next.id == middleId) {
+                middlePos = x;
+            }
+        }
+        
+         DropZone(item.id, view.backlog);
+         const widget = ItemWidget(item, view.backlog);
+         
+         // jump through some hoops to move the thing to the middle of the page & backlog
+         widgets.splice(middlePos, 0, widget);
+         backlog.items.splice(middlePos, 0, item);
 
-        widget.scrollTo();
-
-        sendWorkInProgress();
+         var foo = $("#" + middleId);
+         var dz = $("#dropZone" + item.id);
+         dz.insertAfter(foo);
+         $("#" + item.id).insertAfter(dz);
+         
+         widget.showEditMode();
+         sendWorkInProgress();
     }
-
+    
+    
     view.addStoryButton.button().click(function(){
         addNewItem({
             id:uuid(),
