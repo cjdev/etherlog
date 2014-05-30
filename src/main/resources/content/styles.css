@@ -173,6 +173,7 @@ img.burndown-chart {
 
 div.backlog {
   display:inline-block;
+  width:100%;
 }
 
 .commit-message {
