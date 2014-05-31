@@ -1,9 +1,14 @@
-etherlog
+a backlog tool for agile teams
 ========
 
-Bare-bones backlog editor.
+TeamStory is a tool that helps agile teams ...
+  * maintain a backlog
+  * communicate with stakeholders
+  * retrospect
 
-GOALS: 
+
+initial design goals: 
+========
 
 1. create a usable place for product owners and teams to maintain a backlog that 
     * keeps ALL backlog history
