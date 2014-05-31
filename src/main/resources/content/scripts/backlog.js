@@ -890,24 +890,32 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
         return finishedGoals;
     }
     
-    view.hideButton.button().click(
-        function () {
-            var finishedDivs, relatedDropZones, finishedGoals;
-            
-            finishedDivs = $(".finished");
-            relatedDropZones = finishedDivs.map(function(idx, i){return $("#dropZone" + $(i).attr('id'));});
-            
-            finishedGoals = _.map(detectLeadingFinishedGoals(), function(goal){return $("#" + goal.id);});
-            
-            finishedDivs.slideToggle();
-            $.each(finishedGoals, function (idx, i){
-              i.slideToggle();
-            });
-            relatedDropZones.each(function (idx, i){
+    function toggleFinished(){
+
+        var finishedStories, finishedGoals, relatedDropZones;
+        
+        function findRelatedDropZones(listOfDivs){
+            return _.map(listOfDivs, function(i){return $("#dropZone" + $(i).attr('id'));});
+        }
+
+        function toggleEach(listOfJQueries){
+            $.each(listOfJQueries, function (idx, i){
               i.slideToggle();
             });
         }
-    );
+        
+        finishedStories = $(".finished");
+        finishedGoals = _.map(detectLeadingFinishedGoals(), function(goal){return $("#" + goal.id);});
+        relatedDropZones = findRelatedDropZones(finishedStories).concat(findRelatedDropZones(finishedGoals));
+        
+        finishedStories.slideToggle();
+        
+        toggleEach(finishedGoals);
+        toggleEach(relatedDropZones);
+        
+    }
+    
+    view.hideButton.button().click(toggleFinished);
 
     view.statsButton.button().click(
         function () {
@@ -1111,7 +1119,6 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
         }
     }());
 
-    showCurrentVersion();
-
+    showCurrentVersion(toggleFinished);
 
 });
