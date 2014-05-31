@@ -1095,7 +1095,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
             var height = $(".chart").height();
             
             if(height>30) $(".chart").css("height", height);
-            $(".chart").html("");
+//            $(".chart").html("");
             
             $.ajax(url, {
                 dataType:"text",
