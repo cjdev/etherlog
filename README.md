@@ -7,6 +7,8 @@ TeamStory is a tool that helps agile teams ...
   * retrospect
 
 
+For more, see [teamstory.us](http://teamstory.us)
+
 initial design goals: 
 ========
 
