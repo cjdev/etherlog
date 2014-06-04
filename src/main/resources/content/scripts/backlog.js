@@ -1120,9 +1120,12 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
             $(".chart").hide();
             $(hash).css("border", "5px solid yellow");
             
-            goToByScroll(hash, function(){
+            var scrollToHash = _.partial(goToByScroll, hash);
+            
+            scrollToHash(function(){
                 // now scroll again, just in case the floating header is occluding our target
-                goToByScroll(hash);
+                var hackyTimeout = 1000; // <-- HACK!
+                setTimeout(scrollToHash, hackyTimeout);
             });
         }else{
             toggleFinished();
