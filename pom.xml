@@ -36,7 +36,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.cj.etherlog.Etherlog</mainClass>
+                            <mainClass>org.teamstory.TeamStory</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
