@@ -28,18 +28,6 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
         }
     }
     
-    function goToByScroll(id){
-        $('html,body').animate({scrollTop: $(id).offset().top - $('.chart').height()},'slow');
-    }
-    var hash = window.location.hash;
-    console.log("hash is " + hash);
-    if(hash) {
-        setTimeout(function(){
-            goToByScroll(hash);
-            goToByScroll(hash);
-        },800);
-    }
-    
     var widgets = [];
     
     where = $("body");
@@ -1119,6 +1107,27 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
         }
     }());
 
-    showCurrentVersion(toggleFinished);
+    showCurrentVersion(function(){
+        
+        function goToByScroll(id){
+            $('html,body').animate({scrollTop: $(id).offset().top - $('.chart').height()},'slow');
+        }
+
+        var hash = window.location.hash;
+        
+        if(hash) {
+            $(".chart").hide();
+            $(hash).css("border", "5px solid yellow");
+            
+            setTimeout(function(){
+                $(hash).animate({"border-width":0}, 1000);
+            }, 4000);
+            
+            goToByScroll(hash);
+        }else{
+            toggleFinished();
+        }
+        
+    });
 
 });
