@@ -1109,8 +1109,9 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
 
     showCurrentVersion(function(){
         
-        function goToByScroll(id){
-            $('html,body').animate({scrollTop: $(id).offset().top - $('.chart').height()},'slow');
+        function goToByScroll(id, fn){
+            var props = {scrollTop: $(id).offset().top - $('.chart').height()};
+            $('html,body').animate(props,'slow', undefined, fn);
         }
 
         var hash = window.location.hash;
@@ -1119,11 +1120,10 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
             $(".chart").hide();
             $(hash).css("border", "5px solid yellow");
             
-            setTimeout(function(){
-                $(hash).animate({"border-width":0}, 1000);
-            }, 4000);
-            
-            goToByScroll(hash);
+            goToByScroll(hash, function(){
+                // now scroll again, just in case the floating header is occluding our target
+                goToByScroll(hash);
+            });
         }else{
             toggleFinished();
         }
