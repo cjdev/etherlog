@@ -34,8 +34,8 @@ class DefaultChartTest {
     def realisticTimes(){
       // given
       val input = Seq[StatsLogEntry](
-              StatsLogEntry(version="1", when=1364053894008L, memo="", todo=3, done=0),
-              StatsLogEntry(version="2", when=1364071916138L, memo="", todo=1, done=2)
+              StatsLogEntry(version="1", when=1364053894008L, memo="", team=3, nonTeam=0, done=0),
+              StatsLogEntry(version="2", when=1364071916138L, memo="", team=1, nonTeam=0, done=2)
       )
       
       // when
@@ -63,8 +63,8 @@ class DefaultChartTest {
     def twoItemsAndGoals(){
       // given
       val input = Seq[StatsLogEntry](
-              StatsLogEntry(version="1", when=1, memo="", todo=3, done=0),
-              StatsLogEntry(version="2", when=2, memo="", todo=1, done=2)
+              StatsLogEntry(version="1", when=1, memo="", team=3, nonTeam=0, done=0),
+              StatsLogEntry(version="2", when=2, memo="", team=1, nonTeam=0, done=2)
       )
       
       // when
@@ -94,9 +94,9 @@ class DefaultChartTest {
     def threeItems(){
       // given
       val input = Seq[StatsLogEntry](
-              StatsLogEntry(version="1", when=1, memo="", todo=3, done=0),
-              StatsLogEntry(version="2", when=2, memo="", todo=2, done=1),
-              StatsLogEntry(version="3", when=3, memo="", todo=0, done=3)
+              StatsLogEntry(version="1", when=1, memo="", team=3, nonTeam=0, done=0),
+              StatsLogEntry(version="2", when=2, memo="", team=2, nonTeam=0, done=1),
+              StatsLogEntry(version="3", when=3, memo="", team=0, nonTeam=0, done=3)
       )
       val projections =Seq(ChartProjection(
                           from=new Instant(3),
@@ -113,7 +113,6 @@ class DefaultChartTest {
 //      writeToFile(expected, new File("/tmp/expected.svg"))
       
       assertEquals(expected, svg)
-      
     }
      
     
@@ -122,8 +121,8 @@ class DefaultChartTest {
     def burndownLineFollowsAScopeDecreaseWithNothingDone(){
       // given
       val input = Seq[StatsLogEntry](
-              StatsLogEntry(version="1", when=1, memo="", todo=10, done=0),
-              StatsLogEntry(version="2", when=2, memo="", todo=5, done=0)
+        StatsLogEntry(version = "1", when = 1, memo = "", team = 10, nonTeam = 0, done = 0),
+        StatsLogEntry(version = "2", when = 2, memo = "", team = 5, nonTeam = 0, done = 0)
       )
       
       val projections =Seq(ChartProjection(
@@ -149,8 +148,8 @@ class DefaultChartTest {
     def burndownLineFollowsAScopeDecreaseWithSomethingDone(){
       // given
       val input = Seq[StatsLogEntry](
-              StatsLogEntry(version="1", when=1, memo="", todo=10, done=0),
-              StatsLogEntry(version="2", when=2, memo="", todo=5, done=3)
+              StatsLogEntry(version="1", when=1, memo="", team=10, nonTeam=0, done=0),
+              StatsLogEntry(version="2", when=2, memo="", team=5, nonTeam=0, done=3)
       )
       
       val projections =Seq(ChartProjection(

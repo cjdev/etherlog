@@ -1,4 +1,4 @@
-package org.teamstory.data
+package org.teamstory.datas
 
 import org.junit.Test
 import org.junit.Test
@@ -24,11 +24,11 @@ class BacklogVersionTest {
     // then
     val expected = Delta(from=before.versionNameAndTime, 
                          to=after.versionNameAndTime, 
-                         added=Foobar(Seq(), 0), 
-                         removed=Foobar(Seq(), 0), 
-                         finished=Foobar(Seq(), 0),
-                         reopened=Foobar(Seq(), 0),
-                         reestimated=Foobar(Seq(), 0))
+                         added=ItemGroupSynopsis(Seq(), 0), 
+                         removed=ItemGroupSynopsis(Seq(), 0), 
+                         finished=ItemGroupSynopsis(Seq(), 0),
+                         reopened=ItemGroupSynopsis(Seq(), 0),
+                         reestimated=ItemGroupSynopsis(Seq(), 0))
                          
     Assert.assertEquals(expected, diff)
   }
@@ -49,11 +49,11 @@ class BacklogVersionTest {
     // then
     val expected = Delta(from=before.versionNameAndTime, 
                          to=after.versionNameAndTime, 
-                         added=Foobar(Seq(ItemIdAndShortName(epic.id, "Do Something")), 1), 
-                         removed=Foobar(Seq(), 0), 
-                         finished=Foobar(Seq(), 0),
-                         reopened=Foobar(Seq(), 0),
-                         reestimated=Foobar(Seq(), 0))
+                         added=ItemGroupSynopsis(Seq(ItemIdAndShortName(epic.id, "Do Something")), 1), 
+                         removed=ItemGroupSynopsis(Seq(), 0), 
+                         finished=ItemGroupSynopsis(Seq(), 0),
+                         reopened=ItemGroupSynopsis(Seq(), 0),
+                         reestimated=ItemGroupSynopsis(Seq(), 0))
                          
     Assert.assertEquals(expected, diff)
   }
@@ -76,11 +76,11 @@ class BacklogVersionTest {
     // then
     val expected = Delta(from=before.versionNameAndTime, 
                          to=after.versionNameAndTime, 
-                         added=Foobar(Seq(), 0), 
-                         removed=Foobar(Seq(ItemIdAndShortName(epic.id, "Do Something")), 1), 
-                         finished=Foobar(Seq(), 0),
-                         reopened=Foobar(Seq(), 0),
-                         reestimated=Foobar(Seq(), 0))
+                         added=ItemGroupSynopsis(Seq(), 0), 
+                         removed=ItemGroupSynopsis(Seq(ItemIdAndShortName(epic.id, "Do Something")), 1), 
+                         finished=ItemGroupSynopsis(Seq(), 0),
+                         reopened=ItemGroupSynopsis(Seq(), 0),
+                         reestimated=ItemGroupSynopsis(Seq(), 0))
                          
     Assert.assertEquals(expected, diff)
   }
@@ -102,11 +102,11 @@ class BacklogVersionTest {
     // then
     val expected = Delta(from=before.versionNameAndTime, 
                          to=after.versionNameAndTime, 
-                         added=Foobar(Seq(), 0), 
-                         removed=Foobar(Seq(), 0), 
-                         finished=Foobar(Seq(), 0),
-                         reopened=Foobar(Seq(), 0),
-                         reestimated=Foobar(Seq(), 0))
+                         added=ItemGroupSynopsis(Seq(), 0), 
+                         removed=ItemGroupSynopsis(Seq(), 0), 
+                         finished=ItemGroupSynopsis(Seq(), 0),
+                         reopened=ItemGroupSynopsis(Seq(), 0),
+                         reestimated=ItemGroupSynopsis(Seq(), 0))
                          
     Assert.assertEquals(expected, diff)
   }
@@ -143,11 +143,11 @@ class BacklogVersionTest {
     // then
     val expected = Delta(from=before.versionNameAndTime, 
                          to=after.versionNameAndTime, 
-                         added=Foobar(Seq(), 0), 
-                         removed=Foobar(Seq(), 0), 
-                         finished=Foobar(Seq(), 0),
-                         reopened=Foobar(Seq(), 0),
-                         reestimated=Foobar(Seq(ItemIdAndShortName(story.id, story.name)), 1))
+                         added=ItemGroupSynopsis(Seq(), 0), 
+                         removed=ItemGroupSynopsis(Seq(), 0), 
+                         finished=ItemGroupSynopsis(Seq(), 0),
+                         reopened=ItemGroupSynopsis(Seq(), 0),
+                         reestimated=ItemGroupSynopsis(Seq(ItemIdAndShortName(story.id, story.name)), 1))
                          
     Assert.assertEquals(expected, diff)
   }

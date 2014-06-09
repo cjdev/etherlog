@@ -30,9 +30,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.YearMonthDay
-import org.teamstory.datas.BacklogVersion
+import org.teamstory.datas.{DataImpl, BacklogVersion, Data}
 import org.teamstory.http.BacklogHistoryResource
-import org.teamstory.datas.Data
 import org.teamstory.Jackson._
 import org.teamstory.http.BacklogStatusResource
 import org.teamstory.http.DefaultChartResource
@@ -55,11 +54,11 @@ object TeamStory {
   def timeTravelModeIsActivated(args:Array[String]) = args.size >0 && args(0) == "enableTimeTravel"
     
   def main(args: Array[String]) {
-    val data = new Data(new Path("data"))
+    val data = new DataImpl(new Path("data"))
     
     val clock = new FastForwardableClock(
                         configDb=data,
-                        enableTimeTravel = timeTravelModeIsActivated(args));
+                        enableTimeTravel = timeTravelModeIsActivated(args))
     
     val service = new Service(data, clock)
     
@@ -91,7 +90,7 @@ object TeamStory {
         "/backlog/{backlogId}" -> new ClasspathResourceObject("/backlog/{backlogId}", "/content/backlog.html", getClass()),
         "/team/{teamName}" -> new ClasspathResourceObject("/team/{teamName}", "/content/team.html", getClass()),
         "/{resource*}" -> new ClasspathResourcesObject("/{resource*}", getClass(), "/content")
-    );
+    )
     
     println("etherlog is alive and listening on port " + port);
   }

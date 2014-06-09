@@ -5,6 +5,9 @@
     viewBox="0 0 50 10">
      <style type="text/css" >
       <![CDATA[
+        .swag {
+            fill: yellow;
+        }
         .todo {
             fill:blue;
         }
@@ -30,18 +33,18 @@
             stroke:grey;
             stroke-width:.01
         }
-    
+
         nowLine {
             stroke:red;
             stroke-width:.05
         }
-        
+
         .dot {
             stroke:black;
             stroke-width:.01;
             fill:black;
         }
-        
+
         .projection, .old-projection {
             stroke:black;
             stroke-width:.05;
@@ -54,7 +57,7 @@
             stroke-width:.05;
         }
         .goal-label {
-            
+
             font-size:.35pt;
             font-family:sans-serif;
         }
@@ -62,12 +65,16 @@
     </style>
   <polygon points="17.333333333333332,2.0 17.333333333333332,4.0" class="done-right-edge"/>
   <polygon points="17.333333333333332,8.0 17.333333333333332,4.0" class="todo-right-edge"/>
+  <polygon points="17.333333333333332,8.0 17.333333333333332,8.0" class="swag-right-edge"/>
   <polygon points="2.0,2.0 17.333333333333332,2.0 17.333333333333332,4.0 2.0,2.0" class="done"/>
   <polygon points="2.0,2.0 2.0,8.0 17.333333333333332,8.0 17.333333333333332,4.0" class="todo"/>
+  <polygon points="2.0,8.0 2.0,8.0 17.333333333333332,8.0 17.333333333333332,8.0" class="swag"/>
   <polygon points="32.666666666666664,2.0 32.666666666666664,8.0" class="done-right-edge"/>
   <polygon points="32.666666666666664,8.0 32.666666666666664,8.0" class="todo-right-edge"/>
+  <polygon points="32.666666666666664,8.0 32.666666666666664,8.0" class="swag-right-edge"/>
   <polygon points="17.333333333333332,2.0 32.666666666666664,2.0 32.666666666666664,8.0 17.333333333333332,4.0" class="done"/>
   <polygon points="17.333333333333332,4.0 17.333333333333332,8.0 32.666666666666664,8.0 32.666666666666664,8.0" class="todo"/>
+  <polygon points="17.333333333333332,8.0 17.333333333333332,8.0 32.666666666666664,8.0 32.666666666666664,8.0" class="swag"/>
   <line y1="6.0" x1="0" y2="6.0" x2="48.0" />
   <text x="0" y="6.0" >1</text>
   <line y1="4.0" x1="0" y2="4.0" x2="48.0" />

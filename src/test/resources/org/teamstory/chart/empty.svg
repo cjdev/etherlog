@@ -5,6 +5,9 @@
     viewBox="0 0 50 10">
      <style type="text/css" >
       <![CDATA[
+        .swag {
+            fill: yellow;
+        }
         .todo {
             fill:blue;
         }
@@ -30,18 +33,18 @@
             stroke:grey;
             stroke-width:.01
         }
-    
+
         nowLine {
             stroke:red;
             stroke-width:.05
         }
-        
+
         .dot {
             stroke:black;
             stroke-width:.01;
             fill:black;
         }
-        
+
         .projection, .old-projection {
             stroke:black;
             stroke-width:.05;
@@ -54,7 +57,7 @@
             stroke-width:.05;
         }
         .goal-label {
-            
+
             font-size:.35pt;
             font-family:sans-serif;
         }

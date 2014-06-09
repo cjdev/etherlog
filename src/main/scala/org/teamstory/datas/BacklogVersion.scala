@@ -64,10 +64,10 @@ case class BacklogVersion(
        }
     }
     
-    def sumEstimates(items:Seq[Item]):Foobar = {
+    def sumEstimates(items:Seq[Item]):ItemGroupSynopsis = {
       val bestEstimates = items.flatMap(_.bestEstimate)
       val sum = bestEstimates.foldLeft(0)(_+_)
-      Foobar(items.map(_.toIdAndShortName), sum)
+      ItemGroupSynopsis(items.map(_.toIdAndShortName), sum)
     }
     
     val allItemIds = (change.backlog.items.map(_.id).toList ::: prev.backlog.items.map(_.id).toList).distinct
@@ -112,7 +112,7 @@ case class BacklogVersion(
         removed=sumEstimates(removed), 
         finished=sumEstimates(finished), 
         reopened = sumEstimates(reopened),
-        reestimated = Foobar(changedItems, estimateIncreases))
+        reestimated = ItemGroupSynopsis(changedItems, estimateIncreases))
     
   }
 }

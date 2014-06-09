@@ -232,7 +232,6 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
                     var changes = JSON.parse(response.body);
                     
                     view.find(".summaries").text(renderChanges(changes));
-                    
                 }
             });
             toggleStuff();
