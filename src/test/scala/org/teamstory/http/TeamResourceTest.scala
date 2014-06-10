@@ -1,16 +1,14 @@
 package org.teamstory.http
 
-import org.junit.Test
 import org.httpobjects.test.MockRequest
 import org.httpobjects.{Response, Request}
-import org.junit.Assert._
 import org.teamstory.datas.{DataStub, DatabaseTrait, Data}
 import org.teamstory.api.TeamDto
+import org.scalatest.FunSuite
 
-class TeamResourceTest {
+class TeamResourceTest extends FunSuite {
 
-    @Test
-    def happy() {
+    test("happy") {
         val data:Data  = new DataStub() {
             override val teams: DatabaseTrait[TeamDto] = new DatabaseTrait[TeamDto]() {
                 override def get(id: String)(implicit manifest: Manifest[TeamDto]): TeamDto = {
@@ -23,11 +21,11 @@ class TeamResourceTest {
                 def scan(fn:(String, TeamDto)=>Unit)(implicit manifest:Manifest[TeamDto]) = ()
             }
         
-        };
+        }
         val teamResource: TeamResource = new TeamResource(data, null)
         val request: Request = new MockRequest(teamResource, "/api/team/8")
         val response: Response = teamResource.get(request)
 
-        assertEquals(200, response.code().value())
+        assert(200 === response.code().value())
     }
 }
