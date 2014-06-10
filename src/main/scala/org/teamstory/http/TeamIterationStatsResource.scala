@@ -69,7 +69,7 @@ class TeamIterationStatsResource (data:Data, clock:Clock) extends HttpObject("/a
       
       def publishedVersions = allVersions.filter(_.backlog.memo!="wip")
       
-      val iterationsThisYear = iterationsStarting(new YearMonthDay(2014, 01, 01).toDateMidnight().toInstant()).take(25)
+      val iterationsThisYear = iterationsStarting(new YearMonthDay(2014, 1, 1).toDateMidnight().toInstant()).take(25)
 //      val iterationsThisYear = iterationsFromTeamInfo(data.teams.toStream.head)
       
       println("Iterations: " + iterationsThisYear)

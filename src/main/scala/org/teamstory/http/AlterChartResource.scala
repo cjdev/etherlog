@@ -65,7 +65,7 @@ class IterationBarChartResource (data:Data, clock:Clock) extends HttpObject("/ap
       
       
       
-      val iterationsThisYear = iterationsStarting(new YearMonthDay(2014, 01, 01)).take(25)
+      val iterationsThisYear = iterationsStarting(new YearMonthDay(2014, 1, 1)).take(25)
       
       
       val deltas = iterationsThisYear.filter(_.start.isBefore(end)).flatMap{iteration=>
