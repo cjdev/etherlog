@@ -20,7 +20,7 @@ object DefaultChart {
     val rightMargin = 2
   
     val nHeight = stats.size match {
-      case 0 => 1 // so there is some height to the chart, even when no data
+      case 0 => 0
       case _ => stats.map(entry => entry.done + entry.todo).max
     }
 
