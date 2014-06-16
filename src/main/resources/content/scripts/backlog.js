@@ -946,7 +946,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
     }
     function onlyVisible(items) {
         return items.filter(function(idx, i){
-        return isElementInViewport(i);
+            return isElementInViewport(i) && $(i).is(":visible");
         });
     }
     
@@ -961,7 +961,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
         
         var middleId = middleItem(idsOfItemsInView);
         
-        var middlePos = undefined;$
+        var middlePos = undefined;
         for (x=0;x<widgets.length;x++){
             var next = widgets[x];
             if(next.id == middleId) {
