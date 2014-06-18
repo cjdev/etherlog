@@ -98,6 +98,7 @@
                         <path>src/main/resources/content</path>
                         <path>src/test/javascript</path>
                     </extraPathsToServe>
+                    <runner>htmlunit</runner>
                 </configuration>
             </plugin>
             
