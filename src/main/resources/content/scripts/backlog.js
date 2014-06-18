@@ -1,4 +1,4 @@
-define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryui, _, http, uuid){
+define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($, jqueryui, _, http, uuid, Util){
     
     const kindsInOrderOfPrecedence = ["team", "grooming", "swag"];
     
@@ -86,7 +86,6 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
             async:false,
             success:function(r){
                 millis = parseInt(r,10);
-                console.log("time is " + new Date(millis));
             }
         });
         
@@ -120,7 +119,6 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
                             updateSummary();
                             setTimeout(sendUpdate, 1000);
                         }else if(status===409){
-                            console.log(response.body);
                             alert("Looks like someone else is editing this behind our back!  We need to reload.");
                             window.location.reload();
                         }else{
@@ -171,7 +169,6 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
                 return "";
             }
         }
-        console.log("Summarizing", changes);
         var text=   summarize(changes.added, "Added Stories/Epics") + 
                     summarize(changes.removed,"Removed Stories/Epics") + 
                     summarize(changes.finished, "Completed stories") + 
@@ -203,7 +200,6 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
         }
         
         cancelButton.click(function(){
-            console.log("cancel clicked");
             closeDialog();
         });
         
@@ -255,25 +251,10 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
             totals[kind] = 0;
         });
 
-        function findBestEstimate(backlogItem){
-            var bestEstimate;
-            var estimates = backlogItem.estimates;
-            if(estimates){
-                $.each(kindsInOrderOfPrecedence, function(idx, kind){
-
-                    $.each(estimates, function(idx, estimate){
-                        if(!bestEstimate && estimate.currency === kind){
-                            bestEstimate = {type:estimate.currency, value:parseInt(estimate.value, 10)};
-                        }
-                    });
-                });
-            }
-            return bestEstimate;
-        }
         $.each(items, function(idx, item){
-            var bestEstimate = findBestEstimate(item);
+            var bestEstimate = Util.findMostRecentEstimate(item);
             if(bestEstimate){
-                totals[bestEstimate.type] = totals[bestEstimate.type] + bestEstimate.value;
+                totals[bestEstimate.currency] = totals[bestEstimate.currency] + parseInt(bestEstimate.value, 10);
             }
         });
         return totals;
@@ -430,7 +411,6 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
                         slide: function( event, ui ) {
                             var selection = ui.value;
                             var i = history[selection];
-                            console.log(ui.value + " " + i.version + "(" + i.memo + ") on " + i.when);
                             showVersion(i.version, i.when);
                         }
                     });
@@ -485,7 +465,6 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
 
         v.droppable({
             drop: function( event, ui ) {
-                console.log(lastDragged.name + " was dropped on " + id);
                 var subjectId = lastDragged.id;
                 moveItemBefore(subjectId, id);
                 hide();
@@ -517,7 +496,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
         };
 
         if(item.estimates && item.estimates.length > 0){
-            const estimate = item.estimates[item.estimates.length-1];
+            const estimate = Util.findMostRecentEstimate(item);
             view.currencies.val(estimate.currency);
             view.value.val(estimate.value);
         }
@@ -619,26 +598,16 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
 
         view.datePicker.datepicker().change(function(){
             item.when = view.datePicker.datepicker("getDate").getTime();
-            console.log("when changed to " + new Date(item.when) + " \n" + JSON.stringify(item));
             sendWorkInProgress();
         });
-
-        function compareEstimatesByWhen(a, b){
-            if(a.when === b.when){
-                return 0;
-            }else if (a.when > b.when){
-                return 1;
-            }else{
-                return -1;
-            }
-        }
-
+        
+        
         function mostRecentEstimateText(){
+        	
             var result;
-
-            if(item.estimates && item.estimates.length>0){
-                item.estimates.sort(compareEstimatesByWhen);
-                const mostRecentEstimate = item.estimates[item.estimates.length-1];
+            var mostRecentEstimate = Util.findMostRecentEstimate(item);
+            
+            if(mostRecentEstimate){
                 result = "(" + mostRecentEstimate.value + " " + mostRecentEstimate.currency + ")";
             }else{
                 result = "";
@@ -860,18 +829,13 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
         for(x=0;x<backlog.items.length;x++){
             var item = backlog.items[x];
             if(item.kind=="goal"){
-                console.log("found goal", item);
                 if(previousGoal){
-                    console.log("goal was finished", previousGoal);
                    finishedGoals.push(previousGoal);
                 }
                 previousGoal = item;
             } else if(item.kind!="story" || !item.isComplete){
-                console.log("Not a story", item);
                 if(previousGoal) finishedGoals.push(previousGoal);
                 break;
-            } else {
-                console.log("finished story", item);
             }
         }
         return finishedGoals;
@@ -1017,7 +981,6 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
             if(text === ""){
                 return undefined;
             } else if(WholeNumbers.test(text)){
-                console.log(text + " is a number");
                 return parseInt(text, 10);
             }else{
                 throw "NOT A NUMBER: " + text;
@@ -1082,12 +1045,10 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid"], function($, jqueryu
             var height = $(".chart").height();
             
             if(height>30) $(".chart").css("height", height);
-//            $(".chart").html("");
             
             $.ajax(url, {
                 dataType:"text",
                 success:function(data){
-                    console.log("data", data);
                     $(".chart").html(data);
                     monitor.done();
                 }
