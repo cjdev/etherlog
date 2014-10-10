@@ -1,9 +1,7 @@
 define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($, jqueryui, _, http, uuid, Util){
-    
     const kindsInOrderOfPrecedence = ["team", "grooming", "swag"];
-    
+
     var globalConfig;
-    
     http({
         url: "/api/config",
         method: "GET",
@@ -11,14 +9,12 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
             globalConfig = JSON.parse(response.body);
         }
     });
-    
+
     var backlog, where, lastDragged;
-    
     var when; // SUPERHACK!
     var latestVersion;
-    
     var backlogId = parseBacklogIdFromURL();
-    
+
     function parseBacklogIdFromURL(){
         var parts = window.location.toString().split("#")[0].split("/");
         if(parts.length>0){
@@ -27,11 +23,11 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
             return undefined;
         }
     }
-    
+
     var widgets = [];
-    
+
     where = $("body");
-    
+
     var activityMonitor = (function(){
         var view = $(".throbber");
         var items = [];
@@ -61,7 +57,9 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
     }());
 
     var view = {
+            titleSpan: where.find("#title-span"),
             title : where.find("#title"),
+            renameButton: where.find(".rename-icon"),
             backlog : where.find(".backlog"),
             slider : where.find("#slider"),
             summaryTextArea : where.find("#summary"),
@@ -79,7 +77,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
             velocityDiv : where.find(".velocity-div")
     };
 
-    
+
     function getTime(){
         var millis;
         $.ajax("/api/clock", {
@@ -88,7 +86,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
                 millis = parseInt(r,10);
             }
         });
-        
+
         return millis;
     }
 
@@ -103,9 +101,9 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
                 var monitor = activityMonitor.show();
                 readView();
                 backlog.memo = "work-in-progress";
-                
+
                 var newBacklogText = JSON.stringify(backlog);
-                
+
                 http({
                     url: "/api/backlogs/" + backlogId ,
                     method: "PUT",
@@ -137,13 +135,11 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
             setTimeout(sendUpdate, 1000);
         }
     }
-
     sendUpdate();
 
     function handleUnexpectedError(e){
-
         var error = e?e.toString():"null";
-        
+
         http({
             url: "/api/errors/" ,
             method: "POST",
@@ -159,50 +155,50 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
         activityMonitor.showUnknown();
         lastChange = getTime();
     }
-    
+
     function renderChanges(changes){
         function summarize(change, label){
             if(change.items.length>0){
-                return "             " + 
+                return "             " +
                         change.items.length + " " + label + " (" + change.totalPoints + " points)\n";
             }else{
                 return "";
             }
         }
-        var text=   summarize(changes.added, "Added Stories/Epics") + 
-                    summarize(changes.removed,"Removed Stories/Epics") + 
-                    summarize(changes.finished, "Completed stories") + 
-                    summarize(changes.reopened, "Reopened stories") + 
+        var text=   summarize(changes.added, "Added Stories/Epics") +
+                    summarize(changes.removed,"Removed Stories/Epics") +
+                    summarize(changes.finished, "Completed stories") +
+                    summarize(changes.reopened, "Reopened stories") +
                     summarize(changes.reestimated, "re-estimated stories/epics");
-        
+
         return text;
-        
+
     }
-    
+
     function CommitDialog(){
         var view = $(".commit-dialog"), publishButton, cancelButton;
-        
+
         publishButton = view.find(".publish-button").button();
         cancelButton = view.find(".cancel-button").button();
-        
+
         function toggleStuff(){
             $.each([".floatingHeader",  ".save-button", ".hide-button", ".velocity-div",
                     ".add-story-button", ".add-epic-button", ".add-goal-button"], function(idx, i){
                 $(i).toggle();
             });
         }
-        
+
         function closeDialog(){
             $(".commit-dialog").fadeOut(function(){
                 $(".backlog").fadeIn();
                 toggleStuff();
             });
         }
-        
+
         cancelButton.click(function(){
             closeDialog();
         });
-        
+
         publishButton.click(function(){
           var memo = view.find(".commit-message").val();
           // TODO: Add some basic memo validation here, 'cause empty memos are a pain
@@ -219,14 +215,14 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
               }
           });
         });
-        
+
         function show(){
             http({
                 url: "/api/backlogs/" + backlogId + "/deltas/since-last-published",
                 method: "GET",
                 onResponse: function (response) {
                     var changes = JSON.parse(response.body);
-                    
+
                     view.find(".summaries").text(renderChanges(changes));
                 }
             });
@@ -234,16 +230,17 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
             $(".chart").slideDown();
             $(".backlog").fadeOut(function(){
                 $(".commit-dialog").fadeIn();
+                $(".commit-message").focus();
             });
         }
-        
+
         return {
             show:show
         };
     }
-    
+
     var commitDialog = CommitDialog();
-    
+
     function calculateTotals(items){
         var totals = {};
 
@@ -289,14 +286,14 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
     function updateSummary(){
         var itemsNotDone = _.filter(backlog.items, function(item){return !item.isComplete;});
         var itemsDone = _.filter(backlog.items, function(item){return item.isComplete;});
-        
+
         function printStuff(stuff){
             return $.map(stuff, function(value, key){return key + " " + value + "  ";})
         }
         var totalsTodo = calculateTotals(itemsNotDone);
-        
+
         var changesSinceLastPublishedVersion = fetchChanges("in-" + backlog.optimisticLockVersion);
-        
+
         var summaryText;
         if(changesSinceLastPublishedVersion){
             var averageVelocityText = "";
@@ -312,19 +309,19 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
                 }
                 averageVelocityText += "\n" + numWeeks + " week average weekly velocity: " + averageVelocity;
             });
-            
-            
-            summaryText = renderChanges(changesSinceLastPublishedVersion) + "\n" + 
-                    "TODO: " + printStuff(totalsTodo) + "\n" + 
-                    'DONE: ' + printStuff(calculateTotals(itemsDone)) + "\n" + 
+
+
+            summaryText = renderChanges(changesSinceLastPublishedVersion) + "\n" +
+                    "TODO: " + printStuff(totalsTodo) + "\n" +
+                    'DONE: ' + printStuff(calculateTotals(itemsDone)) + "\n" +
                     averageVelocityText;
         }else{
             summaryText = "";
         }
-        
+
         view.summaryTextArea.text(summaryText);
     }
-    
+
     function fetchChanges(expression){
         var changes;
         http({
@@ -334,7 +331,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
                 if(response.status==200){
                     changes = JSON.parse(response.body);
                 }
-                
+
             }
         }, {async:false});
         return changes;
@@ -346,6 +343,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
             widget.showEditableMode();
         });
 
+        view.renameButton.data("state", "on");
         view.editButton.hide();
         view.commitMessage.show();
         view.saveButton.show();
@@ -357,6 +355,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
     }
 
     function showViewMode(){
+        view.renameButton.data("state", "off");
         view.memoTextArea.css("visibility", "visible");
         view.editButton.show();
         view.commitMessage.hide();
@@ -402,7 +401,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
                 method:"GET",
                 onResponse:function(response){
                     history = JSON.parse(response.body).reverse();
-                    
+
                     sliderDiv.slider({
                         value:history.length-1,
                         min: 0,
@@ -487,7 +486,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
     function EstimatesWidget(item, parentDiv){
 
         var v = $('<div id="' + item.id + '" class="estimates-list">' +
-                '<div class="estimate"><select><option></option><option>swag</option><option>grooming</option><option>team</option></select> <input size="2" type="text"></input>   </div>' +
+                '<div class="estimate"><select><option></option><option>swag</option><option>grooming</option><option>team</option></select> <input size="2" type="text"></div>' +
         '</div>');
         var view = {
                 addButton : v.find(".add-button"),
@@ -580,7 +579,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
                 '<div class="date-select-controls" style="display:none;">Target Date:<input type="text" class="date-picker" /></div><button style="display:none;" class="done-button">Done</button>' +
                 '<div style="display:none;"class="estimates-holder"></div></div>' +
                 '<span class="label"/>' + '<div class="remainder" style="display:none;"/>' +
-        '<textarea style="display:none;"></textarea></div>');
+                '<textarea style="display:none;"></textarea></div>');
 
 
         view = {
@@ -600,13 +599,13 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
             item.when = view.datePicker.datepicker("getDate").getTime();
             sendWorkInProgress();
         });
-        
-        
+
+
         function mostRecentEstimateText(){
-        	
+
             var result;
             var mostRecentEstimate = Util.findMostRecentEstimate(item);
-            
+
             if(mostRecentEstimate){
                 result = "(" + mostRecentEstimate.value + " " + mostRecentEstimate.currency + ")";
             }else{
@@ -737,7 +736,11 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
                 view.dateSelectControlsDiv.show();
             }
 
+            var textAreaWidth = window.innerWidth / 2,
+                textAreaHeight = "25em";
+
             view.textarea.show();
+            view.textarea.css({"width":textAreaWidth, "height": textAreaHeight});
             view.textarea.focus();
             view.doneButton.show();
             view.estimatesHolder.show();
@@ -820,7 +823,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
             $(".chart").slideToggle();
         }
     );
-    
+
 
     // goals that have only finished items between them and the next goal
     function detectLeadingFinishedGoals(){
@@ -840,11 +843,11 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
         }
         return finishedGoals;
     }
-    
+
     function toggleFinished(){
 
         var finishedStories, finishedGoals, relatedDropZones;
-        
+
         function findRelatedDropZones(listOfDivs){
             return _.map(listOfDivs, function(i){return $("#dropZone" + $(i).attr('id'));});
         }
@@ -854,18 +857,18 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
               i.slideToggle();
             });
         }
-        
+
         finishedStories = $(".finished");
         finishedGoals = _.map(detectLeadingFinishedGoals(), function(goal){return $("#" + goal.id);});
         relatedDropZones = findRelatedDropZones(finishedStories).concat(findRelatedDropZones(finishedGoals));
-        
+
         finishedStories.slideToggle();
-        
+
         toggleEach(finishedGoals);
         toggleEach(relatedDropZones);
-        
+
     }
-    
+
     view.hideButton.button().click(toggleFinished);
 
     view.statsButton.button().click(
@@ -873,7 +876,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
             $(".details").slideToggle();
         }
     );
-    
+
     view.editButton.button().click(function(){
         showWIPVersion(function(){
             view.commitMessage.val("");
@@ -886,6 +889,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
     view.saveButton.button().click(function(){
         readView();
         commitDialog.show();
+
     });
 
 
@@ -913,18 +917,18 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
             return isElementInViewport(i) && $(i).is(":visible");
         });
     }
-    
-    
+
+
     function addNewItem(item){
 
         var idsOfItemsInView = onlyVisible($(".item")).map(function (){return $(this).attr("id");});
-        
+
         function middleItem(array){
             return array[Math.floor(array.length /2)];
         }
-        
+
         var middleId = middleItem(idsOfItemsInView);
-        
+
         var middlePos = undefined;
         for (x=0;x<widgets.length;x++){
             var next = widgets[x];
@@ -932,10 +936,10 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
                 middlePos = x;
             }
         }
-        
+
          DropZone(item.id, view.backlog);
          const widget = ItemWidget(item, view.backlog);
-         
+
          // jump through some hoops to move the thing to the middle of the page & backlog
          widgets.splice(middlePos, 0, widget);
          backlog.items.splice(middlePos, 0, item);
@@ -944,12 +948,12 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
          var dz = $("#dropZone" + item.id);
          dz.insertAfter(foo);
          $("#" + item.id).insertAfter(dz);
-         
+
          widget.showEditMode();
          sendWorkInProgress();
     }
-    
-    
+
+
     view.addStoryButton.button().click(function(){
         addNewItem({
             id:uuid(),
@@ -972,6 +976,25 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
             name:"",
             kind:"goal"
         });
+    });
+
+    view.titleSpan.mouseover(function() {
+        if (view.renameButton.data("state") == "on") {
+            view.renameButton.show();
+        }
+    });
+
+    view.titleSpan.mouseout(function() {
+        view.renameButton.hide();
+    });
+
+    view.renameButton.button().click(function(){
+        var newName = prompt("Rename the backlog", backlog.name);
+        if (newName===null || !newName) return; // some name is required
+        if (newName == backlog.name) return; // no change
+        view.title.text(newName);
+        backlog.name = newName;
+        sendWorkInProgress();
     });
 
     function readIntegerOrUndefinedIfBlank(string){
@@ -1006,7 +1029,6 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
     view.velocityTextField.keyup(handleVelocityInput);
     view.velocityTextField.change(handleVelocityInput);
 
-
     function showWIPVersion(fn){
         showLatestVersion(fn, true);
     }
@@ -1038,14 +1060,14 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
         function render(when){
             var monitor = activityMonitor.show();
             var url = "/api/backlogs/" + backlogId + "/chart/" + globalConfig.defaultChartType + "?&showGoalTargetDots=true&showOddWeeks=false&showWeekNumbers=false&showMonthLabels&showCompletedWork&showGoalLabels=false&showMonthVerticals=true&showGoalHLines=false&showGoalVLines";
-            
+
             if(when){
                 url = url+"&end=" + when + "&showLatestEvenIfWip=true";
             }
             var height = $(".chart").height();
-            
+
             if(height>30) $(".chart").css("height", height);
-            
+
             $.ajax(url, {
                 dataType:"text",
                 success:function(data){
@@ -1068,20 +1090,20 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
     }());
 
     showCurrentVersion(function(){
-        
+
         function goToByScroll(id, fn){
             var props = {scrollTop: $(id).offset().top - $('.chart').height()};
             $('html,body').animate(props,'slow', undefined, fn);
         }
 
         var hash = window.location.hash;
-        
+
         if(hash) {
             $(".chart").hide();
             $(hash).css("border", "5px solid yellow");
-            
+
             var scrollToHash = _.partial(goToByScroll, hash);
-            
+
             scrollToHash(function(){
                 // now scroll again, just in case the floating header is occluding our target
                 var hackyTimeout = 1000; // <-- HACK!
@@ -1090,7 +1112,7 @@ define(["jquery", "jqueryui", "underscore", "http", "uuid", "util"], function($,
         }else{
             toggleFinished();
         }
-        
+
     });
 
 });
