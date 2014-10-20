@@ -18,7 +18,7 @@ object DefaultChart {
 
     val leftMargin = 2
     val rightMargin = 2
-  
+
     val nHeight = stats.size match {
       case 0 => 0
       case _ => stats.map(entry => entry.done + entry.todo).max
@@ -71,7 +71,7 @@ object DefaultChart {
 
           val pointsDone = if (options.showCompletedWork) {
             Seq(
-              (xLeft, yPixels(nHeight - prev.total)),   // total start 
+              (xLeft, yPixels(nHeight - prev.total)),   // total start
               (xRight, yPixels(nHeight - entry.total)), // total end
               (xRight, yPixels(nHeight - entry.todo)),  // remaining end
               (xLeft, yPixels(nHeight - prev.todo)))    // remaining start
@@ -94,14 +94,14 @@ object DefaultChart {
             (xRight, yPixels(nHeight - entry.nonTeam)),
             (xRight, yPixels(nHeight - entry.todo))
           )
-          
+
           val pointsSwag = Seq(
-            (xLeft, yPixels(nHeight - prev.nonTeam)),     // start remaining       |^ 
-            (xLeft, yPixels(nHeight)),                 // start bottom of chart |_ 
+            (xLeft, yPixels(nHeight - prev.nonTeam)),     // start remaining       |^
+            (xLeft, yPixels(nHeight)),                 // start bottom of chart |_
             (xRight, yPixels(nHeight)),                // end bottom of chart      _|
             (xRight, yPixels(nHeight - entry.nonTeam))    // end remaining            ^|
           )
-          
+
           val rightEdgeSwag = Seq(
             (xRight, yPixels(nHeight)),
             (xRight, yPixels(nHeight - entry.nonTeam))
@@ -282,64 +282,61 @@ object DefaultChart {
     val height = yPixels(nHeight)
 
     """<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1"
-    viewBox="0 0 """ + chartWidth + " " + chartHeight + """">
+    viewBox="0 0 """ + chartWidth + " " + chartHeight + """" class="default-chart">
      <style type="text/css" >
       <![CDATA[
-        .swag {
+        .default-chart .swag {
             fill: yellow;
         }
-        .todo {
+        .default-chart .todo {
             fill:blue;
         }
-        .todo-right-edge {
+        .default-chart .todo-right-edge {
             stroke:blue;
             stroke-width:.03
         }
-        .done-right-edge {
+        .default-chart .done-right-edge {
             stroke:green;
             stroke-width:.03
         }
-        .done {
+        .default-chart .done {
             fill:green;
         }
-        text {
+        .default-chart text {
             font-size:.5pt;
             font-family:sans-serif;
         }
-        xlabel {
+        .default-chart xlabel {
             transform:rotate(30 20,40);
         }
-        line {
+        .default-chart line {
             stroke:grey;
             stroke-width:.01
         }
-
-        nowLine {
+        .default-chart nowLine {
             stroke:red;
             stroke-width:.05
         }
-
-        .dot {
+        .default-chart .dot {
             stroke:black;
             stroke-width:.01;
             fill:black;
         }
-
-        .projection, .old-projection {
+        .default-chart .projection, .default-chart .old-projection {
             stroke:black;
             stroke-width:.05;
         }
-        .old-projection {
+        .default-chart .old-projection {
             stroke-dasharray: .5,.5;
         }
-        .monthBoundary {
+        .default-chart .monthBoundary {
             stroke:grey;
             stroke-width:.05;
         }
-        .goal-label {
+        .default-chart .goal-label {
 
             font-size:.35pt;
             font-family:sans-serif;

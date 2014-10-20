@@ -1,91 +1,110 @@
 <html>
 <head>
     <title>TeamStory</title>
-    <link rel="stylesheet" href="/styles.css"/>
+    <link rel="stylesheet" href="/css/normalize.css"/>
     <link rel="stylesheet" href="/jqueryui-theme/minified/jquery-ui.min.css"/>
-    <link rel="stylesheet" href="/api/backlogs/xx/mystyle.css"/>
-    <script type="text/javascript" data-main="backlog" src="/require-config.js"></script>
-    <script type="text/javascript" data-main="backlog" src="/scripts/require.js"></script>
+    <link rel="stylesheet" href="/css/foundation.min.css"/>
+    <link rel="stylesheet" href="/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+    <script type="text/javascript" src="/require-config.js"></script>
+    <script type="text/javascript" data-main="backlog" src="/scripts/vendor/require.js"></script>
 </head>
-<body>
-<div class="floatingHeader" style="visibility:hidden;">
-    <div class="chart"></div>
-    <div class="buttons">
-        <button style="display:none;" class="save-button">Publish</button>
-        <button style="display:none;" class="add-story-button">Add Story</button>
-        <button style="display:none;" class="add-epic-button">Add Epic</button>
-        <button style="display:none;" class="add-goal-button">Add Goal</button>
-        <button class="toggle-burndown-button">Chart</button>
-        <button class="hide-button">Finished Stories</button>
-        <button class="edit-button">Edit</button>
-    </div>
-</div>
-<div id="top">
-    <div id="header" style="margin:10px;">
-        <div>
-            <span id="title-span">
-                    <span id="title"></span>
-                    <img style="display:none;" src="/pencil.png" class="rename-icon" data-state="off">
-                    <img class="throbber" style="margin-left:5px; width:25px;height:25px;"src="/throbber.gif" />
-            </span>
-            <div id="slider"></div>
-            <div class="velocity-div" style="display:none;">Weekly Velocity: <input class="velocity-text" type="text"></name></div>
-            <div class="details" style="display:none;">
-                <div class="memo-text"></div>
-                <div id="summary" style="white-space: pre;margin-bottom: 35px;"></div>
-                <a class="permalink">Chart Permalink</a>
+<body class="with-nav">
+<div class="fixed">
+    <nav class="top-bar" data-topbar role="navigation">
+        <section class="top-bar-section">
+            <ul class="right">
+                <li class="divider"></li>
+                <li><a href="#" class="finished-toggle-button">Finished Stories</a></li>
+                <li><a href="#" class="chart-toggle-button">Chart</a></li>
+            </ul>
+            <ul class="left">
+                <li><a href="/"><i class="fa fa-comment fa-2x home-button"></i></a></li>
+                <li class="name"><h1><a href="#" id="backlog-name"></a></h1></li>
+                <li class="divider"></li>
+                <li><a href="#" class="edit-backlog-button">Edit</a></li>
+                <li><a href="#" style="display:none;" class="publish-button">Publish</a></li>
+                <li><a href="#" style="display:none;" class="add-story-button">Add Story</a></li>
+                <li><a href="#" style="display:none;" class="add-epic-button">Add Epic</a></li>
+                <li><a href="#" style="display:none;" class="add-goal-button">Add Goal</a></li>
+                <li style="display:none;" class="has-dropdown not-click settings-menu">
+                    <a href="#">Settings</a>
+                    <ul class="dropdown">
+                        <li><a href="#" class="rename-backlog-button">Rename Backlog</a></li>
+                        <li><a href="#" class="velocity-button">Update Velocity (<span class="current-velocity"></span>)</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+    </nav>
+    <div class="chart-panel" style="display:none;">
+        <div class="row">
+            <div class="small-9 columns">
+                <a class="permalink" target="_blank">Chart Permalink</a>
+                <div class="chart"></div>
             </div>
+            <div class="small-3 columns history">
+                <h5>History</h5>
 
-            <div class="chart"></div>
-            <div class="buttons">
-                <button style="display:none;" class="save-button">Publish</button>
-                <button style="display:none;" class="add-story-button">Add Story</button>
-                <button style="display:none;" class="add-epic-button">Add Epic</button>
-                <button style="display:none;" class="add-goal-button">Add Goal</button>
-                <button class="toggle-burndown-button">Chart</button>
-                <button class="hide-button">Finished Stories</button>
-                <button class="stats-button">Stats</button>
-                <button class="edit-button">Edit</button>
+                <div id="slider"></div>
+
+                <div class="details">
+                    <div class="memo-text"></div>
+                    <div id="summary" ></div>
+                </div>
+
             </div>
-        </div>
-        <div class="commit-dialog" style="display:none;">
-            <div>
-                <h2>Change Summary:</h2>
-                <pre class="summaries"></pre>
-            </div>
-            <div><h2>Change Memo</h2><textarea placeholder="Short explanation of why you made these changes." class="commit-message"></textarea></div>
-            <button class="cancel-button">Cancel</button>
-            <button class="publish-button">Publish</button>
         </div>
     </div>
 </div>
+
 <div class="backlog"></div>
-<script type="text/javascript">
-    require(["jquery"], function($){
-        function updateFloatingChart() {
-            var b = $(".backlog");
-            var el             = $(b),
-                    offset         = el.offset(),
-                    scrollTop      = $(window).scrollTop(),
-                    floatingHeader = $(".floatingHeader")
-            if ((scrollTop > (offset.top - floatingHeader.height())) ) {
-                floatingHeader.css({
-                    "visibility": "visible"
-                });
-            } else {
-                floatingHeader.css({
-                    "visibility": "hidden"
-                });
-            };
-        }
+<div id="rename-modal" class="reveal-modal medium" data-reveal>
+    <h3>Rename Backlog</h3>
 
-        // DOM Ready
-        $(function() {
-            $(window)
-                    .scroll(updateFloatingChart)
-                    .trigger("scroll");
-        });
-    });
-</script>
+    <label>Name</label>
+    <input type="text" class="rename-input"/>
+    <a href="#" class="button tiny radius rename-confirm-button">Rename</a>
+    <a href="#" class="button tiny radius alert rename-cancel-button">Cancel</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="velocity-modal" class="reveal-modal medium" data-reveal>
+    <h3>Update Velocity</h3>
+    <label>Weekly Velocity</label>
+    <input type="text" class="velocity-input"/>
+    <a href="#" class="button tiny radius velocity-confirm-button">Update</a>
+    <a href="#" class="button tiny radius alert velocity-cancel-button">Cancel</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="publish-modal" class="reveal-modal xlarge" data-reveal>
+    <h3>Publish</h3>
+
+    <div class="chart"></div>
+
+    <div>
+        <h4>Change Summary</h4>
+        <p class="summaries"></p>
+    </div>
+
+    <div>
+        <h4>Publish Message</h4>
+        <textarea placeholder="Short explanation of why you made these changes." class="commit-message"></textarea>
+    </div>
+
+    <a href="#" class="button tiny radius publish-confirm-button">Publish</a>
+    <a href="#" class="button tiny radius alert publish-cancel-button">Cancel</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="delete-modal" class="reveal-modal medium" data-reveal>
+    <h3>Delete Item</h3>
+    <label>Are you sure you want to delete the item?</label>
+    <a href="#" class="button tiny radius delete-confirm-button">Delete</a>
+    <a href="#" class="button tiny radius alert delete-cancel-button">Cancel</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
 </body>
 </html>

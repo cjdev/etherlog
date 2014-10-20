@@ -52,19 +52,19 @@ import org.teamstory.http.GlobalConfigResource
 
 object TeamStory {
   def timeTravelModeIsActivated(args:Array[String]) = args.size >0 && args(0) == "enableTimeTravel"
-    
+
   def main(args: Array[String]) {
     val data = new DataImpl(new Path("data"))
-    
+
     val clock = new FastForwardableClock(
                         configDb=data,
                         enableTimeTravel = timeTravelModeIsActivated(args))
-    
+
     val service = new Service(data, clock)
-    
+
     val port = 43180
-    
-    launchServer(port, 
+
+    launchServer(port,
         "/api/backlogs/{id}/iteration-stats" -> new TeamIterationStatsResource(data=data, clock=clock),
         "/api/team/{id}/iteration" -> new TeamIterationResource(data=data, clock=clock),
         "/api/team" -> new TeamsResource(data=data),
@@ -73,8 +73,8 @@ object TeamStory {
         "/api/backlogs/{id}/chart/iteration-bars" -> new IterationBarChartResource(data=data, clock=clock),
         "/api/clock" -> new TimeTravelResource(clock=clock),
         "/api/backlogs" -> new BacklogsResource(data=data, service=service),
-        "/api/backlogs/{id}/mystyle.css" -> new ChartStylesheet("/api/backlogs/{id}"),
-        "/backlog/mystyle.css" -> new ChartStylesheet("/backlog"),
+        "/api/backlogs/{id}/css/mystyle.css" -> new ChartStylesheet("/api/backlogs/{id}"),
+        "/backlog/css/mystyle.css" -> new ChartStylesheet("/backlog"),
         "/api/backlogs/{id}/chart/default" -> new DefaultChartResource(data=data, service=service, clock=clock),
         "/api/backlogs/{id}/history" -> new BacklogHistoryResource(data=data),
         "/api/backlogs/{id}/status" -> new BacklogStatusResource(data, clock=clock),
@@ -91,7 +91,7 @@ object TeamStory {
         "/team/{teamName}" -> new ClasspathResourceObject("/team/{teamName}", "/content/team.html", getClass()),
         "/{resource*}" -> new ClasspathResourcesObject("/{resource*}", getClass(), "/content")
     )
-    
+
     println("etherlog is alive and listening on port " + port);
   }
 
@@ -100,17 +100,17 @@ object TeamStory {
       val (pathMapping, r) = entry
       pathMapping!=r.pattern().raw()
     }
-    
+
     if(!badMappings.isEmpty){
       throw new Exception("Ummm, hey, these mappings don't match up:" + badMappings.map{m=>(m._1, m._2.pattern().raw)}.mkString("\n"))
     }
-    
+
     HttpObjectsJettyHandler.launchServer(port, resources.map(_._2):_*)
   }
-  
-  class ChartStylesheet(parentPath:String) extends HttpObject(parentPath + "/mystyle.css"){
+
+  class ChartStylesheet(parentPath:String) extends HttpObject(parentPath + "/css/mystyle.css"){
     override def get(req:Request) = {
-      OK(FromClasspath("text/css", "/content/mystyle.css", getClass))
+      OK(FromClasspath("text/css", "/content/css/mystyle.css", getClass))
     }
   }
 }

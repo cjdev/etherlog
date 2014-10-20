@@ -42,6 +42,7 @@ case class Estimate(
 case class Item(
         val id: String,
         val isComplete: Option[Boolean] = Some(false),
+        val inProgress: Option[Boolean] = Some(false),
         val name: String,
         val kind: String,
         val estimates: Option[Seq[Estimate]],

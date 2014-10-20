@@ -1,0 +1,314 @@
+html {
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family:"Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif !important;
+    background-color: #fcfcfc;
+    color: #222;
+}
+
+body.with-nav {
+    margin-top: 50px;
+}
+
+.home-button {
+    color:#ffffff;
+    margin-top: 10px;
+}
+
+.cfix:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+
+.cfix {
+    display: inline-block;
+}
+
+div.emblem {
+    width:20px;
+    height:20px;
+    border:1px solid;
+    float:right;
+    margin:5px;
+    padding:5px;
+}
+
+div.board-emblem {
+    border-color: #E6CA51;
+    background: #FFEEA5;
+}
+
+div.bugzilla-emblem {
+    background-size: contain;
+    background: url("../robomap/buggie.png") no-repeat center;
+    border-color: #dddddd;
+}
+
+
+.backlog-list-entry, .teams-list-entry{
+    font-size: 2em;
+}
+
+.velocity-div {
+    margin-bottom: 1em;
+}
+
+#summary {
+    margin:5px;
+    font-style:italic;
+}
+
+
+.no-estimate {
+    color: red /*TODO: better red */;
+}
+
+div.project-chunk {
+    margin:0px 0px 0px 0px;
+    padding: 5px;
+    min-width:500px;
+    width:70%;
+
+    border-color: #DDD;
+    border-width: 1px 1px 1px 5px;
+    border-style: solid;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+
+    background-color: #f9f9f9;
+}
+
+div.divider {
+    background:#EEE;
+    border: 1px solid #CCC;
+    border-left-width: 5px;
+    border-top-width: 5px;
+    width: 80%;
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+.item {
+    min-height: 35px;
+    padding-top: .2em;
+}
+
+.item.epic {
+    border-left-color: #D9AF00;
+}
+.item.story {
+    border-left-color: #003C93;
+}
+.item.finished {
+    border-left-color: #007534;
+    background-color: #E1FFE3;
+}
+
+.item > .row {
+    max-width: none;
+}
+
+.item .item-label-header {
+    min-height: 1.5em;
+    font-size: 1.3em;
+    cursor: pointer;
+}
+
+.item .item-label-header [class*="column"]+[class*="column"]:last-child {
+    padding-right: 0;
+}
+.item .item-label-header [class*="column"]:first-child {
+    padding-left: 0;
+}
+
+.item .item-label-header .fa {
+    font-size: 1em;
+    margin-top: .2em;
+}
+
+.item .item-label-header .item-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item .item-label-header .item-label.expanded {
+    white-space: inherit;
+    overflow: inherit;
+    text-overflow: clip;
+    margin-left: 1.6em;
+}
+
+.item .status-view .fa {
+    font-size: 1em;
+    margin-top: .3em;
+    margin-right: .3em;
+}
+.item-header {
+    padding: 5px 6px 0 6px;
+}
+
+.item .view-mode-header {
+    cursor: pointer;
+}
+
+.item .estimate-view, .item .goal-date {
+    font-style: italic;
+    margin-right: .5em;
+    font-size: .7em;
+    padding-top: .4em;
+}
+
+.item .remainder {
+    padding: .5em;
+    white-space: pre-wrap;
+}
+
+.item .editable-mode-header .fa {
+    padding-left: 5px;
+}
+
+.item .edit-mode-header {
+    margin: .7em 0;
+}
+
+.item .edit-mode-header select,
+.item .edit-mode-header input,
+.item .edit-mode-header .button
+{
+    margin-bottom: .5em;
+}
+
+.item textarea {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -moz-box-shadow: none;;
+    box-shadow: none;
+    outline: none;
+    width: 100%;
+}
+
+.in-progress-button-on {
+    color: #222;
+}
+
+.in-progress-view {
+    margin-top: .1em;
+}
+
+.drop-zone {
+    background-color:grey;
+    height:20px;
+    width:100%;
+    /*background:#f0f0f0;*/
+}
+
+.drop-zone.on {
+    background-color: #82CCA2;
+}
+
+div.backlog {
+    display:inline-block;
+    width:100%;
+    padding: 1em;
+}
+
+.commit-message {
+    border:2px solid grey;
+    width:100%;
+    height:10em;
+    margin-bottom: 1em;
+}
+
+#title {
+    padding-right: .1em;
+    display:inline-block;
+    font-weight: bold;
+    font-size: 2em;
+}
+
+.memo-text {
+    min-height: 2em;
+}
+
+.highlighted {
+    border-top: 3px solid #F0FF0D !important;
+    border-right: 3px solid #F0FF0D !important;
+    border-bottom: 3px solid #F0FF0D !important;
+}
+
+.throbber {
+    margin-left:5px;
+    margin-right: 10px;
+    margin-top: 10px;
+}
+.backlog-list-options-row {
+    margin-top: 1em;
+}
+
+.backlog-row {
+    border-bottom: 1px solid #c6c6c6;
+    padding-top: 1em;
+}
+
+.archived-backlog-list-entry {
+    background-color: #eeeeee;
+}
+
+/* THE CHART STUFF */
+
+.chart-panel {
+    background-color: #f6f6f6;
+    border-bottom: 1px solid #c6c6c6;
+}
+
+.chart-panel .row {
+    margin: 0 1em 1em 1em;
+    padding-top: 1em;
+    max-width:none !important;
+}
+
+.chart {
+    padding: 10px;
+    border: 1px solid #222;
+    background-color: #FFFFFF;
+}
+.chart svg {
+    width:100%;
+    max-height:100%;/*https://bugs.webkit.org/show_bug.cgi?id=82489*/
+}
+
+.history {
+    padding-right: 1em;
+}
+
+#slider {
+    width:90%;
+    margin-top: .5em;
+    margin-bottom: 1em;
+}
+
+#summary {
+    white-space: pre;
+    font-size: 0.9em;
+}
+
+#publish-modal {
+    max-width: none;
+}
+
+.goal-date {
+    font-style: italic;
+    white-space: nowrap;
+    margin-right: 1em;
+}
