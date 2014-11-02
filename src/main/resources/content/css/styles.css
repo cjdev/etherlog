@@ -109,8 +109,7 @@ div.divider {
     border-left-color: #003C93;
 }
 .item.finished {
-    border-left-color: #007534;
-    background-color: #E1FFE3;
+    background-color: #2ecc71;
 }
 
 .item > .row {
@@ -311,4 +310,57 @@ div.backlog {
     font-style: italic;
     white-space: nowrap;
     margin-right: 1em;
+}
+
+
+/* STATS */
+
+.stats-panel {
+    background-color: #f6f6f6;
+    border-bottom: 1px solid #c6c6c6;
+}
+
+.stats-content {
+    margin: 0 1em 1em 1em;
+    padding-top: 1em;
+    max-width: 98% !important;
+    font-size: .8em;
+    white-space: nowrap;
+}
+
+.stats-content .titles .columns:not(.empty) {
+    border-bottom: 1px double  #ccc;
+}
+
+.stats-content .kind {
+    padding: 5px 0px 5px 10px;
+    border-width: 1px 1px 1px 5px;
+    border-style: solid;
+}
+
+.stats-content .stories {
+    border-color: #003C93;
+    margin-right: 10px;
+}
+
+.stats-content .epics {
+    border-color: #D9AF00;
+    margin-right: 10px;
+}
+
+.stats-content .goals {
+    border-color: #CCCCCC;
+}
+.stats-content .totals {
+    border: 1px solid black;
+}
+
+
+.stats-content .header .columns {
+    font-size: 1em;
+}
+
+.stats-content .total {
+    /*   font-weight: bold; */
+    font-style: italic;
 }

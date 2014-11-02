@@ -8,76 +8,66 @@ define([
     "item-widget",
     "activity-monitor",
     "history-slider",
+    "backlog-statistics",
     "modernizr",
     "fastclick",
     "foundation.reveal",
     "foundation.slider"],
-    function($, jqueryui, _, http, uuid, Util, ItemWidget, ActivityMonitor, HistorySlider, Modernizr, FastClick) {
+    function($, jqueryui, _, http, uuid, Util, ItemWidget, ActivityMonitor, HistorySlider, BacklogStats) {
         $(document).foundation();
 
         const kindsInOrderOfPrecedence = ["team", "grooming", "swag"];
-        var globalConfig, backlog, where, lastDragged, view, activityMonitor;
-        var when; // SUPERHACK!
-        var latestVersion;
-        var backlogId = parseBacklogIdFromURL();
-        var widgets = [];
 
-        http({
-            url: "/api/config",
-            method: "GET",
-            onResponse: function (response) {
-                globalConfig = JSON.parse(response.body);
-            }
-        });
+        var globalConfig,
+            backlog,
+            lastDragged,
+            when,
+            latestVersion,
+            backlogId = parseBacklogIdFromURL(),
+            widgets = [],
+            where = $("body"),
+            view = {
+                homeButton: where.find('.home-button'),
+                backlogName: where.find('#backlog-name'),
+                backlog : where.find(".backlog"),
+                velocityView : where.find('.current-velocity'),
+                slider : where.find("#slider"),
+                summaryTextArea : where.find("#summary"),
+                chartToggleButton: where.find(".chart-toggle-button"),
+                chartPanel: where.find(".chart-panel"),
+                statsToggleButton: where.find(".stats-toggle-button"),
+                statsPanel: where.find(".stats-panel"),
+                statsContent: where.find(".stats-content"),
+                finishedButton: where.find(".finished-toggle-button"),
+                editButton : where.find(".edit-backlog-button"),
+                publishButton: where.find(".publish-button"),
+                publishModal: where.find('#publish-modal'),
+                publishSummary: where.find('#publish-modal .summaries'),
+                commitMessage : where.find(".commit-message"),
+                publishCancelButton: where.find('.publish-cancel-button'),
+                publishConfirmButton: where.find(".publish-confirm-button"),
+                addStoryButton : where.find(".add-story-button"),
+                addEpicButton : where.find(".add-epic-button"),
+                addGoalButton : where.find(".add-goal-button"),
+                settingsMenu: where.find(".settings-menu"),
+                renameButton: where.find(".rename-backlog-button"),
+                renameModal : where.find("#rename-modal"),
+                renameInput : where.find(".rename-input"),
+                renameConfirmButton: where.find(".rename-confirm-button"),
+                renameCancelButton: where.find(".rename-cancel-button"),
+                velocityButton: where.find(".velocity-button"),
+                velocityModal: where.find("#velocity-modal"),
+                velocityInput: where.find(".velocity-input"),
+                velocityConfirmButton: where.find(".velocity-confirm-button"),
+                velocityCancelButton: where.find(".velocity-cancel-button"),
+                memoTextArea : where.find(".memo-text")
+            },
 
-        http({
-            url: "/api/backlogs",
-            method: "GET",
-            onResponse: function (response) {
-                var backlogs = JSON.parse(response.body);
-                var backlog = _.findWhere(backlogs, {id: backlogId});
-                view.backlogName.text(backlog.name);
-            }
-        });
+            activityMonitor = ActivityMonitor(view.homeButton,
+                function() {view.homeButton.addClass("fa-spin")},
+                function() {view.homeButton.removeClass("fa-spin")}),
 
-        where = $("body");
-        view = {
-            homeButton: where.find('.home-button'),
-            backlogName: where.find('#backlog-name'),
-            backlog : where.find(".backlog"),
-            velocityView : where.find('.current-velocity'),
-            slider : where.find("#slider"),
-            summaryTextArea : where.find("#summary"),
-            chartToggleButton: where.find(".chart-toggle-button"),
-            chartWrapper: where.find(".chart-panel"),
-            finishedStoriesButton: where.find(".finished-toggle-button"),
-            editButton : where.find(".edit-backlog-button"),
-            publishButton: where.find(".publish-button"),
-            publishModal: where.find('#publish-modal'),
-            publishSummary: where.find('#publish-modal .summaries'),
-            commitMessage : where.find(".commit-message"),
-            publishCancelButton: where.find('.publish-cancel-button'),
-            publishConfirmButton: where.find(".publish-confirm-button"),
-            addStoryButton : where.find(".add-story-button"),
-            addEpicButton : where.find(".add-epic-button"),
-            addGoalButton : where.find(".add-goal-button"),
-            settingsMenu: where.find(".settings-menu"),
-            renameButton: where.find(".rename-backlog-button"),
-            renameModal : where.find("#rename-modal"),
-            renameInput : where.find(".rename-input"),
-            renameConfirmButton: where.find(".rename-confirm-button"),
-            renameCancelButton: where.find(".rename-cancel-button"),
-            velocityButton: where.find(".velocity-button"),
-            velocityModal: where.find("#velocity-modal"),
-            velocityInput: where.find(".velocity-input"),
-            velocityConfirmButton: where.find(".velocity-confirm-button"),
-            velocityCancelButton: where.find(".velocity-cancel-button"),
-            memoTextArea : where.find(".memo-text")
-        };
-
-        activityMonitor = ActivityMonitor(view.homeButton,
-            function() {view.homeButton.addClass("fa-spin")},
-            function() {view.homeButton.removeClass("fa-spin")});
+            backlogStats = BacklogStats(view.statsContent);
 
 
         function parseBacklogIdFromURL(){
@@ -112,6 +102,7 @@ define([
                                 backlog.optimisticLockVersion =
                                     JSON.parse(response.body).optimisticLockVersion;
                                 updateSummary();
+                                updateStats();
                                 setTimeout(sendUpdate, 1000);
                             }else if(status===409){
                                 alert("Looks like someone else is editing this behind our back!  We need to reload.");
@@ -203,8 +194,13 @@ define([
                     onStartDrag: setLastDragged
                 }));
             });
+            updateStats();
             updateSummary();
             chart.render(when);
+        }
+
+        function updateStats() {
+            backlogStats.update(backlog);
         }
 
         function updateSummary(){
@@ -344,17 +340,17 @@ define([
             }
 
             v.droppable({
-                drop: function( event, ui ) {
+                drop: function() {
                     var subjectId = lastDragged.id;
                     moveItemBefore(subjectId, id);
                     hide();
                 },
-                over: function(event, ui){
+                over: function(){
                     if(currentDropIsAcceptable()){
                         show();
                     }
                 },
-                out: function(event, ui){
+                out: function(){
                     hide();
                 }
             });
@@ -414,22 +410,14 @@ define([
             return finishedGoals;
         }
 
-        function isFinishedStoriesButtonActive() {
-            return view.finishedStoriesButton.parent().hasClass("active");
+        function hideFinished() {
+            toggleFinished(false);
         }
 
-        function hideFinishedStories() {
-            toggleFinishedStories(false);
-        }
+        function toggleFinished(showing) {
+            var finished, finishedGoals, relatedDropZones;
 
-        function showFinishedStories() {
-            toggleFinishedStories(true);
-        }
-
-        function toggleFinishedStories(showing) {
-            var finishedStories, finishedGoals, relatedDropZones;
-
-            view.finishedStoriesButton.parent().toggleClass("active", showing);
+            view.finishedButton.parent().toggleClass("active", showing);
 
             function findRelatedDropZones(listOfDivs){
                 return _.map(listOfDivs, function(i){return $("#dropZone" + $(i).attr('id'));});
@@ -437,25 +425,21 @@ define([
 
             function toggleEach(listOfJQueries, directionDown){
                 $.each(listOfJQueries, function (idx, i){
-                    if (directionDown) {
-                        i.slideDown();
-                    }
-                    else {
-                        i.slideUp();
-                    }
+                    if (directionDown) { i.slideDown(); }
+                    else { i.slideUp();}
                 });
             }
 
-            finishedStories = $(".finished");
+            finished = $(".item.finished");
             if (showing) {
-                finishedStories.slideDown();
+                finished.slideDown();
             }
             else {
-                finishedStories.slideUp();
+                finished.slideUp();
             }
 
             finishedGoals = _.map(detectLeadingFinishedGoals(), function(goal){return $("#" + goal.id);});
-            relatedDropZones = findRelatedDropZones(finishedStories).concat(findRelatedDropZones(finishedGoals));
+            relatedDropZones = findRelatedDropZones(finished).concat(findRelatedDropZones(finishedGoals));
             toggleEach(finishedGoals, showing);
             toggleEach(relatedDropZones, showing);
         }
@@ -624,18 +608,33 @@ define([
         var lastChange = lastServerUpdate;
         var slider = HistorySlider(view.slider, backlogId, showVersion);
 
-        view.chartToggleButton.click(
-            function () {
-                view.chartWrapper.slideToggle();
-                view.chartToggleButton.parent().toggleClass('active');
-            }
-        );
 
-        view.finishedStoriesButton.click(function() {
-            view.finishedStoriesButton.parent().toggleClass('active');
-            var showing = view.finishedStoriesButton.parent().hasClass('active');
-            //console.log("finishedStoriesButton.click: " + showing);
-            toggleFinishedStories(showing);
+        function resetChartMenu() {
+            view.chartPanel.slideUp();
+            view.chartToggleButton.parent().removeClass('active');
+        }
+
+        function resetStatsMenu() {
+            view.statsPanel.slideUp();
+            view.statsToggleButton.parent().removeClass('active');
+        }
+
+        view.chartToggleButton.click(function () {
+            resetStatsMenu();
+            view.chartPanel.slideToggle();
+            view.chartToggleButton.parent().toggleClass('active');
+        });
+
+        view.statsToggleButton.click(function() {
+            resetChartMenu();
+            view.statsPanel.slideToggle();
+            view.statsToggleButton.parent().toggleClass('active');
+        });
+
+        view.finishedButton.click(function() {
+            view.finishedButton.parent().toggleClass('active');
+            var showing = view.finishedButton.parent().hasClass('active');
+            toggleFinished(showing);
         });
 
         view.editButton.click(function(){
@@ -643,7 +642,7 @@ define([
                 view.commitMessage.val("");
                 showEditMode();
                 slider.showCurrent();
-                hideFinishedStories();
+                hideFinished();
             });
         });
 
@@ -747,6 +746,24 @@ define([
             view.publishModal.foundation('reveal', 'close');
         });
 
+        http({
+            url: "/api/config",
+            method: "GET",
+            onResponse: function (response) {
+                globalConfig = JSON.parse(response.body);
+            }
+        });
+
+        http({
+            url: "/api/backlogs",
+            method: "GET",
+            onResponse: function (response) {
+                var backlogs = JSON.parse(response.body);
+                var backlog = _.findWhere(backlogs, {id: backlogId});
+                view.backlogName.text(backlog.name);
+            }
+        });
+
         // "main" ------------------------------------------------------------------
         showCurrentVersion(function(){
 
@@ -768,7 +785,7 @@ define([
                     setTimeout(scrollToHash, hackyTimeout);
                 });
             }else{
-                hideFinishedStories();
+                hideFinished();
             }
         });
 

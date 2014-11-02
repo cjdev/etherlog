@@ -21,11 +21,7 @@ define(["jquery"], function($){
 	    if(item.estimates && item.estimates.length>0){
 	    	var copy = item.estimates.slice();
 	    	copy.sort(compareEstimatesByWhen);
-	        var mostRecentEstimate = copy[copy.length-1];
-	    	for(x=0;x<copy.length;x++){
-	    		//console.log(x, copy[x]);
-	    	}
-	        return mostRecentEstimate;
+            return copy[copy.length - 1];
 	    }else{
 	    	return undefined;
 	    }
