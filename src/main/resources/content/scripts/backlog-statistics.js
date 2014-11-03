@@ -7,14 +7,13 @@ define([
         return function(container) {
 
             var view,
-                stats,
                 v = $(
                     '<div class="stats-wrapper">' +
                         '<div class="small-4 columns">' +
 
                         '    <div class="kind stories">' +
                         '        <div class="row header">' +
-                        '            <div class="small-12 columns">Stories</div>' +
+                        '            <div class="small-12 columns"><h5>Stories</h5></div>' +
                         '        </div>' +
                         '        <div class="row titles">' +
                         '            <div class="small-3 columns text-right empty">&nbsp;</div>' +
@@ -24,13 +23,12 @@ define([
                         '            <div class="small-2 columns text-right total end">Total</div>' +
                         '        </div>' +
                         '    </div>' +
-
                         '</div>' +
 
                         '<div class="small-4 columns">' +
                         '    <div class="kind epics">' +
                         '        <div class="row header">' +
-                        '            <div class="small-12 columns">Epics</div>' +
+                        '            <div class="small-12 columns"><h5>Epics</h5></div>' +
                         '        </div>' +
                         '        <div class="row titles">' +
                         '            <div class="small-3 columns text-right empty">&nbsp;</div>' +
@@ -45,9 +43,8 @@ define([
 
                         '<div class="small-4 columns">' +
                         '    <div class="kind goals">' +
-
                             '    <div class="row header">' +
-                            '        <div class="small-12 columns">Goals</div>' +
+                            '        <div class="small-12 columns"><h5>Goals</h5></div>' +
                             '    </div>' +
                         '    </div>' +
                         '</div>' +
@@ -107,78 +104,78 @@ define([
 
             };
 
-            stats = {
-                story: {
-                    swag: {
-                        todo:       { count: 0, points: 0 },
-                        inProgress: { count: 0, points: 0 },
-                        finished:   { count: 0, points: 0 },
-                        total:      { count: 0, points: 0 }
-                    },
-                    grooming: {
-                        todo:       { count: 0, points: 0 },
-                        inProgress: { count: 0, points: 0 },
-                        finished:   { count: 0, points: 0 },
-                        total:      { count: 0, points: 0 }
-                    },
-                    team: {
-                        todo:       { count: 0, points: 0 },
-                        inProgress: { count: 0, points: 0 },
-                        finished:   { count: 0, points: 0 },
-                        total:      { count: 0, points: 0 }
-                    },
-                    unestimated: {
-                        todo:       { count: 0, points: 0 },
-                        inProgress: { count: 0, points: 0 },
-                        finished:   { count: 0, points: 0 },
-                        total:      { count: 0, points: 0 }
-                    },
-                    total: {
-                        todo:       { count: 0, points: 0 },
-                        inProgress: { count: 0, points: 0 },
-                        finished:   { count: 0, points: 0 },
-                        total:      { count: 0, points: 0 }
-                    }
-                },
-                epic: {
-                    swag: {
-                        todo:       { count: 0, points: 0 },
-                        inProgress: { count: 0, points: 0 },
-                        finished:   { count: 0, points: 0 },
-                        total:      { count: 0, points: 0 }
-                    },
-                    grooming: {
-                        todo:       { count: 0, points: 0 },
-                        inProgress: { count: 0, points: 0 },
-                        finished:   { count: 0, points: 0 },
-                        total:      { count: 0, points: 0 }
-                    },
-                    team: {
-                        todo:       { count: 0, points: 0 },
-                        inProgress: { count: 0, points: 0 },
-                        finished:   { count: 0, points: 0 },
-                        total:      { count: 0, points: 0 }
-                    },
-                    unestimated: {
-                        todo:       { count: 0, points: 0 },
-                        inProgress: { count: 0, points: 0 },
-                        finished:   { count: 0, points: 0 },
-                        total:      { count: 0, points: 0 }
-                    },
-                    total: {
-                        todo:       { count: 0, points: 0 },
-                        inProgress: { count: 0, points: 0 },
-                        finished:   { count: 0, points: 0 },
-                        total:      { count: 0, points: 0 }
-                    }
-                },
-                goal: {
-                    count: 0,
-                    todo:       { count: 0 },
-                    finished:   { count: 0 },
-                    total:      { count: 0 }
-                }
-            };
+//            stats2 = {
+//                story: {
+//                    swag: {
+//                        todo:       { count: 0, points: 0 },
+//                        inProgress: { count: 0, points: 0 },
+//                        finished:   { count: 0, points: 0 },
+//                        total:      { count: 0, points: 0 }
+//                    },
+//                    grooming: {
+//                        todo:       { count: 0, points: 0 },
+//                        inProgress: { count: 0, points: 0 },
+//                        finished:   { count: 0, points: 0 },
+//                        total:      { count: 0, points: 0 }
+//                    },
+//                    team: {
+//                        todo:       { count: 0, points: 0 },
+//                        inProgress: { count: 0, points: 0 },
+//                        finished:   { count: 0, points: 0 },
+//                        total:      { count: 0, points: 0 }
+//                    },
+//                    unestimated: {
+//                        todo:       { count: 0, points: 0 },
+//                        inProgress: { count: 0, points: 0 },
+//                        finished:   { count: 0, points: 0 },
+//                        total:      { count: 0, points: 0 }
+//                    },
+//                    total: {
+//                        todo:       { count: 0, points: 0 },
+//                        inProgress: { count: 0, points: 0 },
+//                        finished:   { count: 0, points: 0 },
+//                        total:      { count: 0, points: 0 }
+//                    }
+//                },
+//                epic: {
+//                    swag: {
+//                        todo:       { count: 0, points: 0 },
+//                        inProgress: { count: 0, points: 0 },
+//                        finished:   { count: 0, points: 0 },
+//                        total:      { count: 0, points: 0 }
+//                    },
+//                    grooming: {
+//                        todo:       { count: 0, points: 0 },
+//                        inProgress: { count: 0, points: 0 },
+//                        finished:   { count: 0, points: 0 },
+//                        total:      { count: 0, points: 0 }
+//                    },
+//                    team: {
+//                        todo:       { count: 0, points: 0 },
+//                        inProgress: { count: 0, points: 0 },
+//                        finished:   { count: 0, points: 0 },
+//                        total:      { count: 0, points: 0 }
+//                    },
+//                    unestimated: {
+//                        todo:       { count: 0, points: 0 },
+//                        inProgress: { count: 0, points: 0 },
+//                        finished:   { count: 0, points: 0 },
+//                        total:      { count: 0, points: 0 }
+//                    },
+//                    total: {
+//                        todo:       { count: 0, points: 0 },
+//                        inProgress: { count: 0, points: 0 },
+//                        finished:   { count: 0, points: 0 },
+//                        total:      { count: 0, points: 0 }
+//                    }
+//                },
+//                goal: {
+//                    count: 0,
+//                    todo:       { count: 0 },
+//                    finished:   { count: 0 },
+//                    total:      { count: 0 }
+//                }
+//            };
 
             function log() {
                 console.log.apply(console, arguments);
@@ -196,7 +193,7 @@ define([
                 renderCell(viewPart.find('.total'), statsPart.total);
             }
 
-            function render() {
+            function render(stats) {
                 log('render stats....');
 
                 renderRow(view.storiesSwag, stats.story.swag);
@@ -233,37 +230,130 @@ define([
                 return "todo";
             }
 
-            function processItems(items, kind) {
+            function processItems(stats, items, kind) {
                 _.each(items, function(story) {
                     var status = getStatus(story);
                     var estimate = getEstimate(story);
 
                     // update the count and points for the currency.status
                     stats[kind][estimate.currency][status].count++;
-                    stats[kind][estimate.currency][status].points += estimate.points;
+                    stats[kind][estimate.currency][status].points += parseInt(estimate.points);
+
                     // update the count and points for the currency."total"
                     stats[kind][estimate.currency]["total"].count++;
-                    stats[kind][estimate.currency]["total"].points += estimate.points;
+                    stats[kind][estimate.currency]["total"].points += parseInt(estimate.points);
 
                     // update the count and points for the "total".status
                     stats[kind]["total"][status].count++;
-                    stats[kind]["total"][status].points += estimate.points;
+                    stats[kind]["total"][status].points += parseInt(estimate.points);
+
                     // update the count and points for the "total"."total"
                     stats[kind]["total"]["total"].count++;
-                    stats[kind]["total"]["total"].points += estimate.points;
+                    log("  before adding: " + stats[kind]["total"]["total"].points);
+                    log('  adding: ' + estimate.points);
+                    stats[kind]["total"]["total"].points += parseInt(estimate.points);
+                    log("  after adding: " + stats[kind]["total"]["total"].points);
                 });
             }
 
-            function updateStats(backlog) {
-                var itemsByKind = _.groupBy(backlog.items, 'kind');
-                processItems(itemsByKind['story'], 'story');
-                processItems(itemsByKind['epic'], 'epic');
+            function processGoals(stats, backlog) {
+                _.each(backlog.items, function(item) {
+                    // iunnuw???
+                });
+            }
 
-                var goals   = itemsByKind['goal'];
-                // TODO process goals
-                log(goals);
-                console.dir(goals);
-                render();
+            function createStats() {
+                return {
+                    story: {
+                        swag: {
+                            todo:       { count: 0, points: 0 },
+                            inProgress: { count: 0, points: 0 },
+                            finished:   { count: 0, points: 0 },
+                            total:      { count: 0, points: 0 }
+                        },
+                        grooming: {
+                            todo:       { count: 0, points: 0 },
+                            inProgress: { count: 0, points: 0 },
+                            finished:   { count: 0, points: 0 },
+                            total:      { count: 0, points: 0 }
+                        },
+                        team: {
+                            todo:       { count: 0, points: 0 },
+                            inProgress: { count: 0, points: 0 },
+                            finished:   { count: 0, points: 0 },
+                            total:      { count: 0, points: 0 }
+                        },
+                        unestimated: {
+                            todo:       { count: 0, points: 0 },
+                            inProgress: { count: 0, points: 0 },
+                            finished:   { count: 0, points: 0 },
+                            total:      { count: 0, points: 0 }
+                        },
+                        total: {
+                            todo:       { count: 0, points: 0 },
+                            inProgress: { count: 0, points: 0 },
+                            finished:   { count: 0, points: 0 },
+                            total:      { count: 0, points: 0 }
+                        }
+                    },
+                    epic: {
+                        swag: {
+                            todo:       { count: 0, points: 0 },
+                            inProgress: { count: 0, points: 0 },
+                            finished:   { count: 0, points: 0 },
+                            total:      { count: 0, points: 0 }
+                        },
+                        grooming: {
+                            todo:       { count: 0, points: 0 },
+                            inProgress: { count: 0, points: 0 },
+                            finished:   { count: 0, points: 0 },
+                            total:      { count: 0, points: 0 }
+                        },
+                        team: {
+                            todo:       { count: 0, points: 0 },
+                            inProgress: { count: 0, points: 0 },
+                            finished:   { count: 0, points: 0 },
+                            total:      { count: 0, points: 0 }
+                        },
+                        unestimated: {
+                            todo:       { count: 0, points: 0 },
+                            inProgress: { count: 0, points: 0 },
+                            finished:   { count: 0, points: 0 },
+                            total:      { count: 0, points: 0 }
+                        },
+                        total: {
+                            todo:       { count: 0, points: 0 },
+                            inProgress: { count: 0, points: 0 },
+                            finished:   { count: 0, points: 0 },
+                            total:      { count: 0, points: 0 }
+                        }
+                    },
+                    goal: {
+                        count: 0,
+                        todo:       { count: 0 },
+                        finished:   { count: 0 },
+                        total:      { count: 0 }
+                    }
+                };
+            }
+
+            function generateStats(backlog) {
+                var stats = createStats();
+
+                var itemsByKind = _.groupBy(backlog.items, 'kind');
+                processItems(stats, itemsByKind['story'], 'story');
+                processItems(stats, itemsByKind['epic'], 'epic');
+                processGoals(stats, backlog);
+
+                return stats;
+            }
+
+            function updateStats(backlog) {
+                log("update stats....");
+                var stats = generateStats(backlog);
+                console.dir(stats);
+                log("stats.story.total.total.points: " + stats.story.total.total.points);
+                render(stats);
             }
 
             v.appendTo(container);

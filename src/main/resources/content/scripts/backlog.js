@@ -214,7 +214,7 @@ define([
 
             var changesSinceLastPublishedVersion = fetchChanges("in-" + backlog.optimisticLockVersion);
 
-            var summaryText;
+            var summaryText = "";
             if(changesSinceLastPublishedVersion){
                 var averageVelocityText = "";
                 var weekSpans = [2, 6, 12];
@@ -230,13 +230,10 @@ define([
                     averageVelocityText += "\n" + numWeeks + " week average weekly velocity: " + averageVelocity;
                 });
 
-
                 summaryText = renderChanges(changesSinceLastPublishedVersion) + "\n" +
                     "TODO: " + printStuff(totalsTodo) + "\n" +
                     'DONE: ' + printStuff(calculateTotals(itemsDone)) + "\n" +
                     averageVelocityText;
-            }else{
-                summaryText = "";
             }
 
             view.summaryTextArea.text(summaryText);

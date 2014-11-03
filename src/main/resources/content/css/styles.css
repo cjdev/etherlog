@@ -356,8 +356,8 @@ div.backlog {
 }
 
 
-.stats-content .header .columns {
-    font-size: 1em;
+.stats-content .header h5 {
+    margin-bottom: 0px;
 }
 
 .stats-content .total {
