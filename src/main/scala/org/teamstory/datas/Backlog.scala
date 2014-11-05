@@ -3,6 +3,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeInfo.{Id, As}
 import org.teamstory.chart.GoalData
 import org.teamstory.api.BacklogDto
+import org.teamstory.api.BacklogCalculations
 import org.teamstory.api.Item
 
 case class Backlog (
@@ -20,7 +21,17 @@ case class Backlog (
         items = dto.items)
   }
   
-  def toDto(optimisticLockVersion:String) = BacklogDto(id=id, name=name, memo=memo, projectedVelocity=projectedVelocity, items =items, optimisticLockVersion=Some(optimisticLockVersion))
+  def toDto(optimisticLockVersion:String) = BacklogDto(
+              id=id, 
+              name=name, 
+              memo=memo, 
+              projectedVelocity=projectedVelocity, 
+              items =items, 
+              optimisticLockVersion=Some(optimisticLockVersion),
+              calculations=BacklogCalculations(
+                  pointsDone=done,
+                  pointsTodo=todo,
+                  pointsInProgress=inProgress))
   
   def totalSize() = items.size match {
       case 0=>0;
@@ -29,15 +40,17 @@ case class Backlog (
   
   def item(id:String) = items.find(_.id==id)
   
-  def todo() = items.filter(_.kind!="goal").foldLeft(0){(total, item)=>
-    val todo = if(item.isComplete.getOrElse(false)){
-      0
-    }else{
-      item.bestEstimate.getOrElse(0)
+  def sumBestEstimatesForItemsMatching(predicate:(Item)=>Boolean) = {
+    estimatableItems.filter(predicate).foldLeft(0){(total, item)=>
+      total + item.bestEstimate.getOrElse(0)
     }
-            total + todo
   }
   
+  def todo = sumBestEstimatesForItemsMatching{!_.hasCompleted}
+  def done = sumBestEstimatesForItemsMatching{_.hasCompleted}
+  def inProgress = sumBestEstimatesForItemsMatching{_.isInProgress}
+  
+  def estimatableItems = items.filter(_.kind!="goal")
   def goals = items.filter(_.kind=="goal")
   
   def goalHasBeenMet(goalId:String) = {

@@ -58,7 +58,8 @@ case class Item(
     if (firstLine.length() > maxLength) firstLine.substring(0, maxLength) + "..."
     else firstLine
   }
-
+  def hasCompleted = isComplete.getOrElse(false)
+  def isInProgress = inProgress.getOrElse(false)
   def toIdAndShortName = ItemIdAndShortName(id, shortName)
 
   def bestEstimate() = estimates match {
@@ -74,12 +75,18 @@ case class Item(
   }
 }
 
+case class BacklogCalculations(
+        val pointsDone:Int, 
+        val pointsTodo:Int, 
+        val pointsInProgress:Int)
+
 case class BacklogDto(
         val id: String,
         val name: String,
         val memo: String,
         val projectedVelocity: Option[Int] = None,
         val items: Seq[Item],
-        val optimisticLockVersion: Option[String] = None)
+        val optimisticLockVersion: Option[String] = None,
+        val calculations:BacklogCalculations)
 
 }
