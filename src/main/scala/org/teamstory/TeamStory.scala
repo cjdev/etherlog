@@ -51,6 +51,7 @@ import org.teamstory.http.TeamIterationStatsResource
 import org.teamstory.http.GlobalConfigResource
 
 object TeamStory {
+  
   def timeTravelModeIsActivated(args:Array[String]) = args.size >0 && args(0) == "enableTimeTravel"
 
   def main(args: Array[String]) {
@@ -89,6 +90,7 @@ object TeamStory {
         "/" -> new ClasspathResourceObject("/", "/content/index.html", getClass()),
         "/backlog/{backlogId}" -> new ClasspathResourceObject("/backlog/{backlogId}", "/content/backlog.html", getClass()),
         "/team/{teamName}" -> new ClasspathResourceObject("/team/{teamName}", "/content/team.html", getClass()),
+        "/team/{teamName}/iterations/{iterationEndDate}" -> new ClasspathResourceObject("/team/{teamName}/iterations/{iterationEndDate}", "/content/iteration.html", getClass()),
         "/{resource*}" -> new ClasspathResourcesObject("/{resource*}", getClass(), "/content")
     )
 
