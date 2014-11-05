@@ -1,62 +1,59 @@
 <?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1"
-    viewBox="0 0 50 10">
+    viewBox="0 0 50 10" class="default-chart">
      <style type="text/css" >
       <![CDATA[
-        .swag {
+        .default-chart .swag {
             fill: yellow;
         }
-        .todo {
+        .default-chart .todo {
             fill:blue;
         }
-        .todo-right-edge {
+        .default-chart .todo-right-edge {
             stroke:blue;
             stroke-width:.03
         }
-        .done-right-edge {
+        .default-chart .done-right-edge {
             stroke:green;
             stroke-width:.03
         }
-        .done {
+        .default-chart .done {
             fill:green;
         }
-        text {
+        .default-chart text {
             font-size:.5pt;
             font-family:sans-serif;
         }
-        xlabel {
+        .default-chart xlabel {
             transform:rotate(30 20,40);
         }
-        line {
+        .default-chart line {
             stroke:grey;
             stroke-width:.01
         }
-
-        nowLine {
+        .default-chart nowLine {
             stroke:red;
             stroke-width:.05
         }
-
-        .dot {
+        .default-chart .dot {
             stroke:black;
             stroke-width:.01;
             fill:black;
         }
-
-        .projection, .old-projection {
+        .default-chart .projection, .default-chart .old-projection {
             stroke:black;
             stroke-width:.05;
         }
-        .old-projection {
+        .default-chart .old-projection {
             stroke-dasharray: .5,.5;
         }
-        .monthBoundary {
+        .default-chart .monthBoundary {
             stroke:grey;
             stroke-width:.05;
         }
-        .goal-label {
+        .default-chart .goal-label {
 
             font-size:.35pt;
             font-family:sans-serif;

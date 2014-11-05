@@ -102,8 +102,8 @@ class DefaultChartTest extends FunSuite {
     // then
     val expected = resourceAsString("threeItems.svg")
 
-    //            writeToFile(svg, new File("/tmp/actual.svg"))
-    //      writeToFile(expected, new File("/tmp/expected.svg"))
+                writeToFile(svg, new File("/tmp/actual.svg"))
+          writeToFile(expected, new File("/tmp/expected.svg"))
 
     assert(expected === svg)
   }
@@ -162,6 +162,6 @@ class DefaultChartTest extends FunSuite {
 
   private def writeToFile(s: String, f: File) {
     FileUtils.write(f, s)
-    Runtime.getRuntime.exec(Array("gnome-open", f.getAbsolutePath))
+//    Runtime.getRuntime.exec(Array("gnome-open", f.getAbsolutePath))
   }
 }
