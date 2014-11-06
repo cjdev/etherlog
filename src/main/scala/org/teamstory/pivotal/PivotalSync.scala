@@ -9,13 +9,24 @@ import org.teamstory.datas.Backlog
 
 object PivotalSync {
     def pivotalProject2TeamStoryBacklog(stories:Seq[PT5Story], epics:Seq[PT5Epic], project:PT5Project, teamStoryId:String):Backlog = {
+      
+      val weeklyVelocity = project.current_velocity match {
+        case Some(velocity) => (BigDecimal(velocity) / BigDecimal(project.iteration_length)).toInt
+        case None => throw new Exception("must request project such that it includes the 'current_velocity' attribute, e.g. " + 
+                                         "    https://www.pivotaltracker.com/services/v5/projects/12345?fields=:default,current_velocity")   
+      }
+      
       Backlog(
             id=teamStoryId.toString,
             name=project.name,
             memo="work-in-progress",
-            projectedVelocity = None,
+            projectedVelocity = Some(weeklyVelocity),
             items= toItemList(stories, epics))
     }
+    
+    /** 
+     *  Test method for development of the sync feature
+     */
     def main(args:Array[String]){
       
         val pivotalAPIKey = args(0)
@@ -90,10 +101,9 @@ object PivotalSync {
           Some(goalIndexes.last)
       }
       val iceboxBoundaryGoal = Item(id="PTIcebox", name="End of Backlog / Start of Icebox", kind="goal", when=None, estimates=None)
-      val maybeIdx = (maybeFirstIceboxStory, maybeIdxOfLastGoal) match {
-        case (None, None)=>None
-        case (None, Some(idxOfLastGoal)) => Some(idxOfLastGoal + 1)
-        case (Some(firstIceboxStory), _) => {
+      val maybeIdx:Option[Int] = maybeFirstIceboxStory match {
+        case None => None
+        case Some(firstIceboxStory) => {
           println(s"Placing before the first icebox story (${firstIceboxStory.name}")
           val storyItemIdx = stories.indexOf(firstIceboxStory)
           val storyItem = storyItems(storyItemIdx)
@@ -101,8 +111,9 @@ object PivotalSync {
           Some(idxOfFirstIceboxStory)
         }
       }
+      
       maybeIdx match {
-        case Some(idx)=>items.insert(idx, iceboxBoundaryGoal)
+        case Some(idx)=> items.insert(idx, iceboxBoundaryGoal)
         case None=>
       }
         
@@ -134,10 +145,10 @@ object PivotalSync {
         )))
       }
       
-      val description = pt.description match {
-        case null => pt.name
-        case text => pt.name + "\n" + text
-      }
+      val description = pt.name + (pt.description match {
+        case null => ""
+        case text => "\n" + text
+      }) + s"\n  [Mirror of ${pt.url}]"
       
       Item(
         id =  "PT" + pt.id.toString,

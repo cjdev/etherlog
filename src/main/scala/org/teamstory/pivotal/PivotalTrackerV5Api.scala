@@ -13,7 +13,7 @@ class PivotalTrackerV5ApiStub(val authToken:String) {
   
   def getStories(projectId:String) = t.getJson[Array[PT5Story]](s"${projectUrl(projectId)}/stories")
   def getEpics(projectId:String) = t.getJson[Array[PT5Epic]](s"${projectUrl(projectId)}/epics")
-  def getProject(projectId:String) = t.getJson[PT5Project](projectUrl(projectId))
+  def getProject(projectId:String) = t.getJson[PT5Project](s"${projectUrl(projectId)}?fields=:default,current_velocity")
 }
 
 /**
@@ -33,13 +33,36 @@ object PT5DateTime {
   // e.g. 2014-11-06T04:47:06Z
   val pattern = org.joda.time.format.DateTimeFormat.forPattern("YYYY-MM-dd'T'HH:mm:ss'Z'")
   @JsonCreator
-  def deserialize(value:String) = {
-    new PT5DateTime(value)
-  }
+  def deserialize(value:String) = new PT5DateTime(value)
 }
 case class PT5DateTime(@(JsonValue @getter) val value:String) {
   def millis:Long = PT5DateTime.pattern.parseDateTime(value).withZoneRetainFields(UTC).getMillis()
 }
+
+
+case class PT5TimeZone(
+    /**
+     * The Olson name for the time zone.
+     */
+    olson_name:String ,
+    
+    /**
+     * The offset, from UTC, of the time zone. This is a string containing a formatted representation of the time zone offset. First, and optional + or - sign (no sign is equivalent to '+'), then a number of hours, a colon, and a number of minutes. Only valid, internationally-recognized time zone offsets should be used when sending zone information for the client. For example, "-01:03" and "+23:00" are not valid values, even though they match the encoding pattern.
+     */
+    offset:String,
+    
+    /**
+     * The type of this object: time_zone. This field is read only.
+     */
+    kind:String
+)
+
+
+object PT5CalendarDay {
+  @JsonCreator
+  def deserialize(value:String) = new PT5CalendarDay(value)
+}
+case class PT5CalendarDay(@(JsonValue @getter) val value:String) {}
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 case class PT5Label(
@@ -325,8 +348,6 @@ case class PT5Epic (
 
 )
 
-
-
 @JsonIgnoreProperties(ignoreUnknown=true)
 case class PT5Project (
     /**
@@ -349,118 +370,197 @@ case class PT5Project (
      * 
      * This field is read only.
      */
-    version:Int
-/**
- * 
- 
-iteration_length int 
- —  The number of weeks in an iteration.
- 
-week_start_day enumerated string 
- —  The day in the week the project's iterations are to start on.
-Valid enumeration values: Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
- 
-point_scale string[255] 
- —  The specification for the "point scale" available for entering story estimates within the project. It is specified as a comma-delimited series of values--any value that would be acceptable on the Project Settings page of the Tracker web application may be used here. If an exact match to one of the built-in point scales, the project will use that point scale. If another comma-separated point-scale string is passed, it will be treated as a "custom" point scale. The built-in scales are "0,1,2,3", "0,1,2,4,8", and "0,1,2,3,5,8".
- 
-point_scale_is_custom boolean 
- —  True if the value of the point_scale string represents a custom, user-defined point scale rather than one of the ones built into Pivotal Tracker. This is important because of restrictions on moving stories from projects using a custom point scale into one using a standard point scale. Note that the set of built-in point scales is not considered part of the definition of an API version. Clients should be capable of processing any point_scale string that adheres to the format described above, and rely on this flag (rather than any explicit list that the client contains) to determine whether the project's point_scale is custom or standard. This field is read only.
- 
-bugs_and_chores_are_estimatable boolean 
- —  When true, Tracker will allow estimates to be set on Bug- and Chore-type stories. This is strongly not recommended. Please see the FAQ for more information.
- 
-automatic_planning boolean 
- —  When false, Tracker suspends the emergent planning of iterations based on the project's velocity, and allows users to manually control the set of unstarted stories included in the Current iteration. See the FAQ for more information.
- 
-enable_following boolean 
- —  When true, Tracker allows users to follow stories and epics, as well as use @mentions in comments. This field is read only.
- 
-enable_tasks boolean 
- —  When true, Tracker allows individual tasks to be created and managed within each story in the project.
- 
-start_date date 
- —  The first day that should be in an iteration of the project. If both this and "week_start_day" are supplied, they must be consistent. It is specified as a string in the format "YYYY-MM-DD" with "01" for January. If this is not supplied, it will remain blank (null), but "start_time" will have a default value based on the stories in the project.
- 
-time_zone time_zone 
- —  The "native" time zone for the project, independent of the time zone(s) from which members of the project view or modify it.
- 
-velocity_averaged_over int 
- —  The number of iterations that should be used when averaging the number of points of Done stories in order to compute the project's velocity.
- 
-shown_iterations_start_time datetime 
- —  The start time of the first iteration for which stories will be returned as part of the project, see 'number_of_done_iterations_to_show'. This field is read only. This field is excluded by default.
- 
-start_time datetime 
- —  The computed start time of the project, based on the other project attributes and the stories contained in the project. If they are provided, the value of start_time will be based on week_start_day and/or start_date. However, if the project contains stories with accepted_at dates before the time that would otherwise be computed, the value returned in start_time will be adjusted accordingly. This field is read only.
- 
-number_of_done_iterations_to_show int 
- —  There are areas within the Tracker UI and the API in which sets of stories automatically exclude the Done stories contained in older iterations. For example, in the web UI, the DONE panel doesn't necessarily show all Done stories by default, and provides a link to click to cause the full story set to be loaded/displayed. The value of this attribute is the maximum number of Done iterations that will be loaded/shown/included in these areas.
- 
-has_google_domain boolean 
- —  When true, the project has been associated with a Google Apps domain. Unless this is true, the /projects/{project_id}/google_attachments endpoint and the google_attachment resource cannot be used. This field is read only.
- 
-description string[140] 
- —  A description of the project's content. Entered through the web UI on the Project Settings page.
- 
-profile_content string[65535] 
- —  A long description of the project. This is displayed on the Project Overview page in the Tracker web UI.
- 
-enable_incoming_emails boolean 
- —  When true, the project will accept incoming email responses to Tracker notification emails and convert them to comments on the appropriate stories.
+    version:Int,
+    
+    /**
+     * The number of weeks in an iteration.
+     */
+    iteration_length:Int,
+    
+    /**
+     *  enumerated string 
+     *    The day in the week the project's iterations are to start on.
+     *    Valid enumeration values: Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
+     */
+    week_start_day:String,
+    
+    /**
+     * The specification for the "point scale" available for entering story estimates within the project. It is specified as a comma-delimited series of values--any value that would be acceptable on the Project Settings page of the Tracker web application may be used here. If an exact match to one of the built-in point scales, the project will use that point scale. If another comma-separated point-scale string is passed, it will be treated as a "custom" point scale. The built-in scales are "0,1,2,3", "0,1,2,4,8", and "0,1,2,3,5,8".
+     * string[255]
+     */
+    point_scale:String, 
+    
+    /**
+     * True if the value of the point_scale string represents a custom, user-defined point scale rather than one of the ones built into Pivotal Tracker. This is important because of restrictions on moving stories from projects using a custom point scale into one using a standard point scale. Note that the set of built-in point scales is not considered part of the definition of an API version. Clients should be capable of processing any point_scale string that adheres to the format described above, and rely on this flag (rather than any explicit list that the client contains) to determine whether the project's point_scale is custom or standard. This field is read only.
+     */
+    point_scale_is_custom:Boolean,
+    
+    
+    /**
+     * When true, Tracker will allow estimates to be set on Bug- and Chore-type stories. This is strongly not recommended. Please see the FAQ for more information.
+     */
+    bugs_and_chores_are_estimatable:Boolean,
 
-initial_velocity int 
- —  The number which should be used as the project's velocity when there are not enough recent iterations with Done stories for an actual velocity to be computed.
- 
-public boolean 
- —  When true, Tracker will allow any user on the web to view the content of the project. The project will not count toward the limits of a paid subscription, and may be included on Tracker's Public Projects listing page.
- 
-atom_enabled boolean 
- —  When true, Tracker allows people to subscribe to the Atom (RSS, XML) feed of project changes.
- 
-current_iteration_number int 
- —  Current iteration number for the project. This field is read only.
- 
-current_velocity int 
- —  Current velocity for the project. This field is read only. This field is excluded by default.
- 
-current_volatility float 
- —  Relative standard deviation of the points (adjusted for team strength and iteration length) completed over the number iterations used to compute velocity. This field is read only. This field is excluded by default.
- 
-account_id int 
- —  The ID number for the account which contains the project.
- 
-accounting_type enumerated string 
- —  One of the defined accounting types. This field is excluded by default.
-Valid enumeration values: unbillable, billable, overhead
- 
-featured boolean 
- —  Whether or not the project will be included on Tracker's Featured Public Projects web page. This field is excluded by default.
- 
-story_ids List[int] 
- —  IDs of stories currently in the project. It is possible that not all stories in the 'accepted' state will be included in this list. Only those stories accepted since the begining of a particular done iteration will be returned. This is controlled by an entry on the project's Settings page in the Tracker web user interface, and the state of that entry is reflected in the number_of_done_iterations_to_show property of the project. This property contains a number of iterations. Tracker counts back this number of iterations prior to the present Current iteration, and will not include stories from Done iterations prior to this group. To access these stories, use the GET /projects/##/stories endpoint. This field is read only. This field is excluded by default. In API responses, this attribute may be story_ids or stories.
- 
-epic_ids List[int] 
- —  IDs of epics currently in the project. This field is read only. This field is excluded by default. In API responses, this attribute may be epic_ids or epics.
- 
-membership_ids List[int] 
- —  IDs of the exising memberships. This field is read only. This field is excluded by default. In API responses, this attribute may be membership_ids or memberships.
- 
-label_ids List[int] 
- —  IDs of labels currently in the project. This field is read only. This field is excluded by default. In API responses, this attribute may be label_ids or labels.
- 
-integration_ids List[int] 
- —  IDs of integrations currently configured for the project. Note that integration information must be retrieved by getting project information with integrations included as a nested resource; there is currently no independent RESTy endpoint for accessing integrations. This field is read only. This field is excluded by default. In API responses, this attribute may be integration_ids or integrations.
- 
-iteration_override_numbers List[int] 
- —  IDs of iteration overrides currently configured for the project. Note that iteration override information must be retrieved by getting project information with iteration overrides included as a nested resource; there is currently no independent RESTy endpoint for accessing iteration overrides, but there is one for iterations, which contains the same info plus additional dynamic fields related to emergent iteration calculation. This field is read only. This field is excluded by default. In API responses, this attribute may be iteration_override_numbers or iteration_override_numbers.
- 
-created_at datetime 
- —  Creation time. This field is read only.
- 
-updated_at datetime 
- —  Time of last update. This field is read only.
- 
-kind string 
- —  The type of this object: project. This field is read only.
- */
+    /**
+     *  When false, Tracker suspends the emergent planning of iterations based on the project's velocity, and allows users to manually control the set of unstarted stories included in the Current iteration. See the FAQ for more information.
+     */ 
+    automatic_planning:Boolean, 
+
+    
+    /**
+     * When true, Tracker allows users to follow stories and epics, as well as use @mentions in comments. This field is read only.
+     */
+    enable_following:Boolean,
+    
+    /**
+     * When true, Tracker allows individual tasks to be created and managed within each story in the project.
+     */
+    enable_tasks:Boolean,
+    
+    /**
+     * The first day that should be in an iteration of the project. If both this and "week_start_day" are supplied, they must be consistent. It is specified as a string in the format "YYYY-MM-DD" with "01" for January. If this is not supplied, it will remain blank (null), but "start_time" will have a default value based on the stories in the project.
+     */
+    start_date:PT5CalendarDay,
+    
+    /**
+     * The "native" time zone for the project, independent of the time zone(s) from which members of the project view or modify it.
+     * time_zone
+     */
+    time_zone:PT5TimeZone,
+    
+    /**
+     * The number of iterations that should be used when averaging the number of points of Done stories in order to compute the project's velocity.
+     */
+    velocity_averaged_over:Int,
+
+    /**
+     * The start time of the first iteration for which stories will be returned as part of the project, see 'number_of_done_iterations_to_show'. This field is read only. This field is excluded by default.
+     */
+    shown_iterations_start_time:PT5DateTime,
+
+    /**
+     * The computed start time of the project, based on the other project attributes and the stories contained in the project. If they are provided, the value of start_time will be based on week_start_day and/or start_date. However, if the project contains stories with accepted_at dates before the time that would otherwise be computed, the value returned in start_time will be adjusted accordingly. This field is read only.
+     */
+    start_time:PT5DateTime,
+    
+    /**
+     *  There are areas within the Tracker UI and the API in which sets of stories automatically exclude the Done stories contained in older iterations. For example, in the web UI, the DONE panel doesn't necessarily show all Done stories by default, and provides a link to click to cause the full story set to be loaded/displayed. The value of this attribute is the maximum number of Done iterations that will be loaded/shown/included in these areas.
+     */ 
+    number_of_done_iterations_to_show:Int, 
+    
+    /**
+     *  When true, the project has been associated with a Google Apps domain. Unless this is true, the /projects/{project_id}/google_attachments endpoint and the google_attachment resource cannot be used. This field is read only.
+     */ 
+    has_google_domain:Boolean,
+    
+    /**
+     * A description of the project's content. Entered through the web UI on the Project Settings page.
+     * string[140]
+     */
+    description:String, 
+    
+    /**
+     * A long description of the project. This is displayed on the Project Overview page in the Tracker web UI.
+     * string[65535]
+     */
+    profile_content:String,
+    
+    /**
+     * When true, the project will accept incoming email responses to Tracker notification emails and convert them to comments on the appropriate stories.
+     */
+    enable_incoming_emails:Boolean,
+    
+
+    /**
+     * The number which should be used as the project's velocity when there are not enough recent iterations with Done stories for an actual velocity to be computed.
+     */
+    initial_velocity:Int,
+    
+    /**
+     * When true, Tracker will allow any user on the web to view the content of the project. The project will not count toward the limits of a paid subscription, and may be included on Tracker's Public Projects listing page.
+     */
+    public:Boolean,
+    
+    /**
+     * When true, Tracker allows people to subscribe to the Atom (RSS, XML) feed of project changes
+     */
+    atom_enabled:Boolean,
+    
+    /**
+     * Current iteration number for the project. This field is read only.
+     */
+    current_iteration_number:Int,
+    
+    /**
+     * Current velocity for the project. This field is read only. This field is excluded by default.
+     */
+    current_velocity:Option[Int], 
+    
+    /**
+     * Relative standard deviation of the points (adjusted for team strength and iteration length) completed over the number iterations used to compute velocity. This field is read only. This field is excluded by default.
+     */
+    current_volatility:BigDecimal,
+
+    /**
+     * The ID number for the account which contains the project.
+     */
+    account_id:Int,
+    
+    /**
+     * One of the defined accounting types. This field is excluded by default.
+     *    enumerated string
+     *    Valid enumeration values: unbillable, billable, overhead
+     */
+    accounting_type:String,
+    
+    /**
+     * Whether or not the project will be included on Tracker's Featured Public Projects web page. This field is excluded by default.
+     */
+    featured:Boolean,
+    
+    /**
+     * IDs of stories currently in the project. It is possible that not all stories in the 'accepted' state will be included in this list. Only those stories accepted since the begining of a particular done iteration will be returned. This is controlled by an entry on the project's Settings page in the Tracker web user interface, and the state of that entry is reflected in the number_of_done_iterations_to_show property of the project. This property contains a number of iterations. Tracker counts back this number of iterations prior to the present Current iteration, and will not include stories from Done iterations prior to this group. To access these stories, use the GET /projects/##/stories endpoint. This field is read only. This field is excluded by default. In API responses, this attribute may be story_ids or stories.
+     */
+    story_ids:Seq[Int],
+    
+    /**
+     * IDs of epics currently in the project. This field is read only. This field is excluded by default. In API responses, this attribute may be epic_ids or epics.
+     */
+    epic_ids:Seq[Int],
+    
+    /**
+     * IDs of the exising memberships. This field is read only. This field is excluded by default. In API responses, this attribute may be membership_ids or memberships.
+     */
+    membership_ids:Seq[Int],
+    
+    /**
+     * IDs of labels currently in the project. This field is read only. This field is excluded by default. In API responses, this attribute may be label_ids or labels.
+     */
+    label_ids:Seq[Int], 
+    
+    /**
+     * IDs of integrations currently configured for the project. Note that integration information must be retrieved by getting project information with integrations included as a nested resource; there is currently no independent RESTy endpoint for accessing integrations. This field is read only. This field is excluded by default. In API responses, this attribute may be integration_ids or integrations.
+     */
+    integration_ids:Seq[Int],
+    
+    /**
+     * IDs of iteration overrides currently configured for the project. Note that iteration override information must be retrieved by getting project information with iteration overrides included as a nested resource; there is currently no independent RESTy endpoint for accessing iteration overrides, but there is one for iterations, which contains the same info plus additional dynamic fields related to emergent iteration calculation. This field is read only. This field is excluded by default. In API responses, this attribute may be iteration_override_numbers or iteration_override_numbers.
+     */
+    iteration_override_numbers:Seq[Int],
+    
+    /**
+     * Creation time. This field is read only.
+     */
+    created_at:PT5DateTime,
+   
+    /**
+     * Time of last update. This field is read only.
+     * datetime
+     */
+    updated_at:PT5DateTime,
+    
+    /**
+     * The type of this object: project. This field is read only.
+     */
+    kind:String
 )
