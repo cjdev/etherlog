@@ -7,4 +7,5 @@ trait DatabaseTrait[T] {
     def toStream(implicit manifest:Manifest[T]):Stream[T]
     def map[R](fn:(String, T)=>R)(implicit manifest:Manifest[T]):Seq[R]
     def scan(fn:(String, T)=>Unit)(implicit manifest:Manifest[T])
+    def filter(fn:(String, T)=>Boolean)(implicit manifest:Manifest[T]):Stream[T]
 }

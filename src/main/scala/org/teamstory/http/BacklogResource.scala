@@ -30,26 +30,13 @@ class BacklogResource (data:Data, service:Service, clock:Clock) extends HttpObje
       val dto = Jackson.parseJson[BacklogDto](readAsStream(req.representation()));
       val backlog = data.backlogs.get(id);
       
-      val newVersion = new BacklogVersion(
-                          id = UUID.randomUUID().toString(),
-                          when = clock.now.getMillis,
-                          isPublished = false,
-                          previousVersion = backlog.latestVersion,
-                          backlog = new Backlog(dto))
-      
-      println("the time is now " + new Instant(newVersion.when))
-      
       val lockCheckPasses = dto.optimisticLockVersion match {
         case None => false
         case Some(version) => version == backlog.latestVersion
       }
       
       if(lockCheckPasses){
-        val updatedBacklog = backlog.copy(latestVersion = newVersion.id)
-          data.versions.put(updatedBacklog.latestVersion, newVersion);
-          data.backlogs.put(id, updatedBacklog)
-          
-          service.notifySubscribers(backlog)
+          service.saveBacklogUpdate(new Backlog(dto))
           get(req)
       }else{
           CONFLICT(Text(s"Mid-air collission? (given ${dto.optimisticLockVersion} but expected ${backlog.latestVersion}"))

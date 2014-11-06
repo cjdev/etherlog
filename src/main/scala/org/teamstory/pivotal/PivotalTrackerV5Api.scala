@@ -338,11 +338,20 @@ case class PT5Project (
      * Required On Create  —  The name of the project. This field is required on create.
      * string[50] 
      */
-    name:String
+    name:String,
+
+    /**
+     * A counter that is incremented each time something is changed within a project. The 
+     * project version is used to track whether a client is 'up to date' with respect to 
+     * the current content of the project on the server, and to identify what updates have 
+     * to be made to the client's local copy of the project (if it stores one) to 
+     * re-synchronize it with the server. 
+     * 
+     * This field is read only.
+     */
+    version:Int
 /**
  * 
-version int 
- —  A counter that is incremented each time something is changed within a project. The project version is used to track whether a client is 'up to date' with respect to the current content of the project on the server, and to identify what updates have to be made to the client's local copy of the project (if it stores one) to re-synchronize it with the server. This field is read only.
  
 iteration_length int 
  —  The number of weeks in an iteration.

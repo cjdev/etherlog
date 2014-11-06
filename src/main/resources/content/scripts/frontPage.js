@@ -102,7 +102,15 @@ define(["jquery", "http", "modernizr", "fastclick", "foundation.reveal"],
                 $.each(backlogs, function(idx, backlog){
                     var entry;
 
-                    entry = $('<div class="row backlog-row"><div class="small-9 columns backlog-list-entry"><a href="/backlog/' + backlog.id + '"></a></div><div class="small-3 columns"><button class="tiny radius archive-button">archive</button></div></div>');
+                    entry = $('<div class="row backlog-row">' + 
+                                  '<div class="small-9 columns backlog-list-entry">'+ 
+                                       '<a href="/backlog/' + backlog.id + '"></a>' + 
+                                   '</div>' + 
+                                   '<div class="small-3 columns">' + 
+                                       '<button class="tiny radius archive-button">archive</button>' + 
+                                       '<button class="tiny radius pivotal-tracker-link-button">link</button>' + 
+                                   '</div>' + 
+                               '</div>');
 
                     function isArchived(){
                         var val = backlog.whenArchived!==null;
@@ -121,7 +129,49 @@ define(["jquery", "http", "modernizr", "fastclick", "foundation.reveal"],
 
                     }
                     redraw();
+                    
+                    entry.find(".pivotal-tracker-link-button").click(function(){
+                        var modal = $('#pivotal-tracker-link-modal');
+                        
 
+                        var view = {
+                                apiKeyField:modal.find(".api-key"),
+                                projectIdField:modal.find(".project-id"),
+                                confirmButton:modal.find(".confirm-button"),
+                                cancelButton:modal.find(".cancel-button")
+                        };
+                        
+                        view.apiKeyField.val("");
+                        view.projectIdField.val("");
+                        
+                        view.confirmButton.click(function() {
+                            
+                            var data = JSON.stringify({
+                                pivotalTrackerLink:{
+                                    projectId:view.projectIdField.val(),
+                                    apiKey:view.apiKeyField.val()
+                                }
+                            });
+                            
+                            http({
+                               url: "/api/backlogs/" + backlog.id + "/status",
+                               method: "PUT",
+                               data:data,
+                               onResponse: function (response) {
+                                   if(response.status === 200){
+                                       backlog = JSON.parse(response.body);
+                                       modal.foundation('reveal', 'close');
+                                       redraw();
+                                   }else{
+                                       alert("ERROR: " + response.status);
+                                   }
+                               }
+                           });
+                           });
+                        
+                        modal.foundation('reveal', 'open');
+                    });
+                    
                     entry.find(".archive-button").click(function (){
                         var modal = $('#archive-modal');
 

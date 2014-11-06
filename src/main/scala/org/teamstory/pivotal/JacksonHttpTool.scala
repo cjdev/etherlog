@@ -11,6 +11,7 @@ class JacksonHttpTool(headers:Header*) {
   val client = HttpClientBuilder.create().setDefaultHeaders(headers).build()
   
   def getJson[T](url:String)(implicit manifest:Manifest[T]):T = {
+        println(s"[GET] $url")
         val request = new HttpGet(url)
         val response = client.execute(request)
         val e = response.getEntity()
@@ -19,6 +20,7 @@ class JacksonHttpTool(headers:Header*) {
         result
   }
   def putJson[T](url:String, data:T)(implicit manifest:Manifest[T]):Unit = {
+        println(s"[PUT] $url")
         val request = new HttpPut(url)
         request.setEntity(new ByteArrayEntity(Jackson.jackson.writeValueAsBytes(data)))
         val response = client.execute(request)

@@ -6,6 +6,7 @@ import java.util.UUID
 import scala.collection.mutable.ListBuffer
 import org.apache.commons.httpclient.methods.PostMethod
 import org.apache.commons.httpclient.HttpClient
+import org.joda.time.Instant
 
 class Service (data:Data, clock:Clock) {
 
@@ -37,12 +38,31 @@ class Service (data:Data, clock:Clock) {
         val status = BacklogStatus(
                 id=backlogId,
                 latestVersion = initialVersion.id,
-                whenArchived=None)
+                whenArchived=None,
+                pivotalTrackerLink = None)
 
         data.backlogs.put(backlogId, status)
         status.id
     }
-
+    
+    def saveBacklogUpdate(update:Backlog) {
+      val id = update.id;
+      val backlog = data.backlogs.get(id);
+      val newVersion = new BacklogVersion(
+                  id = UUID.randomUUID().toString(),
+                  when = clock.now.getMillis,
+                  isPublished = false,
+                  previousVersion = backlog.latestVersion,
+                  backlog = update)
+      
+      println("the time is now " + new Instant(newVersion.when))
+      
+      val updatedBacklog = backlog.copy(latestVersion = newVersion.id)
+      data.versions.put(updatedBacklog.latestVersion, newVersion);
+      data.backlogs.put(id, updatedBacklog)
+      
+      notifySubscribers(backlog)
+    }
 
     def notifySubscribers(backlog: BacklogStatus) {
       SubscriberConfiguration.getSubscriberUrls("subscribers.properties") match {

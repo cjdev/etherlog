@@ -16,7 +16,25 @@ class BacklogStatusResource(data:Data, clock:Clock) extends HttpObject("/api/bac
       val backlog = data.backlogs.get(id)
       val newStatus = Jackson.parseJson[BacklogStatusPatch](readAsStream(req.representation()));
       
-      val whenArchived = (newStatus.archived, backlog.whenArchived) match {
+      val whenArchived = newStatus.archived match {
+        case Some(isArchived)=> calculateWhenArchivedUpdate(isArchived, backlog.whenArchived)
+        case None=>backlog.whenArchived 
+      }
+      
+      val newBacklog = backlog.copy(
+                          whenArchived=whenArchived,
+                          pivotalTrackerLink=newStatus.pivotalTrackerLink)
+                          
+      if(newBacklog.pivotalTrackerLink .isDefined){
+        println("Linking to pivotal tracker: " + newBacklog.pivotalTrackerLink )
+      }
+      data.backlogs.put(id, newBacklog);
+      
+      OK(JerksonJson(data.toBacklogListEntry(newBacklog)))
+    }
+    
+    private def calculateWhenArchivedUpdate(newArchivedStatus:Boolean, oldArchivedStatus:Option[Long]):Option[Long] = {
+      (newArchivedStatus, oldArchivedStatus) match {
         case (true, None)=>{
           Some(clock.now.getMillis)
         }
@@ -25,10 +43,5 @@ class BacklogStatusResource(data:Data, clock:Clock) extends HttpObject("/api/bac
         }
         case (_, whenArchived) => whenArchived
       }
-      
-      val newBacklog = backlog.copy(whenArchived=whenArchived)
-      data.backlogs.put(id, newBacklog);
-      
-      OK(JerksonJson(data.toBacklogListEntry(newBacklog)))
     }
 }

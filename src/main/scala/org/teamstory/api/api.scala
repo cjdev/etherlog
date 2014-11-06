@@ -18,7 +18,9 @@ case class StatsLogEntry(version: String, when: Long, memo: String, team: Int, n
 
 case class BacklogListEntry(id: String, name: String, whenArchived: Option[Long])
 
-case class BacklogStatusPatch(archived: Boolean)
+case class PivotalTrackerLink(projectId:Int, apiKey:String)
+
+case class BacklogStatusPatch(archived: Option[Boolean], pivotalTrackerLink:Option[PivotalTrackerLink])
 
 case class VersionNameAndTime(
         id: String,

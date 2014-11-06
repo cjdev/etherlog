@@ -47,6 +47,17 @@ class DatabaseImpl[T](basePath: Path) extends DatabaseTrait[T] {
     }
     results
   }
+  
+  override def filter(fn:(String, T) => Boolean)(implicit manifest: Manifest[T]):Stream[T] = {
+    val results = ListBuffer[T]()
+    scan{(key, value)=>
+      if(fn(key, value)){
+        results += value
+      }
+    }
+    
+    results.toStream
+  }
 
   override def scan(fn: (String, T) => Unit)(implicit manifest: Manifest[T]) {
     val files = basePath.listFiles()

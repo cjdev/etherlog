@@ -19,6 +19,7 @@ class TeamResourceTest extends FunSuite {
                 def toStream(implicit manifest:Manifest[TeamDto]):Stream[TeamDto] = null
                 def map[R](fn:(String, TeamDto)=>R)(implicit manifest:Manifest[TeamDto]):Seq[R] = null
                 def scan(fn:(String, TeamDto)=>Unit)(implicit manifest:Manifest[TeamDto]) = ()
+                def filter(fn:(String, TeamDto)=>Boolean)(implicit manifest:Manifest[TeamDto]) = Stream()
             }
         
         }
