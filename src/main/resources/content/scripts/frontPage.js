@@ -168,7 +168,9 @@ define(["jquery", "http", "modernizr", "fastclick", "foundation.reveal"],
                                }
                            });
                            });
-                        
+                        view.cancelButton.click(function(){
+                            modal.foundation('reveal', 'close');
+                        });
                         modal.foundation('reveal', 'open');
                     });
                     
