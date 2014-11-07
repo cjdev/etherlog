@@ -89,8 +89,6 @@ define(["jquery", "http", "modernizr", "fastclick", "foundation.reveal"],
                     }
                 });
 
-                //var backlogs = allBacklogs;
-
                 function sortByName(a, b){
                     var aName = a.name==null?"unnamed":a.name.toLowerCase();
                     var bName = b.name==null?"unnamed":b.name.toLowerCase();
@@ -102,105 +100,108 @@ define(["jquery", "http", "modernizr", "fastclick", "foundation.reveal"],
                 $.each(backlogs, function(idx, backlog){
                     var entry;
 
-                    entry = $('<div class="row backlog-row">' + 
-                                  '<div class="small-9 columns backlog-list-entry">'+ 
-                                       '<a href="/backlog/' + backlog.id + '"></a>' + 
-                                   '</div>' + 
-                                   '<div class="small-3 columns">' + 
-                                       '<button class="tiny radius archive-button">archive</button>' + 
-                                       '<button class="tiny radius pivotal-tracker-link-button">link</button>' + 
-                                   '</div>' + 
-                               '</div>');
+                    entry = $(
+                        '<div class="row backlog-row">' +
+                        '    <div class="small-9 columns backlog-list-entry">'+
+                        '        <a href="/backlog/' + backlog.id + '"></a>' +
+                        '    </div>' +
+                        '    <div class="small-3 columns">' +
+                        '        <ul class="button-group">' +
+                        '            <li><a href="#" class="tiny button archive-button">Archive</a></li>' +
+                        '            <li><a href="#" class="tiny button link-button">Link</a></li>' +
+                        '        </ul>' +
+                        '    </div>' +
+                        '</div>');
 
                     function isArchived(){
-                        var val = backlog.whenArchived!==null;
-                        return val;
+                        return backlog.whenArchived !== null;
                     }
+
                     function redraw(){
                         var name = isArchived() ? backlog.name + " [ARCHIVED]" : backlog.name;
-                        entry.find("a").text(name);
-                        if(isArchived()){
-                            entry.addClass("archived-backlog-list-entry")
+                        entry.find(".backlog-list-entry a").text(name);
+
+                        if(isArchived()) {
+                            entry.addClass("archived-backlog-list-entry");
                             entry.toggle(body.find("#show-archived-checkbox").is(":checked"));
-                            entry.find('.archive-button').prop('disabled', true);
+                            entry.find('.archive-button').attr('disabled', true);
                         }else {
                             entry.removeClass("archived-backlog-list-entry")
                         }
 
                     }
                     redraw();
-                    
+
                     entry.find(".pivotal-tracker-link-button").click(function(){
                         var modal = $('#pivotal-tracker-link-modal');
-                        
+
 
                         var view = {
-                                apiKeyField:modal.find(".api-key"),
-                                projectIdField:modal.find(".project-id"),
-                                confirmButton:modal.find(".confirm-button"),
-                                cancelButton:modal.find(".cancel-button")
+                            apiKeyField:modal.find(".api-key"),
+                            projectIdField:modal.find(".project-id"),
+                            confirmButton:modal.find(".confirm-button"),
+                            cancelButton:modal.find(".cancel-button")
                         };
-                        
+
                         view.apiKeyField.val("");
                         view.projectIdField.val("");
-                        
+
                         view.confirmButton.click(function() {
-                            
+
                             var data = JSON.stringify({
                                 pivotalTrackerLink:{
                                     projectId:view.projectIdField.val(),
                                     apiKey:view.apiKeyField.val()
                                 }
                             });
-                            
+
                             http({
-                               url: "/api/backlogs/" + backlog.id + "/status",
-                               method: "PUT",
-                               data:data,
-                               onResponse: function (response) {
-                                   if(response.status === 200){
-                                       backlog = JSON.parse(response.body);
-                                       modal.foundation('reveal', 'close');
-                                       redraw();
-                                   }else{
-                                       alert("ERROR: " + response.status);
-                                   }
-                               }
-                           });
-                           });
+                                url: "/api/backlogs/" + backlog.id + "/status",
+                                method: "PUT",
+                                data:data,
+                                onResponse: function (response) {
+                                    if(response.status === 200){
+                                        backlog = JSON.parse(response.body);
+                                        modal.foundation('reveal', 'close');
+                                        redraw();
+                                    }else{
+                                        alert("ERROR: " + response.status);
+                                    }
+                                }
+                            });
+                        });
                         view.cancelButton.click(function(){
                             modal.foundation('reveal', 'close');
                         });
                         modal.foundation('reveal', 'open');
                     });
-                    
+
                     entry.find(".archive-button").click(function (){
+                        if (isArchived()) return;
                         var modal = $('#archive-modal');
 
                         modal.find('.backlog-name').text(backlog.name);
                         modal.find('.archive-confirm-button').click(function() {
-                         http({
-                            url: "/api/backlogs/" + backlog.id + "/status",
-                            method: "PUT",
-                            data:JSON.stringify({
-                                archived:!isArchived()
-                            }),
-                            onResponse: function (response) {
-                                if(response.status === 200){
-                                    backlog = JSON.parse(response.body);
-                                    modal.foundation('reveal', 'close');
-                                    redraw();
-                                }else{
-                                    alert("ERROR: " + response.status);
+
+                            http({
+                                url: "/api/backlogs/" + backlog.id + "/status",
+                                method: "PUT",
+                                data:JSON.stringify({
+                                    archived:!isArchived()
+                                }),
+                                onResponse: function (response) {
+                                    if(response.status === 200){
+                                        backlog = JSON.parse(response.body);
+                                        modal.foundation('reveal', 'close');
+                                        redraw();
+                                    }else{
+                                        alert("ERROR: " + response.status);
+                                    }
                                 }
-                            }
-                        });
+                            });
                         });
                         modal.foundation('reveal', 'open');
-                        return;
-
-                   });
-
+                    });
                     body.find("#backloglist").append(entry);
                 });
             }

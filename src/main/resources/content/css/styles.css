@@ -53,6 +53,9 @@ div.bugzilla-emblem {
     border-color: #dddddd;
 }
 
+#backlogList .button {
+    margin-bottom: 0;
+}
 
 .backlog-list-entry, .teams-list-entry{
     font-size: 2em;
