@@ -1,6 +1,7 @@
 define([
     "jquery",
     "jqueryui",
+    "react",
     "underscore",
     "http",
     "uuid",
@@ -8,16 +9,22 @@ define([
     "item-widget",
     "activity-monitor",
     "history-slider",
-    "backlog-statistics",
+    "jsx!backlog-statistics",
     "modernizr",
     "fastclick",
     "foundation.reveal",
     "foundation.slider"],
-    function($, jqueryui, _, http, uuid, Util, ItemWidget, ActivityMonitor, HistorySlider, BacklogStats) {
+    function($, jqueryui, React, _, http, uuid, Util, ItemWidget, ActivityMonitor, HistorySlider, BacklogStats) {
         $(document).foundation();
 
         const kindsInOrderOfPrecedence = ["team", "grooming", "swag"];
+        const _DEBUG = true;
 
+        function log() {
+            if (_DEBUG) {
+                console.log.apply(console, arguments);
+            }
+        }
         var globalConfig,
             backlog,
             lastDragged,
@@ -37,7 +44,7 @@ define([
                 chartPanel: where.find(".chart-panel"),
                 statsToggleButton: where.find(".stats-toggle-button"),
                 statsPanel: where.find(".stats-panel"),
-                statsContent: where.find(".stats-content"),
+                statsContent: where.find(".stats-panel .stats-content"),
                 finishedButton: where.find(".finished-toggle-button"),
                 editButton : where.find(".edit-backlog-button"),
                 publishButton: where.find(".publish-button"),
@@ -65,10 +72,7 @@ define([
 
             activityMonitor = ActivityMonitor(view.homeButton,
                 function() {view.homeButton.addClass("fa-spin")},
-                function() {view.homeButton.removeClass("fa-spin")}),
-
-            backlogStats = BacklogStats(view.statsContent);
-
+                function() {view.homeButton.removeClass("fa-spin")});
 
         function parseBacklogIdFromURL(){
             var parts = window.location.toString().split("#")[0].split("/");
@@ -200,7 +204,7 @@ define([
         }
 
         function updateStats() {
-            backlogStats.update(backlog);
+            React.render(React.createElement(BacklogStats, {backlog: backlog}), view.statsContent.get(0));
         }
 
         function updateSummary(){
@@ -375,7 +379,6 @@ define([
         }
 
         function readView(){
-
             var newList = [];
 
             where.find(".project-chunk, .milestone").each(function(idx, domElement){

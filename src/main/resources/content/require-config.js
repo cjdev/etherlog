@@ -4,6 +4,12 @@ var require = {
         jquery:                     "vendor/jquery",
         jqueryui:                   "vendor/jquery-ui-1.10.1.custom.min",
         d3:                         "vendor/d3.v3.min",
+
+        react:                      "vendor/react",
+        JSXTransformer:             "vendor/JSXTransformer-0.4.0",
+        jsx:                        "vendor/jsx-0.4.0",
+        text:                       "vendor/text",
+
         'foundation.core':          "vendor/foundation/foundation",
         'foundation.abide':         "vendor/foundation/foundation.abide",
         'foundation.accordian':     "vendor/foundation/foundation.accordian",
@@ -37,6 +43,9 @@ var require = {
         },
         d3 : {
             exports: "d3"
+        },
+        react: {
+            exports: 'React'
         },
         /* Foundation */
         'foundation.core': {
@@ -141,5 +150,8 @@ var require = {
         'placeholder': {
             exports: 'Placeholder'
         }
+    },
+    jsx: {
+        fileExtension: '.jsx'
     }
 };

@@ -1,11 +1,12 @@
 define([
     "jquery",
     "jqueryui",
+    "react",
     "underscore",
     "util",
     "estimates-widget"
 ],
-    function($, jqueryui, _, Util, EstimatesWidget) {
+    function($, jqueryui, React, _, Util, EstimatesWidget) {
 
         return function(opts) {
 
@@ -32,8 +33,7 @@ define([
                     '        </div>' +
                     '    </div>' +
                     '    <div class="row view-mode-header">' +
-                    '        <div class="small-11 columns">' +
-                    '        </div>' +
+                    '        <div class="small-11 columns"></div>' +
                     '    </div>' +
                     '    <div class="row editable-mode-header" style="display:none;">' +
                     '        <div class="small-8 columns">' +
@@ -71,29 +71,38 @@ define([
                 ),
 
                 view = {
-                    itemLabelHeader:       v.find('.item-label-header'),
-                    viewModeHeader:        v.find('.view-mode-header'),
-                    editableModeHeader:    v.find('.editable-mode-header'),
-                    editModeHeader:        v.find('.edit-mode-header'),
+                    itemLabelHeader:        v.find('.item-label-header'),
+                    viewModeHeader:         v.find('.view-mode-header'),
+                    editableModeHeader:     v.find('.editable-mode-header'),
+                    editModeHeader:         v.find('.edit-mode-header'),
 
-                    goalDateView:          v.find('.goal-date'),
-                    goalEditModeHeader:    v.find('.goal-edit-mode-header'),
-                    datePicker:            v.find('.date-picker'),
-                    doneButton:            v.find('.done-button'),
+                    goalDateView:           v.find('.goal-date'),
+                    goalEditModeHeader:     v.find('.goal-edit-mode-header'),
+                    datePicker:             v.find('.date-picker'),
+                    doneButton:             v.find('.done-button'),
 
-                    label:                 v.find('.item-label'),
-                    estimateView:          v.find('.estimate-view'),
-                    statusView:            v.find('.status-view'),
-                    statusIcon:            v.find('.status-icon'),
+                    label:                  v.find('.item-label'),
+                    estimateView:           v.find('.estimate-view'),
+                    estimate2:              v.find('.estimate2'),
+                    statusView:             v.find('.status-view'),
+                    statusIcon:             v.find('.status-icon'),
 
-                    remainder:             v.find('.remainder'),
-                    entry:                 v.find('.entry'),
-                    textarea:              v.find('.entry textarea'),
+                    remainder:              v.find('.remainder'),
+                    entry:                  v.find('.entry'),
+                    textarea:               v.find('.entry textarea'),
 
-                    finishedButton:        v.find('.finished-button'),
-                    inProgressButton:      v.find('.in-progress-button'),
-                    editButton:            v.find('.edit-button'),
-                    deleteButton:          v.find('.delete-button')
+                    finishedButton:         v.find('.finished-button'),
+                    inProgressButton:       v.find('.in-progress-button'),
+                    editButton:             v.find('.edit-button'),
+                    deleteButton:           v.find('.delete-button')
+                },
+
+                log = function log() {
+                    console.log.apply(console, arguments);
+                },
+                onItemWidgetChange = function onItemWidgetChange() {
+                    log("onItemWidgetChange: ");
+                    onChange();
                 },
 
                 showEditableMode = function showEditableMode() {
@@ -330,19 +339,22 @@ define([
                     v.addClass("epic");
                 },
 
+                setEstimateView = function setEstimateView() {
+                    var estimateText = mostRecentEstimateText();
+                    var toggleSetting = estimateText==="";
+                    if (toggleSetting) {
+                        estimateText = "No Estimate!!!";
+                    }
+                    view.estimateView.toggleClass('no-estimate', toggleSetting);
+                    view.estimateView.text(estimateText);
+                },
+
                 setupProjectChuck = function setupProjectChunk() {
                     showViewMode = function() {
                         v.addClass('project-chunk');
                         setText(item.name);
 
-                        var estimateText = mostRecentEstimateText();
-                        var toggleSetting = estimateText==="";
-                        if (toggleSetting) {
-                            estimateText = "No Estimate!!!";
-                        }
-                        view.estimateView.toggleClass('no-estimate', toggleSetting);
-                        view.estimateView.text(estimateText);
-
+                        setEstimateView();
                         setStatusCss();
                         setStatusView();
                         view.goalDateView.hide();
@@ -352,7 +364,7 @@ define([
                         view.editableModeHeader.hide();
                         view.editModeHeader.hide();
                     };
-                    EstimatesWidget(item, view.editModeHeader, onChange, showEditableMode);
+                    EstimatesWidget(item, view.editModeHeader, onItemWidgetChange, showEditableMode);
                 },
 
                 setupItem = function setupItem() {
@@ -370,7 +382,7 @@ define([
                     }
                 };
 
-
+            log('setting up');
             setupItem();
             setupHandlers();
             showViewMode();

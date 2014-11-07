@@ -10,7 +10,7 @@ define([
             var oldValue,
                 oldCurrency,
                 v = $(
-                    '        <div class="small-6 columns">' +
+                    '        <div class="small-4 columns">' +
                     '            <div class="row collapse">' +
                     '                <div class="small-4 columns">' +
                     '                    <input class="estimate-value" type="text" placeholder="estimate">' +
