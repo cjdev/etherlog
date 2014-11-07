@@ -12,7 +12,7 @@ body {
 }
 
 body.with-nav {
-    margin-top: 50px;
+    margin-top: 45px;
 }
 
 .home-button {
@@ -69,7 +69,6 @@ div.bugzilla-emblem {
     margin:5px;
     font-style:italic;
 }
-
 
 .no-estimate {
     color: red /*TODO: better red */;
@@ -222,7 +221,7 @@ div.divider {
 div.backlog {
     display:inline-block;
     width:100%;
-    padding: 1em;
+    padding: 0 1em 1em 1em;
 }
 
 .commit-message {
@@ -267,22 +266,23 @@ div.backlog {
     background-color: #eeeeee;
 }
 
+
+.tspanel {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+}
 /* THE CHART STUFF */
 
-.chart-panel {
-    background-color: #f6f6f6;
-    border-bottom: 1px solid #c6c6c6;
-}
-
 .chart-panel .row {
-    margin: 0 1em 1em 1em;
-    padding-top: 1em;
     max-width:none !important;
 }
 
 .chart {
-    padding: 10px;
-    border: 1px solid #222;
+    padding: .5em;
+    border: 1px solid #ddd;
     background-color: #FFFFFF;
 }
 .chart svg {
@@ -291,7 +291,6 @@ div.backlog {
 }
 
 .history {
-    padding-right: 1em;
 }
 
 #slider {
@@ -318,15 +317,8 @@ div.backlog {
 
 /* STATS */
 
-.stats-panel {
-    background-color: #f6f6f6;
-    border-bottom: 1px solid #c6c6c6;
-}
-
 .stats-content {
-    margin: 0 1em 1em 1em;
-    padding-top: 1em;
-    max-width: 98% !important;
+    max-width: 100% !important;
     font-size: .8em;
     white-space: nowrap;
 }

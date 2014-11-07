@@ -104,81 +104,8 @@ define([
 
             };
 
-//            stats2 = {
-//                story: {
-//                    swag: {
-//                        todo:       { count: 0, points: 0 },
-//                        inProgress: { count: 0, points: 0 },
-//                        finished:   { count: 0, points: 0 },
-//                        total:      { count: 0, points: 0 }
-//                    },
-//                    grooming: {
-//                        todo:       { count: 0, points: 0 },
-//                        inProgress: { count: 0, points: 0 },
-//                        finished:   { count: 0, points: 0 },
-//                        total:      { count: 0, points: 0 }
-//                    },
-//                    team: {
-//                        todo:       { count: 0, points: 0 },
-//                        inProgress: { count: 0, points: 0 },
-//                        finished:   { count: 0, points: 0 },
-//                        total:      { count: 0, points: 0 }
-//                    },
-//                    unestimated: {
-//                        todo:       { count: 0, points: 0 },
-//                        inProgress: { count: 0, points: 0 },
-//                        finished:   { count: 0, points: 0 },
-//                        total:      { count: 0, points: 0 }
-//                    },
-//                    total: {
-//                        todo:       { count: 0, points: 0 },
-//                        inProgress: { count: 0, points: 0 },
-//                        finished:   { count: 0, points: 0 },
-//                        total:      { count: 0, points: 0 }
-//                    }
-//                },
-//                epic: {
-//                    swag: {
-//                        todo:       { count: 0, points: 0 },
-//                        inProgress: { count: 0, points: 0 },
-//                        finished:   { count: 0, points: 0 },
-//                        total:      { count: 0, points: 0 }
-//                    },
-//                    grooming: {
-//                        todo:       { count: 0, points: 0 },
-//                        inProgress: { count: 0, points: 0 },
-//                        finished:   { count: 0, points: 0 },
-//                        total:      { count: 0, points: 0 }
-//                    },
-//                    team: {
-//                        todo:       { count: 0, points: 0 },
-//                        inProgress: { count: 0, points: 0 },
-//                        finished:   { count: 0, points: 0 },
-//                        total:      { count: 0, points: 0 }
-//                    },
-//                    unestimated: {
-//                        todo:       { count: 0, points: 0 },
-//                        inProgress: { count: 0, points: 0 },
-//                        finished:   { count: 0, points: 0 },
-//                        total:      { count: 0, points: 0 }
-//                    },
-//                    total: {
-//                        todo:       { count: 0, points: 0 },
-//                        inProgress: { count: 0, points: 0 },
-//                        finished:   { count: 0, points: 0 },
-//                        total:      { count: 0, points: 0 }
-//                    }
-//                },
-//                goal: {
-//                    count: 0,
-//                    todo:       { count: 0 },
-//                    finished:   { count: 0 },
-//                    total:      { count: 0 }
-//                }
-//            };
-
             function log() {
-                console.log.apply(console, arguments);
+                //console.log.apply(console, arguments);
             }
 
             function renderCell(cell, stat) {
@@ -351,7 +278,6 @@ define([
             function updateStats(backlog) {
                 log("update stats....");
                 var stats = generateStats(backlog);
-                console.dir(stats);
                 log("stats.story.total.total.points: " + stats.story.total.total.points);
                 render(stats);
             }
