@@ -132,7 +132,7 @@ define(["jquery", "http", "modernizr", "fastclick", "foundation.reveal"],
                     }
                     redraw();
 
-                    entry.find(".pivotal-tracker-link-button").click(function(){
+                    entry.find(".link-button").click(function(){
                         var modal = $('#pivotal-tracker-link-modal');
 
 
