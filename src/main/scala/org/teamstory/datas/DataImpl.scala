@@ -58,7 +58,17 @@ class DataImpl(val dataPath: Path) extends Data {
 
   override def toBacklogListEntry(backlogStatus: BacklogStatus) = {
     val version = versions.get(backlogStatus.latestVersion)
-    BacklogListEntry(id = backlogStatus.id, name = version.backlog.name, whenArchived = backlogStatus.whenArchived)
+    
+    val maybePivotalTrackerId = backlogStatus.pivotalTrackerLink  match {
+      case None=>None
+      case Some(ptLink)=>Some(ptLink.projectId)
+    }
+    
+    BacklogListEntry(
+        id = backlogStatus.id, 
+        name = version.backlog.name, 
+        whenArchived = backlogStatus.whenArchived,
+        pivotalTrackerId=maybePivotalTrackerId)
   }
 
   override def buildStatsLog(id: String, until: Long, includeCurrentState: Boolean = false): Seq[(StatsLogEntry, BacklogVersion)] = {

@@ -103,24 +103,38 @@ define(["jquery", "http", "modernizr", "fastclick", "foundation.reveal"],
                     entry = $(
                         '<div class="row backlog-row">' +
                         '    <div class="small-9 columns backlog-list-entry">'+
-                        '        <a href="/backlog/' + backlog.id + '"></a>' +
+                        '        <a class="backlog-name" href="/backlog/' + backlog.id + '"></a>' +
                         '    </div>' +
                         '    <div class="small-3 columns">' +
                         '        <ul class="button-group">' +
                         '            <li><a href="#" class="tiny button archive-button">Archive</a></li>' +
                         '            <li><a href="#" class="tiny button link-button">Link</a></li>' +
+                        '            <li><a href="#" class="tiny button unlink-button">Unlink</a></li>' +
                         '        </ul>' +
                         '    </div>' +
                         '</div>');
 
+                    var textPart = entry.find(".backlog-list-entry");
+                    var linkButton = entry.find(".link-button");
+                    var unlinkButton = entry.find(".unlink-button");
+                    
                     function isArchived(){
                         return backlog.whenArchived !== null;
                     }
 
                     function redraw(){
                         var name = isArchived() ? backlog.name + " [ARCHIVED]" : backlog.name;
-                        entry.find(".backlog-list-entry a").text(name);
+                        
+                        textPart.find(".backlog-name").text(name);
 
+                        var pivotalTrackerId = backlog.pivotalTrackerId; 
+                        if(pivotalTrackerId){
+                            textPart.append('<a href="https://www.pivotaltracker.com/n/projects/' + pivotalTrackerId + '"> [pivotal] </a>');
+                            linkButton.hide();
+                        }else{
+                            unlinkButton.hide();
+                        }
+                        
                         if(isArchived()) {
                             entry.addClass("archived-backlog-list-entry");
                             entry.toggle(body.find("#show-archived-checkbox").is(":checked"));
@@ -131,8 +145,42 @@ define(["jquery", "http", "modernizr", "fastclick", "foundation.reveal"],
 
                     }
                     redraw();
+                    
+                    unlinkButton.click(function(){
+                        var modal = $('#pivotal-tracker-unlink-modal');
+                        var view = {
+                                confirmButton:modal.find(".confirm-button"),
+                                cancelButton:modal.find(".cancel-button")
+                            };
+                        view.confirmButton.click(function() {
 
-                    entry.find(".link-button").click(function(){
+                            var data = JSON.stringify({
+                                pivotalTrackerLink:null
+                            });
+
+                            http({
+                                url: "/api/backlogs/" + backlog.id + "/status",
+                                method: "PUT",
+                                data:data,
+                                onResponse: function (response) {
+                                    if(response.status === 200){
+                                        backlog = JSON.parse(response.body);
+                                        modal.foundation('reveal', 'close');
+                                        redraw();
+                                    }else{
+                                        alert("ERROR: " + response.status);
+                                    }
+                                }
+                            });
+                        });
+                        view.cancelButton.click(function(){
+                            modal.foundation('reveal', 'close');
+                        });
+                        modal.foundation('reveal', 'open');
+                        
+                    });
+                    
+                    linkButton.click(function(){
                         var modal = $('#pivotal-tracker-link-modal');
 
 

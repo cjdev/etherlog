@@ -16,7 +16,7 @@ case class StatsLogEntry(version: String, when: Long, memo: String, team: Int, n
   def total = done + todo
 }
 
-case class BacklogListEntry(id: String, name: String, whenArchived: Option[Long])
+case class BacklogListEntry(id: String, name: String, whenArchived: Option[Long], pivotalTrackerId:Option[Int])
 
 case class PivotalTrackerLink(projectId:Int, apiKey:String)
 
