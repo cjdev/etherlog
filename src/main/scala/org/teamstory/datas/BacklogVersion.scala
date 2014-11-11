@@ -4,14 +4,21 @@ import org.teamstory.api._
 import org.teamstory.api.Item
 import scala.Option.option2Iterable
 import org.teamstory.Jackson
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
+object BacklogVersion {
+  val WORK_IN_PROGRESS_LABEL="work-in-progress"
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 case class BacklogVersion(
     val id:String,
     val when:Long,
-    val isPublished:Boolean, 
     val previousVersion:String,
     val backlog:Backlog
 ){
+  
+  def isPublished = backlog.memo  != BacklogVersion.WORK_IN_PROGRESS_LABEL
   
   def projectedEnd() = {
       backlog.projectedVelocity match {

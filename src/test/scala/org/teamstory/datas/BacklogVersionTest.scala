@@ -269,7 +269,6 @@ class BacklogVersionTest extends FunSuite {
   private def aBackLogVersion(when: Long, projectedVelocity: Option[Int] = None, items: Seq[Item]) = BacklogVersion(
     id = "whatever",
     when = when,
-    isPublished = true,
     previousVersion = null,
     backlog = Backlog(
       id = "xyz1213",

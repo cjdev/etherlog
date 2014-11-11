@@ -99,7 +99,7 @@ object TeamStory {
 
     println("etherlog is alive and listening on port " + port);
     
-    new PivotalSyncThread(data, service).start()
+    new PivotalSyncThread(data, service, clock).start()
   }
 
   

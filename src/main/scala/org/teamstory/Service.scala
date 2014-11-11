@@ -30,7 +30,6 @@ class Service (data:Data, clock:Clock) {
                 id=UUID.randomUUID().toString(),
                 when = clock.now().getMillis(),
                 backlog = initialBacklog,
-                isPublished= false,
                 previousVersion = null)
 
         data.versions.put(initialVersion.id, initialVersion)
@@ -51,7 +50,6 @@ class Service (data:Data, clock:Clock) {
       val newVersion = new BacklogVersion(
                   id = UUID.randomUUID().toString(),
                   when = clock.now.getMillis,
-                  isPublished = false,
                   previousVersion = backlog.latestVersion,
                   backlog = update)
       
