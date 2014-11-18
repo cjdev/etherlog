@@ -9,12 +9,13 @@ define([
     "item-widget",
     "activity-monitor",
     "history-slider",
-    "jsx!backlog-statistics",
+   // "jsx!backlog-statistics",
     "modernizr",
     "fastclick",
     "foundation.reveal",
     "foundation.slider"],
-    function($, jqueryui, React, _, http, uuid, Util, ItemWidget, ActivityMonitor, HistorySlider, BacklogStats) {
+    function($, jqueryui, React, _, http, uuid, Util, ItemWidget, ActivityMonitor, HistorySlider/*, BacklogStats*/) {
+        console.log("I'm alive!");
         $(document).foundation();
 
         const kindsInOrderOfPrecedence = ["team", "grooming", "swag"];
@@ -204,7 +205,7 @@ define([
         }
 
         function updateStats() {
-            React.render(React.createElement(BacklogStats, {backlog: backlog}), view.statsContent.get(0));
+            /*React.render(React.createElement(BacklogStats, {backlog: backlog}), view.statsContent.get(0));*/
         }
 
         function updateSummary(){

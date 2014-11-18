@@ -6,8 +6,8 @@ var require = {
         d3:                         "vendor/d3.v3.min",
 
         react:                      "vendor/react",
-        JSXTransformer:             "vendor/JSXTransformer-0.4.0",
-        jsx:                        "vendor/jsx-0.4.0",
+        JSXTransformer:             "vendor/JSXTransformer-hacked-0.12.0",
+        jsx:                        "vendor/jsx-0.5.0",
         text:                       "vendor/text",
 
         'foundation.core':          "vendor/foundation/foundation",
