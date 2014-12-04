@@ -6,6 +6,7 @@ import java.util.UUID
 import org.teamstory.datas.Data
 import org.teamstory.Jackson
 import org.httpobjects.header.response.SetCookieField
+import org.teamstory.Service
 
 class SessionFactoryResource(val datas:Data, val authMechanism:AuthMechanism) extends HttpObject("/api/sessions"){
     override def post(r:Request)= {

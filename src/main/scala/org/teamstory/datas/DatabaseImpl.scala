@@ -73,5 +73,8 @@ class DatabaseImpl[T](basePath: Path) extends DatabaseTrait[T] {
 
   override def contains(id: String) = pathFor(id).exists()
 
-  private def pathFor(id: String) = new Path(basePath, id)
+  private def pathFor(id: String) = {
+    if(id.trim.length==0) throw new Exception(s"Invalid key: '$id'")
+    new Path(basePath, id)
+  }
 }

@@ -4,7 +4,18 @@ import org.teamstory.authenticate.LdapConfig
 
 package org.teamstory.api {
 
-case class GlobalConfig(defaultChartType: String = "default", clockOffset: Long = 0, maybeLdapConfig:Option[LdapConfig] = None)
+case class GlobalConfig(defaultChartType: String = "default", clockOffset: Long = 0, maybeLdapConfig:Option[LdapConfig] = None){
+  def withoutSecrets() = {
+    val ldapConfigMinusSecrets = maybeLdapConfig match {
+      case None => None
+      case Some(ldapConfig) => {
+        Some(ldapConfig.copy(ldapPassword="##########SECRET!##########"))
+      }
+    }
+    
+    copy(maybeLdapConfig = ldapConfigMinusSecrets)
+  }
+}
 
 case class IterationDto(start: Long, label: String)
 

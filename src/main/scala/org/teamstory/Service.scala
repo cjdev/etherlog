@@ -1,5 +1,6 @@
 package org.teamstory
 
+import org.teamstory.authenticate.{User}
 import org.teamstory.datas.{Backlog, BacklogVersion, Data, BacklogStatus}
 import org.httpobjects.Request
 import java.util.UUID
@@ -7,6 +8,9 @@ import scala.collection.mutable.ListBuffer
 import org.apache.commons.httpclient.methods.PostMethod
 import org.apache.commons.httpclient.HttpClient
 import org.joda.time.Instant
+import org.httpobjects.{HttpObject, Request, Response}
+import org.httpobjects.DSL.{UNAUTHORIZED}
+import scala.collection.JavaConversions.iterableAsScalaIterable
 
 class Service (data:Data, clock:Clock) {
 
@@ -42,6 +46,38 @@ class Service (data:Data, clock:Clock) {
 
         data.backlogs.put(backlogId, status)
         status.id
+    }
+    def getAuthenticatedUser[T](req:Request):Option[User] = {
+      val cookies = req.header().cookies().filter(_.name == "session")
+      println("cookies " + cookies)
+      val maybeSessionCookie = cookies.headOption
+      
+      val maybeUser = maybeSessionCookie match {
+        case None => None
+        case Some(sessionCookie) => {
+          val value = sessionCookie.value
+          if(!value.isEmpty()){
+              data.sessions.getOption(sessionCookie.value) match {
+                  case None => None
+                  case Some(session) => {
+                      data.users.getOption(session.email)
+                  }
+              }
+          }else{
+            None
+          }
+        }
+      }
+      maybeUser
+    }
+    
+    def withAuthorizationRequired[T](req:Request)(fn:(User)=>Response):Response = {
+      getAuthenticatedUser(req) match {
+        case None => UNAUTHORIZED()
+        case Some(user) => {
+          fn(user)
+        }
+      }
     }
     
     def saveBacklogUpdate(update:Backlog) {

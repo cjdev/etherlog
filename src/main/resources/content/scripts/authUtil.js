@@ -3,9 +3,13 @@ define(["jquery"], function($){
     const sessionCookieName = "session";
     
     function redirectToLoginIfNotLoggedIn(){
-        if(!isLoggedIn()){
-            window.location = "/login" + window.location.pathname;
+        function pollLoginStatus(){
+            if(!isLoggedIn()){
+                window.location = "/login" + window.location.pathname;
+            }
+            setTimeout(pollLoginStatus, 15000);
         }
+        pollLoginStatus();
     }
     
     function isLoggedIn(){
