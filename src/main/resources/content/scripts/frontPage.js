@@ -2,6 +2,10 @@ define(["jquery", "authUtil", "http", "modernizr", "fastclick", "foundation.reve
     function($, authUtil, http, Modernizr, FastClick){
         authUtil.redirectToLoginIfNotLoggedIn();
         
+        $(".logout-button").click(function(){
+            authUtil.logout();
+        });
+        
         $(document).foundation({});
         var body = $("body"),
             newBacklogModal = body.find("#new-backlog-modal"),

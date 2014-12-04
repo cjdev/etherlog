@@ -41,7 +41,7 @@ define(["jquery"], function($){
     
     function logout(){
         setCookie(sessionCookieName, "");
-        window.location = "/";
+        window.location = "/login" + window.location.pathname;
     }
     
     function getCookie(c_name) {

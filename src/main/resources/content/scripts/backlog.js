@@ -21,6 +21,9 @@ define([
         $(document).foundation();
 
         authUtil.redirectToLoginIfNotLoggedIn();
+        $(".logout-button").click(function(){
+            authUtil.logout();
+        });
         
         const kindsInOrderOfPrecedence = ["team", "grooming", "swag"];
         const _DEBUG = true;
