@@ -1,6 +1,13 @@
 package org.teamstory.datas
 
 trait DatabaseTrait[T] {
+    def getOption(id: String)(implicit manifest: Manifest[T]): Option[T] = this.synchronized {
+        if(contains(id)){
+          Some(get(id))
+        }else{
+          None
+        }
+    }
     def get(id:String)(implicit manifest:Manifest[T]):T
     def put(id:String, data:T):Unit
     def contains(id:String): Boolean

@@ -10,14 +10,18 @@ import org.teamstory.api.GlobalConfig
 import org.teamstory.api.TeamDto
 import org.teamstory.api.HistoryItem
 import org.teamstory.api.Item
+import org.teamstory.authenticate.Session
+import org.teamstory.authenticate.User
 
 class DataImpl(val dataPath: Path) extends Data {
 
-  val errors: DatabaseTrait[String] = new DatabaseImpl[String](new Path(dataPath, "errors"))
-  val backlogs: DatabaseTrait[BacklogStatus] = new DatabaseImpl[BacklogStatus](new Path(dataPath, "backlogs"))
-  val versions: DatabaseTrait[BacklogVersion] = new DatabaseImpl[BacklogVersion](new Path(dataPath, "versions"))
-  val config: DatabaseTrait[GlobalConfig] = new DatabaseImpl[GlobalConfig](new Path(dataPath, "config"))
-  val teams: DatabaseTrait[TeamDto] = new DatabaseImpl[TeamDto](new Path(dataPath, "teams"))
+  val errors = new DatabaseImpl[String](new Path(dataPath, "errors"))
+  val backlogs = new DatabaseImpl[BacklogStatus](new Path(dataPath, "backlogs"))
+  val versions = new DatabaseImpl[BacklogVersion](new Path(dataPath, "versions"))
+  val config = new DatabaseImpl[GlobalConfig](new Path(dataPath, "config"))
+  val teams = new DatabaseImpl[TeamDto](new Path(dataPath, "teams"))
+  val sessions =  new DatabaseImpl[Session](new Path(dataPath, "sessions"))
+  val users = new DatabaseImpl[User](new Path(dataPath, "users"))
 
   def setGlobalConfig(n: GlobalConfig) = {
     config.put("global", n)

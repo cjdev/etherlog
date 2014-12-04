@@ -1,9 +1,10 @@
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.joda.time.YearMonthDay
+import org.teamstory.authenticate.LdapConfig
 
 package org.teamstory.api {
 
-case class GlobalConfig(defaultChartType: String = "default", clockOffset: Long = 0)
+case class GlobalConfig(defaultChartType: String = "default", clockOffset: Long = 0, maybeLdapConfig:Option[LdapConfig] = None)
 
 case class IterationDto(start: Long, label: String)
 

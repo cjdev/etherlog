@@ -15,7 +15,7 @@ class DatabaseImpl[T](basePath: Path) extends DatabaseTrait[T] {
   override def put(id: String, data: T): Unit = this.synchronized {
     Jackson.jackson.writeValue(pathFor(id), data)
   }
-
+  
   override def get(id: String)(implicit manifest: Manifest[T]): T = this.synchronized {
     val stream = new FileInputStream(pathFor(id))
     try {

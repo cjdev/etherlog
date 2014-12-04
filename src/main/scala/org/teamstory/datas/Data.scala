@@ -5,12 +5,16 @@ import org.teamstory.api.GlobalConfig
 import org.teamstory.api.TeamDto
 import org.teamstory.api.HistoryItem
 import org.teamstory.api.BacklogListEntry
+import org.teamstory.authenticate.Session
+import org.teamstory.authenticate.User
 
 trait Data {
     val teams: DatabaseTrait[TeamDto]
     val errors: DatabaseTrait[String]
     val backlogs: DatabaseTrait[BacklogStatus]
     val versions: DatabaseTrait[BacklogVersion]
+    val sessions: DatabaseTrait[Session]
+    val users: DatabaseTrait[User]
 
     def setGlobalConfig(n:GlobalConfig)
     def getGlobalConfig(): GlobalConfig

@@ -1,5 +1,7 @@
-define(["jquery", "http", "modernizr", "fastclick", "foundation.reveal"],
-    function($, http, Modernizr, FastClick){
+define(["jquery", "authUtil", "http", "modernizr", "fastclick", "foundation.reveal"],
+    function($, authUtil, http, Modernizr, FastClick){
+        authUtil.redirectToLoginIfNotLoggedIn();
+        
         $(document).foundation({});
         var body = $("body"),
             newBacklogModal = body.find("#new-backlog-modal"),

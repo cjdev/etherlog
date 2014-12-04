@@ -16,6 +16,7 @@ import java.io.{File => Path}
 import java.util.UUID
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.StringBuilder
+import scala.collection.JavaConversions._
 import java.io.FileInputStream
 import org.joda.time.DateMidnight
 import org.joda.time.Instant
@@ -52,14 +53,32 @@ import org.teamstory.http.GlobalConfigResource
 import org.teamstory.pivotal.PivotalSync
 import org.teamstory.pivotal.PivotalTrackerV5ApiStub
 import org.teamstory.pivotal.PivotalSyncThread
+import org.teamstory.authenticate._
+import org.httpobjects.Response
 
 object TeamStory {
   
   def timeTravelModeIsActivated(args:Array[String]) = args.size >0 && args(0) == "enableTimeTravel"
-
+    
+  def loadAuthMechanism(config:GlobalConfig) = config.maybeLdapConfig  match {
+    case Some(ldapConfig) => {
+      new LdapTool(
+            url=ldapConfig.ldapUrl, 
+            ldapUser = ldapConfig.ldapUser, 
+            ldapPassword = ldapConfig.ldapPassword)
+    }
+    case None => new AuthMechanism(){
+      def authenticateEmail(email:String, password:String) = Option(AuthDetailsPlaceholder)
+          def emailExists(email:String) = true
+    }
+  }
+  
+  
+  
   def main(args: Array[String]) {
     val data = new DataImpl(new Path("data"))
-
+    val authMechanism = loadAuthMechanism(data.getGlobalConfig());
+    
     val clock = new FastForwardableClock(
                         configDb=data,
                         enableTimeTravel = timeTravelModeIsActivated(args))
@@ -68,7 +87,44 @@ object TeamStory {
 
     val port = 43180
 
+    def getAuthenticatedUser[T](req:Request):Option[User] = {
+      val cookies = req.header().cookies().filter(_.name == "session")
+      println("cookies " + cookies)
+      val maybeSessionCookie = cookies.headOption
+      
+      val maybeUser = maybeSessionCookie match {
+        case None => None
+        case Some(sessionCookie) => {
+          data.sessions.getOption(sessionCookie.value) match {
+              case None => None
+              case Some(session) => {
+                data.users.getOption(session.email)
+              }
+          }
+        }
+      }
+      maybeUser
+    }
+    
+    def withAuthorizationRequired[T](req:Request)(fn:(User)=>Response):Response = {
+      getAuthenticatedUser(req) match {
+        case None => UNAUTHORIZED()
+        case Some(user) => {
+          fn(user)
+        }
+      }
+    }
+    
+    class GenericWrapper(val w:HttpObject, val decorator:(String, Request, (Request)=>Response)=>Response) extends HttpObject(w.pattern().raw()) {
+      override def get(req:Request) = decorator("get", req, w.get)
+      override def post(req:Request) = decorator("post", req, w.post)
+      override def put(req:Request) = decorator("put", req, w.put)
+      override def delete(req:Request) = decorator("delete", req, w.delete)
+    }
+    
     launchServer(port,
+        "/api/sessions" -> new SessionFactoryResource(datas=data, authMechanism=authMechanism),
+        "/api/sessions/{id}" -> new SessionResource(data=data),
         "/api/backlogs/{id}/iteration-stats" -> new TeamIterationStatsResource(data=data, clock=clock),
         "/api/team/{id}/iteration" -> new TeamIterationResource(data=data, clock=clock),
         "/api/team" -> new TeamsResource(data=data),
@@ -92,6 +148,7 @@ object TeamStory {
         "/timemachine" -> new ClasspathResourceObject("/timemachine", "/content/timemachine.html", getClass()),
         "/" -> new ClasspathResourceObject("/", "/content/index.html", getClass()),
         "/backlog/{backlogId}" -> new ClasspathResourceObject("/backlog/{backlogId}", "/content/backlog.html", getClass()),
+        "/login/{path*}" -> new ClasspathResourceObject("/login/{path*}", "/content/login.html", getClass()),
         "/team/{teamName}" -> new ClasspathResourceObject("/team/{teamName}", "/content/team.html", getClass()),
         "/team/{teamName}/iterations/{iterationEndDate}" -> new ClasspathResourceObject("/team/{teamName}/iterations/{iterationEndDate}", "/content/iteration.html", getClass()),
         "/{resource*}" -> new ClasspathResourcesObject("/{resource*}", getClass(), "/content")

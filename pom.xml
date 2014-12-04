@@ -5,8 +5,8 @@
     <artifactId>teamstory</artifactId>
     <version>latest-SNAPSHOT</version>
     <properties>
-        <httpobjects-version>0.3.0</httpobjects-version>
-        <jackson-version>2.4.0-rc2</jackson-version>
+        <httpobjects-version>0.6.0-SNAPSHOT</httpobjects-version>
+        <jackson-version>2.4.4</jackson-version>
         <optimizer-build-config-file>require-optimizer-config.js</optimizer-build-config-file>
     </properties>
     <build>
@@ -168,14 +168,14 @@
         </dependency>
         <dependency>
             <groupId>org.httpobjects.jetty</groupId>
-            <artifactId>httpobjects-jetty</artifactId>
+            <artifactId>httpobjects-jetty-6</artifactId>
             <version>${httpobjects-version}</version>
         </dependency>
-        <dependency>
+       <!--  <dependency>
             <groupId>org.httpobjects.jackson</groupId>
             <artifactId>httpobjects-jackson</artifactId>
             <version>${httpobjects-version}</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>org.httpobjects.proxy</groupId>
             <artifactId>httpobjects-proxy</artifactId>

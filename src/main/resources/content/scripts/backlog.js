@@ -9,15 +9,19 @@ define([
     "item-widget",
     "activity-monitor",
     "history-slider",
+    "authUtil",
    // "jsx!backlog-statistics",
     "modernizr",
     "fastclick",
     "foundation.reveal",
     "foundation.slider"],
-    function($, jqueryui, React, _, http, uuid, Util, ItemWidget, ActivityMonitor, HistorySlider/*, BacklogStats*/) {
-        console.log("I'm alive!");
+    function($, jqueryui, React, _, http, uuid, Util, ItemWidget, ActivityMonitor, HistorySlider, authUtil/*, BacklogStats*/) {
+        
+    
         $(document).foundation();
 
+        authUtil.redirectToLoginIfNotLoggedIn();
+        
         const kindsInOrderOfPrecedence = ["team", "grooming", "swag"];
         const _DEBUG = true;
 

@@ -1,4 +1,5 @@
 define(["jquery"], function($){
+
 	function compareEstimatesByWhen(a, b){
         if(a.when === b.when){
             return 0;
