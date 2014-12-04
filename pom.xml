@@ -5,7 +5,7 @@
     <artifactId>teamstory</artifactId>
     <version>latest-SNAPSHOT</version>
     <properties>
-        <httpobjects-version>0.6.0-SNAPSHOT</httpobjects-version>
+        <httpobjects-version>0.7.0</httpobjects-version>
         <jackson-version>2.4.4</jackson-version>
         <optimizer-build-config-file>require-optimizer-config.js</optimizer-build-config-file>
     </properties>
