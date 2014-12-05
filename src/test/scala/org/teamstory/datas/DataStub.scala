@@ -15,6 +15,7 @@ class DataStub extends Data{
   val versions: DatabaseTrait[BacklogVersion] = null
   val sessions: DatabaseTrait[Session] = null
   val users: DatabaseTrait[User] = null
+  val passwords: DatabaseTrait[String] = null
   
 
   def setGlobalConfig(n:GlobalConfig) = ()

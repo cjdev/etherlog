@@ -62,24 +62,27 @@ object TeamStory {
   
   def timeTravelModeIsActivated(args:Array[String]) = args.size >0 && args(0) == "enableTimeTravel"
     
-  def loadAuthMechanism(config:GlobalConfig) = config.maybeLdapConfig  match {
+  def maybeLdap(config:GlobalConfig):Option[AuthMechanism] = config.maybeLdapConfig  match {
     case Some(ldapConfig) => {
-      new LdapTool(
+      Some(new LdapTool(
             url=ldapConfig.ldapUrl, 
             ldapUser = ldapConfig.ldapUser, 
-            ldapPassword = ldapConfig.ldapPassword)
+            ldapPassword = ldapConfig.ldapPassword))
     }
-    case None => new AuthMechanism(){
-      def authenticateEmail(email:String, password:String) = Option(AuthDetailsPlaceholder)
-          def emailExists(email:String) = true
-    }
+    case None => None
   }
   
-  
+  case class LocalDatabaseAuthentication(val data:Data) extends AuthMechanism {
+      override def authenticateEmail(email:String, password:String):Option[AuthDetails] = data.passwords.getOption(email) match {
+        case None => None
+        case Some(passwordOnFile)=> if(passwordOnFile.equals(password)) Some(AuthDetailsPlaceholder) else None
+      }
+      override def emailExists(email:String):Boolean = data.passwords.contains(email)
+  }
   
   def main(args: Array[String]) {
     val data = new DataImpl(new Path("data"))
-    val authMechanism = loadAuthMechanism(data.getGlobalConfig());
+    val authMechanisms = List(new LocalDatabaseAuthentication(data)) ::: maybeLdap(data.getGlobalConfig()).toList;
     
     val clock = new FastForwardableClock(
                         configDb=data,
@@ -108,7 +111,7 @@ object TeamStory {
         "/api/backlogs/{id}/status" -> noAnonymous(new BacklogStatusResource(data, clock=clock)),
         "/api/backlogs/{id}" -> noAnonymous(new BacklogResource(data, service=service, clock=clock)),
         "/api/errors" -> noAnonymous(new ErrorsResource(data)),
-        "/api/sessions" -> new SessionFactoryResource(datas=data, authMechanism=authMechanism),
+        "/api/sessions" -> new SessionFactoryResource(datas=data, authMechanisms=authMechanisms),
         "/api/sessions/{id}" -> noAnonymous(new SessionResource(data=data)),
         "/api/team" -> noAnonymous(new TeamsResource(data=data)),
         "/api/team/{id}/iteration" -> noAnonymous(new TeamIterationResource(data=data, clock=clock)),

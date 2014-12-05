@@ -22,6 +22,7 @@ class DataImpl(val dataPath: Path) extends Data {
   val teams = new DatabaseImpl[TeamDto](new Path(dataPath, "teams"))
   val sessions =  new DatabaseImpl[Session](new Path(dataPath, "sessions"))
   val users = new DatabaseImpl[User](new Path(dataPath, "users"))
+  val passwords = new DatabaseImpl[String](new Path(dataPath, "passwords"))
 
   def setGlobalConfig(n: GlobalConfig) = {
     config.put("global", n)

@@ -15,6 +15,7 @@ trait Data {
     val versions: DatabaseTrait[BacklogVersion]
     val sessions: DatabaseTrait[Session]
     val users: DatabaseTrait[User]
+    val passwords: DatabaseTrait[String]
 
     def setGlobalConfig(n:GlobalConfig)
     def getGlobalConfig(): GlobalConfig

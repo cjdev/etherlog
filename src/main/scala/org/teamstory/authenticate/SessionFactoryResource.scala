@@ -8,21 +8,32 @@ import org.teamstory.Jackson
 import org.httpobjects.header.response.SetCookieField
 import org.teamstory.Service
 
-class SessionFactoryResource(val datas:Data, val authMechanism:AuthMechanism) extends HttpObject("/api/sessions"){
+class SessionFactoryResource(val datas:Data, val authMechanisms:Seq[AuthMechanism]) extends HttpObject("/api/sessions"){
     override def post(r:Request)= {
         val request = Jackson.parse[AuthRequest](r.representation())
-        val result = authMechanism.authenticateEmail(request.email, request.password)
-        result match {
-            case Some(userInfo) => {
-              val user = getUserWithCreateIfNeeded(request.email)
-              val session = Session(id=UUID.randomUUID().toString, email = request.email)
-              datas.sessions.put(session.id, session)
-              new Response(
-                  ResponseCode.CREATED, 
-                  Jackson.JerksonJson(session), 
-                  Location("/api/sessions/" + session.id))
-            }
-            case None => UNAUTHORIZED()
+        
+        
+        def authenticationResults(authMechanisms: Seq[AuthMechanism]): Stream[Option[AuthDetails]] = {
+          if (authMechanisms.isEmpty) {
+            Stream.empty
+          } else {
+            val authMechanism = authMechanisms.head
+            val value = authMechanism.authenticateEmail(request.email, request.password)
+            value #:: authenticationResults(authMechanisms.tail)
+          }
+        }
+       
+        authenticationResults(authMechanisms).find(_.isDefined) match {
+          case Some(userInfo) => {
+            val user = getUserWithCreateIfNeeded(request.email)
+            val session = Session(id=UUID.randomUUID().toString, email = request.email)
+            datas.sessions.put(session.id, session)
+            new Response(
+                ResponseCode.CREATED, 
+                Jackson.JerksonJson(session), 
+                Location("/api/sessions/" + session.id))
+          }
+          case None => UNAUTHORIZED()
         }
     }
     
