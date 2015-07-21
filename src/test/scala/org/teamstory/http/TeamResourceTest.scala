@@ -25,7 +25,7 @@ class TeamResourceTest extends FunSuite {
         }
         val teamResource: TeamResource = new TeamResource(data, null)
         val request: Request = new MockRequest(teamResource, "/api/team/8")
-        val response: Response = teamResource.get(request)
+        val response: Response = teamResource.get(request).get
 
         assert(200 === response.code().value())
     }

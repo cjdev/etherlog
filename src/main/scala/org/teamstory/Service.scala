@@ -8,7 +8,7 @@ import scala.collection.mutable.ListBuffer
 import org.apache.commons.httpclient.methods.PostMethod
 import org.apache.commons.httpclient.HttpClient
 import org.joda.time.Instant
-import org.httpobjects.{HttpObject, Request, Response}
+import org.httpobjects.{HttpObject, Request, Response, Eventual}
 import org.httpobjects.DSL.{UNAUTHORIZED}
 import scala.collection.JavaConversions.iterableAsScalaIterable
 
@@ -71,7 +71,7 @@ class Service (data:Data, clock:Clock) {
       maybeUser
     }
     
-    def withAuthorizationRequired[T](req:Request)(fn:(User)=>Response):Response = {
+    def withAuthorizationRequired[T](req:Request)(fn:(User)=>Eventual[Response]):Eventual[Response] = {
       getAuthenticatedUser(req) match {
         case None => UNAUTHORIZED()
         case Some(user) => {

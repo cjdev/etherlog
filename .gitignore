@@ -2,7 +2,7 @@ target
 .classpath
 .project
 .settings
-.cache
+.cache*
 data
 .idea
 *.iml
