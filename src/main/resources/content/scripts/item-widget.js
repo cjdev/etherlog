@@ -194,10 +194,12 @@ define([
 
                 getFirstLine = function getFirstLine(text) {
                     var lines = text.split('\n');
+                    var first = ""
                     if (lines.length > 0) {
-                        return lines[0];
+                        first = lines[0];
                     }
-                    return "";
+
+                    return first;
                 },
 
                 setText = function setText(text, decoration) {
@@ -253,9 +255,8 @@ define([
                     view.viewModeHeader.click(toggleRemainder);
 
                     view.textarea.val(item.name);
-                    view.textarea.bind("keypress change", function() {
+                    view.textarea.bind("change keydown keyup", function() {
                         item.name = view.textarea.val();
-
                         view.label.text(getFirstLine(item.name));
                         onChange();
                     });
