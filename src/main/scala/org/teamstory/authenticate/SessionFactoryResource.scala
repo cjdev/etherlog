@@ -30,7 +30,7 @@ class SessionFactoryResource(val datas:Data, val authMechanisms:Seq[AuthMechanis
             datas.sessions.put(session.id, session)
             new Response(
                 ResponseCode.CREATED, 
-                Jackson.JerksonJson(session), 
+                Jackson.JacksonJson(session),
                 Location("/api/sessions/" + session.id))
           }
           case None => UNAUTHORIZED()

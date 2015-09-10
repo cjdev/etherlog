@@ -104,7 +104,7 @@ class DeltaResource (data:Data, clock:Clock) extends HttpObject("/api/backlogs/{
       }
       
       versions match {
-        case Versions(Some(from), Some(to))=> OK(JerksonJson(to.delta(from)))
+        case Versions(Some(from), Some(to))=> OK(JacksonJson(to.delta(from)))
         case Versions(_, _) => {
           NOT_FOUND(Text("Valid dates are " + millisToYMD(publishedChanges.last.when) + " to " + millisToYMD(publishedChanges.head.when)))
         }

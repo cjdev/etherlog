@@ -22,7 +22,7 @@ class BacklogsResource (data:Data, service:Service) extends HttpObject("/api/bac
          results += data.toBacklogListEntry(backlog)
        }
       
-       OK(JerksonJson(results))
+       OK(JacksonJson(results))
     }
     
     override def post(req:Request) = {

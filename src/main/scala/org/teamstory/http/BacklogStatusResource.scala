@@ -30,7 +30,7 @@ class BacklogStatusResource(data:Data, clock:Clock) extends HttpObject("/api/bac
       }
       data.backlogs.put(id, newBacklog);
       
-      OK(JerksonJson(data.toBacklogListEntry(newBacklog)))
+      OK(JacksonJson(data.toBacklogListEntry(newBacklog)))
     }
     
     private def calculateWhenArchivedUpdate(newArchivedStatus:Boolean, oldArchivedStatus:Option[Long]):Option[Long] = {

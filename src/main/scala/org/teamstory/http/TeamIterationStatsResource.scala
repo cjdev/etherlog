@@ -142,7 +142,7 @@ class TeamIterationStatsResource (data:Data, clock:Clock) extends HttpObject("/a
             whenProjectedComplete=whenProjectedComplete) 
       }
       
-      OK(Jackson.JerksonJson(iterationStats))
+      OK(Jackson.JacksonJson(iterationStats))
     }
     
 }

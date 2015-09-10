@@ -10,7 +10,7 @@ import java.util.UUID
 
 class TeamsResource (data:Data) extends HttpObject("/api/team"){
   
-    override def get(get:Request) = OK(Jackson.JerksonJson(data.teams.toStream.toList))
+    override def get(get:Request) = OK(Jackson.JacksonJson(data.teams.toStream.toList))
     
     override def post(req:Request) = {
      val team = Jackson.parse[TeamDto](req.representation())

@@ -32,7 +32,7 @@ class TeamIterationResource (data:Data, clock:Clock) extends HttpObject("/api/te
      val id = req.path.valueFor("id")
      val team = data.teams.get(id)
      
-     OK(Jackson.JerksonJson(team.iterations))
+     OK(Jackson.JacksonJson(team.iterations))
     }
     
     def parseIntIfAble(s:String) = {

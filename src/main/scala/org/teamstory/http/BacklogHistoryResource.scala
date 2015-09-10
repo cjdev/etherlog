@@ -21,7 +21,7 @@ class BacklogHistoryResource(val data:Data) extends HttpObject("/api/backlogs/{i
             val isLast = fullHistory.head eq item
             (showLatestEvenIfWip && isLast) || item.memo != "work-in-progress"
         }
-        OK(JerksonJson(results))
+        OK(JacksonJson(results))
     }
 
 }

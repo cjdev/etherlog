@@ -28,7 +28,7 @@ class TeamResource (data:Data, clock:Clock) extends HttpObject("/api/team/{id}")
      if(team==null){
          NOT_FOUND
      }else{
-         OK(Jackson.JerksonJson(team))
+         OK(Jackson.JacksonJson(team))
      }
     }
     

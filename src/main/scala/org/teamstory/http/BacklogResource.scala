@@ -22,7 +22,7 @@ class BacklogResource (data:Data, service:Service, clock:Clock) extends HttpObje
       val id = req.path().valueFor("id")
       val backlog = data.backlogs.get(id)
       val currentVersion = data.versions.get(backlog.latestVersion);
-      OK(JerksonJson(currentVersion.backlog.toDto(backlog.latestVersion)))
+      OK(JacksonJson(currentVersion.backlog.toDto(backlog.latestVersion)))
     }
     
     override def put(req:Request) = {

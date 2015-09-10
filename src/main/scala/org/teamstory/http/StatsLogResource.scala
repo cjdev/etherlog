@@ -16,6 +16,6 @@ class StatsLogResource (data:Data, service:Service, clock:Clock) extends HttpObj
       val id = req.path().valueFor("id")
       val stats = buildStatsLogFromQueryString(id, req, data, clock);
       
-      OK(JerksonJson(stats))
+      OK(JacksonJson(stats))
     }
 }

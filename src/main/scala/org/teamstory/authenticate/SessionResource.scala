@@ -12,7 +12,7 @@ class SessionResource (data:Data) extends HttpObject("/api/sessions/{id}"){
         case None => NOT_FOUND()
         case Some(session) => {
           val user = data.users.get(session.email)
-          OK(Jackson.JerksonJson(user))
+          OK(Jackson.JacksonJson(user))
         }
       }
     }

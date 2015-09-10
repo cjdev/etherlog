@@ -8,7 +8,7 @@ import org.teamstory.Jackson
 
 class GlobalConfigResource(data:Data) extends HttpObject("/api/config"){
   override def get(r:Request) = {
-    OK(Jackson.JerksonJson(data.getGlobalConfig().withoutSecrets()))
+    OK(Jackson.JacksonJson(data.getGlobalConfig().withoutSecrets()))
   }
   override def put(r:Request) = {
     val newConfig = Jackson.parse[GlobalConfig](r.representation())

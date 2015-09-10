@@ -36,6 +36,6 @@ class DeltasResource(data: Data, clock: Clock) extends HttpObject("/api/backlogs
         }
     }
 
-    OK(JerksonJson(deltas))
+    OK(JacksonJson(deltas))
   }
 }
