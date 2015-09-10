@@ -12,7 +12,11 @@ case class Backlog (
     val memo:String,
     val projectedVelocity:Option[Int] = None,
     val items:Seq[Item]){
-  
+
+  items.foreach{item=>
+    if(item == null) throw new IllegalStateException("backlogs cannot have null items")
+  }
+
   def this(dto:BacklogDto) = {
     this(id=dto.id,
         name = dto.name,

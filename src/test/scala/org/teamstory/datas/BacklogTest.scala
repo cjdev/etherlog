@@ -4,7 +4,33 @@ import org.scalatest.FunSuite
 import org.teamstory.api._
 import java.util.UUID
 
+import scala.util.{Success, Failure, Try}
+
 class BacklogTest extends FunSuite {
+
+
+  test("doesn't allow for null entries"){
+    // given
+    val items = Seq(
+      aStory("do push-ups", Seq(aTeamEstimate(1))).copy(isComplete=Some(true)),
+      null,
+      aGoal(name = "Be Super Fit"))
+
+    // when
+    val maybeBacklog = Try(aBackLog(
+      items = items))
+
+    // then
+    assertFailure(maybeBacklog,  new java.lang.IllegalStateException("backlogs cannot have null items"))
+  }
+
+  private def assertFailure(t:Try[_], template:Throwable): Unit ={
+
+    def stringified(t:Throwable) = t.getClass.getName + ":" + t.getMessage
+
+    assert(t.failed.toOption.map(stringified) == Some(stringified(template)))
+  }
+
   test("creates dto with calculations"){
     // given
     val backlog = aBackLog(
