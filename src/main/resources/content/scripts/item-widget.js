@@ -3,10 +3,11 @@ define([
     "jqueryui",
     "react",
     "underscore",
+    "text!item-widget-delete-modal.html",
     "util",
     "estimates-widget"
 ],
-    function($, jqueryui, React, _, Util, EstimatesWidget) {
+    function($, jqueryui, React, _, deleteModalTemplate, Util, EstimatesWidget) {
 
         return function(opts) {
 
@@ -288,18 +289,23 @@ define([
 
                     view.deleteButton.click(function(ev) {
                         ev.stopPropagation();
-                        //DeleteConfirmation(container, item, onDelete);
-                        var deleteConfirmButton = $('.delete-confirm-button'),
-                            deleteCancelButton  = $('.delete-cancel-button');
+                        
+                        var deleteConfirmationModal = $(deleteModalTemplate).foundation();
+                        var deleteConfirmButton = deleteConfirmationModal.find('.delete-confirm-button'),
+                            deleteCancelButton  = deleteConfirmationModal.find('.delete-cancel-button');
 
+                        
+                        function closeAndDispose(){
+                            deleteConfirmationModal.foundation('reveal', 'close');
+                            deleteConfirmationModal.remove();
+                        }
+                        
                         deleteConfirmButton.click(function() {
                             onDelete(item);
-                            $('#delete-modal').foundation('reveal', 'close');
+                            closeAndDispose();
                         });
-                        deleteCancelButton.click(function() {
-                            $('#delete-modal').foundation('reveal', 'close');
-                        });
-                        $('#delete-modal').foundation('reveal', 'open');
+                        deleteCancelButton.click(closeAndDispose);
+                        deleteConfirmationModal.foundation('reveal', 'open');
                     });
 
                     view.datePicker.datepicker().change(function() {

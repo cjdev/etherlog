@@ -10,12 +10,11 @@ define([
     "activity-monitor",
     "history-slider",
     "authUtil",
-   // "jsx!backlog-statistics",
     "modernizr",
     "fastclick",
     "foundation.reveal",
     "foundation.slider"],
-    function($, jqueryui, React, _, http, uuid, Util, ItemWidget, ActivityMonitor, HistorySlider, authUtil/*, BacklogStats*/) {
+    function($, jqueryui, React, _, http, uuid, Util, ItemWidget, ActivityMonitor, HistorySlider, authUtil) {
         
     
         $(document).foundation();
@@ -309,6 +308,8 @@ define([
 
         function deleteItem(item){
             var idx = findItemNumById(item.id);
+            
+            
             backlog.items.splice(idx, 1);
             where.find("#" + item.id).remove();
             where.find("#dropZone" + item.id).remove();
@@ -392,7 +393,6 @@ define([
             where.find(".project-chunk, .milestone").each(function(idx, domElement){
                 var id = $(domElement).attr("id");
                 var chunk = findItemById(id);
-
                 newList.push(chunk);
             });
             backlog.items = newList;

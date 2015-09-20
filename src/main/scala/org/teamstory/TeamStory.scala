@@ -73,6 +73,7 @@ object TeamStory {
   }
   
   case class LocalDatabaseAuthentication(val data:Data) extends AuthMechanism {
+      
       override def authenticateEmail(email:String, password:String):Option[AuthDetails] = data.passwords.getOption(email) match {
         case None => None
         case Some(passwordOnFile)=> if(passwordOnFile.equals(password)) Some(AuthDetailsPlaceholder) else None
